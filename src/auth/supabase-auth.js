@@ -7,7 +7,7 @@ import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../../supabase-config.js';
 if (!SUPABASE_URL.startsWith('https://') || SUPABASE_URL.includes('YOUR_PROJECT_REF') || !SUPABASE_URL.endsWith('.supabase.co')) {
   throw new Error('Configure the complete Supabase project URL and publishable key before enabling authentication.');
 }
-if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.includes('YOUR_SUPABASE_')) {
+if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.includes('YOUR_SUPABASE_') || SUPABASE_ANON_KEY.includes('REPLACE_WITH_')) {
   throw new Error('Configure the Supabase publishable/anon key before enabling authentication.');
 }
 
