@@ -120,6 +120,11 @@ body:not(.auth-ready) .wrap{display:none!important}
     <div><h2>Staff access management</h2><div class="subtle">Assign roles to existing Supabase Auth users. Create/invite accounts in Supabase Authentication → Users first.</div></div>
     <button type="button" id="refreshStaff">Refresh staff</button>
   </div>
+  <form id="inviteStaffForm" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:14px 0">
+    <div class="field"><label for="inviteStaffName">Employee name</label><input id="inviteStaffName" required maxlength="100" placeholder="Full name"></div>
+    <div class="field"><label for="inviteStaffEmail">Employee email</label><input id="inviteStaffEmail" type="email" required placeholder="employee@example.com"></div>
+    <button type="submit" class="primary" id="inviteStaffSubmit" style="grid-column:1/-1">Send staff invitation</button>
+  </form>
   <div id="staffAdminStatus" class="subtle" role="status" style="margin:10px 0"></div>
   <div id="staffDirectory"></div>
 </section>
@@ -383,6 +388,28 @@ async function refreshStaffDirectory() {
   } catch (e) { staffStatus.textContent = 'Could not load staff: ' + (e.message || e); }
 }
 document.getElementById('refreshStaff').addEventListener('click', refreshStaffDirectory);
+
+document.getElementById('inviteStaffForm').addEventListener('submit', async event => {
+  event.preventDefault();
+  const button = document.getElementById('inviteStaffSubmit');
+  const email = document.getElementById('inviteStaffEmail').value.trim();
+  const displayName = document.getElementById('inviteStaffName').value.trim();
+  button.disabled = true;
+  staffStatus.textContent = 'Sending invitation…';
+  try {
+    const { data, error } = await supabase.functions.invoke('admin-invite-staff', {
+      body: { email, displayName }
+    });
+    if (error) throw error;
+    if (data?.error) throw new Error(data.error);
+    staffStatus.textContent = 'Invitation sent to ' + email + '. The account is pending until you assign a role and activate it below.';
+    event.target.reset();
+    await refreshStaffDirectory();
+  } catch (e) {
+    staffStatus.textContent = 'Invitation failed: ' + (e.message || e) + '. Confirm the admin-invite-staff Edge Function is deployed and configured.';
+  } finally { button.disabled = false; }
+});
+
 
 function showError(message) {
   errorBox.textContent = message;
