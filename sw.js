@@ -1,8 +1,10 @@
-const CACHE_NAME = "honnasiri-honda-v1";
+const CACHE_NAME = "honnasiri-honda-v2";
 
 const APP_FILES = [
   "./",
   "./index.html",
+  "./supabase-config.js",
+  "./src/auth/supabase-auth.js",
   "./manifest.json",
   "./icon-192.png",
   "./icon-512.png"
