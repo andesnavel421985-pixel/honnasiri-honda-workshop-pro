@@ -24,7 +24,7 @@ This branch contains an initial Supabase authentication/database foundation. It 
 
 ## Required setup before app integration
 
-1. Create a Supabase project owned by the dealership.
+1. Supabase project created: `honnasiri-honda-workshop` (`https://dsznwcwuypyjrndjaicw.supabase.co`). The browser-safe publishable key is configured in the branch file `supabase-config.js`.
 2. Configure Authentication providers. If using Google, configure Google OAuth credentials in Supabase and set the exact authorized redirect URL shown by Supabase. Do not reuse the current direct-to-Google Drive OAuth client as a substitute for Supabase provider configuration.
 3. Apply the migration in the Supabase SQL editor or CLI.
 4. Create the first administrator through a controlled bootstrap procedure. Do not let a public sign-up choose its own role. The trigger deliberately creates all new accounts as inactive `pending`.
