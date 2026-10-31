@@ -77,11 +77,35 @@
 .google-auth-state.good{background:#e8f7ee;color:#12683c;border-color:#b8e2c8}
 .google-auth-state.warn{background:#fff7e6;color:#774900;border-color:#f4d9a1}
 
+
+/* Supabase authentication gate: the workshop UI remains hidden until an active staff profile is verified. */
+body:not(.auth-ready) .wrap{display:none!important}
+.auth-gate{max-width:460px;margin:clamp(24px,8vh,80px) auto;padding:22px;background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:0 8px 28px #16233b12}
+.auth-gate h2{margin:0 0 6px;font-size:22px}.auth-gate p{color:var(--muted);font-size:13px}
+.auth-gate .field{margin:14px 0}.auth-gate button{width:100%}
+.auth-error{display:none;margin:12px 0;padding:10px 12px;border:1px solid #f2b7b4;background:#fff1f0;color:#b42318;border-radius:10px;font-size:13px}
+.auth-note{padding:10px 12px;border:1px solid #f4d9a1;background:#fff7e6;color:#774900;border-radius:10px;font-size:12px;margin-top:14px}
+.auth-session{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;font-size:12px}
+.auth-session[hidden]{display:none}
+.auth-session button{padding:6px 10px;min-height:34px;font-size:12px}
+
 </style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
-<header><h1>HONNASIRI HONDA</h1><p>WORKSHOP PRO · SERVICE MANAGEMENT · TUMKUR</p></header>
+<header><h1>HONNASIRI HONDA</h1><p>WORKSHOP PRO · SERVICE MANAGEMENT · TUMKUR</p><div id="authSession" class="auth-session" hidden><span id="authIdentity"></span><button type="button" id="authSignOut">Sign out</button></div></header>
+<section id="authGate" class="auth-gate" aria-labelledby="authTitle">
+  <h2 id="authTitle">Staff sign in</h2>
+  <p>Sign in with your individual workshop account.</p>
+  <form id="authLoginForm">
+    <div class="field"><label for="authEmail">Email address</label><input id="authEmail" type="email" autocomplete="username" required placeholder="name@example.com"></div>
+    <div class="field"><label for="authPassword">Password</label><input id="authPassword" type="password" autocomplete="current-password" required placeholder="Your password"></div>
+    <button class="primary" id="authSubmit" type="submit">Sign in</button>
+  </form>
+  <button type="button" id="authReset" style="margin-top:8px">Send password reset email</button>
+  <div id="authError" class="auth-error" role="alert"></div>
+  <div class="auth-note"><strong>Staging security notice:</strong> login is connected to Supabase, but workshop records are still stored locally on this device. Central cloud record migration and final role-specific permissions must be completed and tested before production use.</div>
+</section>
 <div class="wrap">
 <div class="topnav no-print">
 <button class="navbtn active" data-view="formView">＋ New Service Record</button>
@@ -293,4 +317,95 @@ $('backupFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{co
 function init(){installSectionControls();const d=today();$('date').value=d;$('reportDate').value=d;$('reportMonth').value=d.slice(0,7);addPart();addLabour();renderReports();loadGoogleConfig();if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{})}
 init();
 </script>
+
+<script type="module">
+import { supabase, signInWithPassword, signOut, getCurrentStaffProfile } from './src/auth/supabase-auth.js';
+
+const gate = document.getElementById('authGate');
+const form = document.getElementById('authLoginForm');
+const errorBox = document.getElementById('authError');
+const submit = document.getElementById('authSubmit');
+const sessionBar = document.getElementById('authSession');
+const identity = document.getElementById('authIdentity');
+
+function showError(message) {
+  errorBox.textContent = message;
+  errorBox.style.display = 'block';
+}
+function lockApp(message) {
+  document.body.classList.remove('auth-ready');
+  gate.hidden = false;
+  sessionBar.hidden = true;
+  if (message) showError(message);
+}
+async function verifyStaffAccess() {
+  const result = await getCurrentStaffProfile();
+  if (!result.user || !result.allowed) {
+    await signOut();
+    lockApp('This account is not active for workshop access. Ask the workshop administrator to approve your account.');
+    return false;
+  }
+  gate.hidden = true;
+  document.body.classList.add('auth-ready');
+  sessionBar.hidden = false;
+  identity.textContent = result.user.email + ' · ' + result.profile.role.replaceAll('_',' ');
+  return true;
+}
+
+form.addEventListener('submit', async event => {
+  event.preventDefault();
+  errorBox.style.display = 'none';
+  submit.disabled = true;
+  submit.textContent = 'Signing in…';
+  try {
+    const email = document.getElementById('authEmail').value.trim();
+    const password = document.getElementById('authPassword').value;
+    const { error } = await signInWithPassword(email, password);
+    if (error) throw error;
+    const allowed = await verifyStaffAccess();
+    if (!allowed) document.getElementById('authPassword').value = '';
+  } catch (error) {
+    await signOut();
+    lockApp(error?.message || 'Sign-in failed. Check your email and password.');
+  } finally {
+    submit.disabled = false;
+    submit.textContent = 'Sign in';
+  }
+});
+
+document.getElementById('authReset').addEventListener('click', async () => {
+  errorBox.style.display = 'none';
+  const email = document.getElementById('authEmail').value.trim();
+  if (!email) return showError('Enter your email address first.');
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + window.location.pathname
+  });
+  if (error) return showError(error.message);
+  showError('Password reset email requested. Check your inbox.');
+  errorBox.style.display = 'block';
+  errorBox.style.borderColor = '#b8e2c8';
+  errorBox.style.background = '#effaf3';
+  errorBox.style.color = '#166534';
+});
+
+document.getElementById('authSignOut').addEventListener('click', async () => {
+  await signOut();
+  document.getElementById('authPassword').value = '';
+  lockApp('You have been signed out.');
+});
+
+supabase.auth.onAuthStateChange((event) => {
+  if (event === 'SIGNED_OUT') lockApp();
+});
+
+try {
+  const { data, error } = await supabase.auth.getSession();
+  if (error) throw error;
+  if (data.session) await verifyStaffAccess();
+  else lockApp();
+} catch (error) {
+  lockApp('Authentication could not initialize: ' + (error?.message || 'unknown error'));
+}
+</script>
+
 </body></html>
