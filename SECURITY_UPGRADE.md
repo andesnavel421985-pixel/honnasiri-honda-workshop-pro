@@ -1,47 +1,63 @@
-# Honnasiri Honda Workshop Pro: security upgrade foundation
+# Honnasiri Honda Workshop Pro: Supabase security upgrade
 
-## Safety boundary
+## Branch safety
 
-This work is on the `security-auth-upgrade` branch. The existing `main` branch and live app are unchanged.
+All changes in this work are committed to `security-auth-upgrade`. The live `main` branch has not been modified.
 
-This branch contains an initial Supabase authentication/database foundation. It is **not yet a completed or production-enabled login upgrade**. The helper module is intentionally not wired into `index.html`, because doing so before a real Supabase project, redirect URLs, role assignment, and RLS validation exist could lock out staff or give a false sense of security.
+## Supabase project
 
-## Target design
+- Project URL: `https://dsznwcwuypyjrndjaicw.supabase.co`
+- Browser configuration: `supabase-config.js`
+- The configured `sb_publishable_` key is a public client key, not a secret. Database security must be enforced by PostgreSQL RLS.
+- Never place a Supabase secret key or legacy `service_role` key in browser code, GitHub, or a PWA bundle.
 
-- Supabase Auth for individual staff identities (Google OAuth and/or email/password).
-- A `staff_profiles` table with administrator-assigned roles.
-- New users default to `pending` and `is_active = false`.
-- PostgreSQL Row Level Security (RLS) is the enforcement boundary. Hiding UI controls is not authorization.
-- Workshop records stored centrally, with assigned-technician scoping.
-- Audit events record actor, action, record ID, and changed field names, not full customer payloads.
-- Supabase Auth manages short-lived access tokens and refresh tokens. The browser SDK handles refresh; no service-role secret belongs in browser code.
+## Implemented on this branch
 
-## Files added
+1. Initial database foundation in `supabase/migrations/0001_workshop_security_foundation.sql`.
+2. Staff profiles default to `pending` and inactive when a Supabase Auth user is created.
+3. RLS enabled on `staff_profiles`, `workshop_records`, and `workshop_audit_log`.
+4. Supabase JS v2 browser client configured with persistent sessions, automatic token refresh, URL session detection, and PKCE.
+5. Email/password sign-in and password-reset request helpers.
+6. `index.html` now displays a Supabase sign-in gate. The workshop UI is hidden until Supabase confirms a signed-in user has an active staff profile. Inactive/pending users are signed out and denied access.
+7. Sign-out control and visible signed-in identity/role.
+8. PWA cache version updated so the new authentication code is fetched.
 
-- `supabase/migrations/0001_workshop_security_foundation.sql`: starter schema, profile bootstrap, RLS, and audit trigger.
-- `supabase-config.example.js`: browser-safe configuration template.
-- `src/auth/supabase-auth.js`: auth helper scaffold using PKCE and session refresh.
+## Administrator bootstrap already completed
 
-## Required setup before app integration
+The project owner manually created the first Auth user and assigned the matching `staff_profiles` row:
+- Account: owner-controlled Gmail account
+- Role: `admin`
+- `is_active`: `true`
 
-1. Supabase project created: `honnasiri-honda-workshop` (`https://dsznwcwuypyjrndjaicw.supabase.co`). The browser-safe publishable key is configured in the branch file `supabase-config.js`.
-2. Configure Authentication providers. If using Google, configure Google OAuth credentials in Supabase and set the exact authorized redirect URL shown by Supabase. Do not reuse the current direct-to-Google Drive OAuth client as a substitute for Supabase provider configuration.
-3. Apply the migration in the Supabase SQL editor or CLI.
-4. Create the first administrator through a controlled bootstrap procedure. Do not let a public sign-up choose its own role. The trigger deliberately creates all new accounts as inactive `pending`.
-5. Configure the app's exact HTTPS URL in Supabase redirect allowlists.
-6. Copy `supabase-config.example.js` to `supabase-config.js`, then supply the project URL and publishable/anon key. Keep this key public only with RLS enabled and tested. Never add a service_role/secret key.
-7. Test each role using separate accounts and verify unauthorized reads/writes are rejected by PostgreSQL, not merely hidden in the interface.
+The database query result was visually verified in the Supabase dashboard. Do not repeat the bootstrap update unless the account changes.
 
-## Important incomplete items
+## Important current limitation: not production-ready
 
-The initial RLS migration is a foundation, not final authorization. In particular:
-- Technician updates currently have row-level assignment checks but still need column-level enforcement through narrow database RPCs.
-- Final-inspector approval/write access needs a dedicated RPC with allowed QC fields and audit logging.
-- Admin bootstrap, account invitation/deactivation, password reset, login UI, route/app gating, and session timeout policy must be implemented and tested.
-- Existing localStorage and Google Drive JSON records need a validated one-time migration and reconciliation process before switching storage.
-- Concurrency-safe updates, record schema validation, backup/restore, and security tests are required before production.
-- The current app's existing Google Drive token flow must remain separate until its replacement or continued use is deliberately decided.
+The sign-in gate authenticates access to the user interface, but the existing workshop record functions still use browser `localStorage` and the legacy optional Google Drive JSON sync. The app has **not yet migrated workshop records to Supabase**. Consequently:
 
-## Do not deploy as production yet
+- Existing records are still device/browser-local or in the legacy Drive JSON file.
+- RLS policies on `workshop_records` do not protect records that remain in localStorage or Drive.
+- The current UI does not yet enforce complete role-specific field permissions.
+- The technician update policy is row-scoped but not column-scoped.
+- Final-inspector write/approval needs a narrow audited RPC.
+- Admin user invitation, activation/deactivation screens, concurrency-safe record writes, validation, backups, migration/reconciliation, and automated authorization tests remain to be implemented.
+- The old Google Drive OAuth integration is separate and remains in the app.
 
-Do not merge this branch or point the live app at it until the incomplete items above are completed, tested on a staging URL, and a backup/rollback plan is verified.
+Do not merge, deploy as production, or enter real customer data on this branch until cloud record storage, role-specific database permissions, migration, and staging tests are complete.
+
+## Supabase Auth configuration
+
+1. In Supabase Authentication settings, enable Email provider.
+2. Set the app's actual HTTPS staging URL in the allowed redirect URLs.
+3. Configure password reset redirect URLs for the same staging host.
+4. Keep public sign-up disabled if the project is intended for invited employees only. Admin provisioning must be implemented through a trusted server/Edge Function; never expose the service-role key in the browser.
+5. Test login with the owner admin and a separate pending user. The pending user must be denied access.
+
+## Recommended next implementation sequence
+
+1. Build a trusted admin provisioning function for staff invitations, role assignment, activation, and deactivation.
+2. Implement a versioned data migration from localStorage/Drive JSON to `workshop_records`, preserving legacy IDs and reconciling duplicates.
+3. Replace synchronous local record reads/writes with a cloud-backed repository and safe loading/error states.
+4. Tighten database authorization with field-specific RPCs for technicians and final inspectors, plus immutable audit handling.
+5. Add automated RLS tests for every role and negative access case.
+6. Test on a staging URL with backups and rollback before any production cutover.
