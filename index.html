@@ -89,6 +89,15 @@ body:not(.auth-ready) .wrap{display:none!important}
 .auth-session[hidden]{display:none}
 .auth-session button{padding:6px 10px;min-height:34px;font-size:12px}
 
+
+.staff-admin{max-width:1000px;margin:12px auto;padding:14px;background:#fff;border:1px solid var(--line);border-radius:16px}
+.staff-admin h2{margin:0 0 8px}.staff-admin .staff-row{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(130px,.8fr) auto auto;gap:8px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.staff-admin input,.staff-admin select{width:100%;min-width:0;padding:9px;border:1px solid var(--line);border-radius:9px;font:inherit}
+.staff-admin .staff-email{font-size:12px;color:var(--muted);overflow-wrap:anywhere}
+.staff-admin .staff-state{font-size:12px;font-weight:700}
+.staff-admin .staff-row button{padding:8px 10px;min-height:38px}
+@media(max-width:620px){.staff-admin .staff-row{grid-template-columns:1fr 1fr}.staff-admin .staff-row .staff-ident{grid-column:1/-1}}
+
 </style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
@@ -105,6 +114,14 @@ body:not(.auth-ready) .wrap{display:none!important}
   <button type="button" id="authReset" style="margin-top:8px">Send password reset email</button>
   <div id="authError" class="auth-error" role="alert"></div>
   <div class="auth-note"><strong>Staging security notice:</strong> login is connected to Supabase, but workshop records are still stored locally on this device. Central cloud record migration and final role-specific permissions must be completed and tested before production use.</div>
+</section>
+<section id="staffAdmin" class="staff-admin" hidden>
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+    <div><h2>Staff access management</h2><div class="subtle">Assign roles to existing Supabase Auth users. Create/invite accounts in Supabase Authentication → Users first.</div></div>
+    <button type="button" id="refreshStaff">Refresh staff</button>
+  </div>
+  <div id="staffAdminStatus" class="subtle" role="status" style="margin:10px 0"></div>
+  <div id="staffDirectory"></div>
 </section>
 <div class="wrap">
 <div class="topnav no-print">
@@ -319,7 +336,7 @@ init();
 </script>
 
 <script type="module">
-import { supabase, signInWithPassword, signOut, getCurrentStaffProfile } from './src/auth/supabase-auth.js';
+import { supabase, signInWithPassword, signOut, getCurrentStaffProfile, listStaffProfiles, setStaffAccess } from './src/auth/supabase-auth.js';
 
 const gate = document.getElementById('authGate');
 const form = document.getElementById('authLoginForm');
@@ -327,6 +344,45 @@ const errorBox = document.getElementById('authError');
 const submit = document.getElementById('authSubmit');
 const sessionBar = document.getElementById('authSession');
 const identity = document.getElementById('authIdentity');
+
+
+const staffDirectory = document.getElementById('staffDirectory');
+const staffStatus = document.getElementById('staffAdminStatus');
+async function refreshStaffDirectory() {
+  staffStatus.textContent = 'Loading staff profiles…';
+  try {
+    const profiles = await listStaffProfiles();
+    staffDirectory.innerHTML = profiles.map(p => {
+      const safeId = p.user_id;
+      return `<div class="staff-row" data-user="${safeId}">
+        <div class="staff-ident"><strong>${String(p.display_name || 'Unnamed staff').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}</strong><div class="staff-email">${safeId}</div><span class="staff-state">${p.is_active?'Active':'Inactive'} · ${p.role}</span></div>
+        <select class="staff-role" aria-label="Staff role">
+          ${['pending','admin','floor_incharge','service_advisor','technician','final_inspector'].map(role=>`<option value="${role}" ${p.role===role?'selected':''}>${role.replaceAll('_',' ')}</option>`).join('')}
+        </select>
+        <label style="font-size:12px"><input class="staff-active" type="checkbox" ${p.is_active?'checked':''}> Active</label>
+        <button type="button" class="staff-save primary">Save</button>
+      </div>`;
+    }).join('') || '<p>No staff profiles found. Create Auth users first.</p>';
+    staffStatus.textContent = profiles.length + ' staff profile(s).';
+    staffDirectory.querySelectorAll('.staff-save').forEach(button => button.addEventListener('click', async () => {
+      const row = button.closest('.staff-row');
+      const uid = row.dataset.user;
+      if (uid === (await supabase.auth.getUser()).data.user?.id) {
+        staffStatus.textContent = 'For safety, use another administrator to change your own role or active status.';
+        return;
+      }
+      button.disabled = true;
+      try {
+        await setStaffAccess(uid, '', row.querySelector('.staff-role').value, row.querySelector('.staff-active').checked);
+        staffStatus.textContent = 'Staff permissions updated.';
+        await refreshStaffDirectory();
+      } catch (e) {
+        staffStatus.textContent = 'Update failed: ' + (e.message || e);
+      } finally { button.disabled = false; }
+    }));
+  } catch (e) { staffStatus.textContent = 'Could not load staff: ' + (e.message || e); }
+}
+document.getElementById('refreshStaff').addEventListener('click', refreshStaffDirectory);
 
 function showError(message) {
   errorBox.textContent = message;
@@ -349,6 +405,11 @@ async function verifyStaffAccess() {
   document.body.classList.add('auth-ready');
   sessionBar.hidden = false;
   identity.textContent = result.user.email + ' · ' + result.profile.role.replaceAll('_',' ');
+  const staffAdmin = document.getElementById('staffAdmin');
+  if (staffAdmin) {
+    staffAdmin.hidden = result.profile.role !== 'admin';
+    if (result.profile.role === 'admin') refreshStaffDirectory();
+  }
   return true;
 }
 
