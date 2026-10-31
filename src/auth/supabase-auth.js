@@ -3,10 +3,13 @@
 // index.html yet; do not enable production login until the migration and role
 // assignment workflow have been deployed and tested.
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from './supabase-config.js';
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../../supabase-config.js';
 
-if (!SUPABASE_URL.startsWith('https://') || SUPABASE_URL.includes('YOUR_PROJECT_REF')) {
-  throw new Error('Configure Supabase URL and publishable key before enabling authentication.');
+if (!SUPABASE_URL.startsWith('https://') || SUPABASE_URL.includes('YOUR_PROJECT_REF') || !SUPABASE_URL.endsWith('.supabase.co')) {
+  throw new Error('Configure the complete Supabase project URL and publishable key before enabling authentication.');
+}
+if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.includes('YOUR_SUPABASE_')) {
+  throw new Error('Configure the Supabase publishable/anon key before enabling authentication.');
 }
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
