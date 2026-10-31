@@ -2,93 +2,67 @@
 
 ## Branch safety
 
-All changes in this work are committed to `security-auth-upgrade`. The live `main` branch has not been modified.
+All work is committed to `security-auth-upgrade`. The live `main` branch has not been modified. The changes are in draft PR #1 and have not been merged.
 
 ## Supabase project
 
 - Project URL: `https://dsznwcwuypyjrndjaicw.supabase.co`
-- Browser configuration: `supabase-config.js`
-- The configured `sb_publishable_` key is a public client key, not a secret. Database security must be enforced by PostgreSQL RLS.
-- Never place a Supabase secret key or legacy `service_role` key in browser code, GitHub, or a PWA bundle.
+- Browser config: `supabase-config.js`
+- The configured `sb_publishable_` key is intended for browser use. PostgreSQL RLS must enforce data access.
+- Never put a Supabase secret key or legacy `service_role` key in browser code, GitHub, or a PWA bundle.
 
-## Implemented on this branch
+## Implemented in this branch
 
-1. Initial database foundation in `supabase/migrations/0001_workshop_security_foundation.sql`.
-2. Administrator-only staff role/activation RPC in `supabase/migrations/0002_admin_staff_management.sql`.
-3. In-app administrator staff directory to assign roles and activate/deactivate existing Auth users.
-4. `supabase/functions/admin-invite-staff/index.ts`: Edge Function that verifies the caller's active admin profile server-side and sends Supabase Auth invitations without exposing the service-role key.
-2. Staff profiles default to `pending` and inactive when a Supabase Auth user is created.
-3. RLS enabled on `staff_profiles`, `workshop_records`, and `workshop_audit_log`.
-4. Supabase JS v2 browser client configured with persistent sessions, automatic token refresh, URL session detection, and PKCE.
-5. Email/password sign-in and password-reset request helpers.
-6. `index.html` now displays a Supabase sign-in gate. The workshop UI is hidden until Supabase confirms a signed-in user has an active staff profile. Inactive/pending users are signed out and denied access.
-7. Sign-out control and visible signed-in identity/role.
-8. PWA cache version updated so the new authentication code is fetched.
+1. Supabase JS v2 browser client with persistent sessions, automatic refresh, URL session detection, and PKCE.
+2. Email/password sign-in and password-reset request.
+3. A login gate that hides the workshop interface until Supabase confirms the signed-in user has an active staff profile.
+4. Sign-out and signed-in identity/role display.
+5. Admin-only staff directory to assign role and active status to existing Auth users.
+6. Migration `0002_admin_staff_management.sql` with a SECURITY DEFINER RPC that checks the caller's active admin role and prevents self-lockout.
+7. Edge Function `admin-invite-staff` to invite employees server-side after verifying the caller is an active administrator. The service-role key is never sent to the browser.
+8. PWA cache version updated for the authentication modules.
 
-## Administrator bootstrap already completed
+## Administrator bootstrap
 
-The project owner manually created the first Auth user and assigned the matching `staff_profiles` row:
-- Account: owner-controlled Gmail account
-- Role: `admin`
-- `is_active`: `true`
+The first Auth user and matching `staff_profiles` row were created in Supabase. The dashboard query result supplied in this conversation showed the owner's profile with role `admin` and `is_active = true`. Do not repeat the bootstrap update unless account identity changes.
 
-The database query result was visually verified in the Supabase dashboard. Do not repeat the bootstrap update unless the account changes.
+## Required Supabase setup before testing
 
-## Important current limitation: not production-ready
+1. Apply `supabase/migrations/0002_admin_staff_management.sql` in the Supabase SQL Editor. The initial schema/RLS migration 0001 has already been run on the project, as shown in the dashboard screenshots.
+2. Enable the Email provider under Supabase Authentication.
+3. Add the exact HTTPS staging URL to Authentication → URL Configuration → Redirect URLs. Include the redirect used for password reset and invitation acceptance.
+4. Deploy the invitation Edge Function from a trusted computer with the Supabase CLI linked to this project:
 
-The sign-in gate authenticates access to the user interface, but the existing workshop record functions still use browser `localStorage` and the legacy optional Google Drive JSON sync. The app has **not yet migrated workshop records to Supabase**. Consequently:
+   ```sh
+   supabase functions deploy admin-invite-staff
+   supabase secrets set APP_ORIGIN=https://YOUR-STAGING-HOST APP_REDIRECT_URL=https://YOUR-STAGING-HOST
+   ```
 
-- Existing records are still device/browser-local or in the legacy Drive JSON file.
-- RLS policies on `workshop_records` do not protect records that remain in localStorage or Drive.
-- The current UI does not yet enforce complete role-specific field permissions.
-- The technician update policy is row-scoped but not column-scoped.
-- Final-inspector write/approval needs a narrow audited RPC.
-- Admin user invitation, activation/deactivation screens, concurrency-safe record writes, validation, backups, migration/reconciliation, and automated authorization tests remain to be implemented.
-- The old Google Drive OAuth integration is separate and remains in the app.
+   Replace the placeholder with the actual staging host. Set the same origin exactly. Supabase supplies project URL, anon key, and service-role key to Edge Functions as server environment variables. Never paste the service-role key into the frontend or GitHub. If any default variable is not available in the project, configure it only as a server-side Edge Function secret.
 
-Do not merge, deploy as production, or enter real customer data on this branch until cloud record storage, role-specific database permissions, migration, and staging tests are complete.
+5. Configure working email delivery/SMTP and review the invitation template.
+6. Keep public sign-up disabled if staff access is invitation-only. The admin panel sends invitations through the Edge Function. Newly invited users are created with a `pending`, inactive profile. The admin must then select the correct role and activate the account in the panel.
 
-## Supabase Auth configuration
+## Current app behavior and limitations
 
-1. Apply `supabase/migrations/0002_admin_staff_management.sql` in the Supabase SQL Editor. Migration 0001 created the core tables and RLS; migration 0002 adds the admin-only role assignment RPC.
-2. In Supabase Authentication settings, enable Email provider.
-3. Set the app's actual HTTPS staging URL in the allowed redirect URLs.
-4. Configure password reset redirect URLs for the same staging host.
-5. Keep public sign-up disabled if the project is intended for invited employees only. Create each Auth identity through Supabase Authentication → Users (Send invitation or Create user), then use the in-app administrator panel to assign the role and activate it. Do not expose the service-role key in the browser.
-6. Test login with the owner admin and a separate pending user. The pending user must be denied access.
+The sign-in gate and staff administration UI are committed but cannot be fully exercised until migration 0002 and the Edge Function are deployed. The browser module is wired to the existing Supabase project configuration.
 
-## Recommended next implementation sequence
+**Workshop records have not yet been migrated to Supabase.** The service form still reads/writes localStorage and the optional legacy Google Drive JSON file. The `workshop_records` table exists, but the app is not yet using it. Therefore, RLS does not protect records still stored locally or in Drive.
 
-1. Build a trusted admin provisioning function for staff invitations, role assignment, activation, and deactivation.
-2. Implement a versioned data migration from localStorage/Drive JSON to `workshop_records`, preserving legacy IDs and reconciling duplicates.
-3. Replace synchronous local record reads/writes with a cloud-backed repository and safe loading/error states.
-4. Tighten database authorization with field-specific RPCs for technicians and final inspectors, plus immutable audit handling.
-5. Add automated RLS tests for every role and negative access case.
-6. Test on a staging URL with backups and rollback before any production cutover.
+Remaining production work:
+- Migrate and reconcile records from each device and the Drive JSON file, preserving legacy IDs and backups.
+- Replace synchronous local record access with a tested cloud repository.
+- Enforce least-privilege, role-specific write operations. Current technician row policy is not column-restricted; do not rely on it as final authorization.
+- Implement final-inspector approval through a narrow audited RPC.
+- Add concurrency control, validation, audit review, backup/restore, and automated RLS tests for all roles.
+- Test pending-user denial, invitation acceptance, password reset, role assignment, deactivation, sign-out, and unauthorized reads/writes on staging.
 
+Do not merge this branch, connect the live app to it, or enter live customer data until the remaining record migration and authorization work is complete and verified.
 
-## Staff administration panel
+## Deployment files
 
-After migration 0002 is applied, an active admin sees a Staff access management panel after signing in. It can list existing profiles and update role/active status through the SECURITY DEFINER RPC, which checks the caller's current active admin role in the database. It intentionally prevents an admin from changing their own access. It does not create Auth identities; create/invite an Auth user in Supabase Authentication → Users first. The auth trigger creates that person's inactive pending profile.
-
-## Not yet connected
-
-The workshop form still reads/writes the legacy localStorage store. The cloud `workshop_records` table exists but the app has not switched to it. The current staff panel is role administration only; it does not complete the record migration or role-specific field restrictions.
-
-
-### Deploy the staff invitation function
-
-From a trusted computer with the Supabase CLI linked to this project:
-
-```sh
-supabase functions deploy admin-invite-staff
-supabase secrets set APP_ORIGIN=https://YOUR-STAGING-HOST APP_REDIRECT_URL=https://YOUR-STAGING-HOST
-```
-
-Use your actual HTTPS staging host, not the placeholder. Supabase supplies the project URL, anon key, and service-role key to Edge Functions as server environment variables. Never copy the service-role key into GitHub or the browser app. If those default variables are unavailable in your project, configure them as Edge Function secrets through the Supabase dashboard without sharing them in chat.
-
-The function uses the default Supabase Auth invite email. Configure the Email provider, SMTP/email templates, and redirect allowlist in Supabase before testing. A successful invite creates a profile as `pending` and inactive; an administrator must then select the correct role and activate the employee in the app.
-
-## Still not production-ready
-
-Even with authentication and staff invitations, workshop records remain in localStorage / legacy Drive sync. Do not switch the live app or store live customer records until cloud record migration, strict role-specific write APIs, and end-to-end tests are complete.
+- `supabase/migrations/0001_workshop_security_foundation.sql`: initial schema, triggers, and RLS.
+- `supabase/migrations/0002_admin_staff_management.sql`: admin-only staff role/activation RPC.
+- `supabase/functions/admin-invite-staff/index.ts`: server-side employee invitation.
+- `src/auth/supabase-auth.js`: browser auth client and staff profile operations.
+- `index.html`: login gate and admin staff panel.
