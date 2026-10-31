@@ -43,3 +43,5 @@ jobs:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         run: |
           supabase functions deploy admin-invite-staff --project-ref lxrcivgjkvzasjgqvhxh
+
+# Credential rotation verification trigger: 2026-10-31
