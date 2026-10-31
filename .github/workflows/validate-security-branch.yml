@@ -43,11 +43,11 @@ jobs:
               raise SystemExit("Duplicate HTML IDs: " + ", ".join(sorted(set(parser.duplicates))))
           if not re.search(r'<script type="module">', html):
               raise SystemExit("Supabase authentication module script missing")
-          scripts = re.findall(r'<script(?:\\s[^>]*)?>([\\s\\S]*?)</script>', html)
+          scripts = re.findall(r'<script(?:\s[^>]*)?>([\s\S]*?)</script>', html)
           for i, script in enumerate(scripts):
               if not script.strip():
                   continue
-              path = Path(tempfile.gettempdir()) / f"inline-{i}.js"
+              path = Path(tempfile.gettempdir()) / f"inline-{i}.mjs"
               path.write_text(script, encoding="utf-8")
               subprocess.run(["node", "--check", str(path)], check=True)
           print(f"HTML parsed; {len(parser.ids)} unique IDs; inline scripts pass syntax checks.")
