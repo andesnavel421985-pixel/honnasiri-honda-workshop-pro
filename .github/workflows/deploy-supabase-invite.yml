@@ -1,7 +1,9 @@
 name: Deploy Supabase staff invitation function (staging only)
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - security-auth-upgrade
 
 permissions:
   contents: read
