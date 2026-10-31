@@ -1,7 +1,6 @@
-// Authentication helper scaffold for the Honnasiri workshop app.
-// Requires supabase-js v2 and supabase-config.js. This module is not wired into
-// index.html yet; do not enable production login until the migration and role
-// assignment workflow have been deployed and tested.
+// Supabase authentication and staff-profile client for Honnasiri Honda Workshop Pro.
+// Production use still requires the documented migrations, Edge Function deployment,
+// cloud record migration, and role-specific authorization tests.
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../../supabase-config.js';
 
