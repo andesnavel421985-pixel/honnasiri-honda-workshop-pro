@@ -14,6 +14,8 @@ All changes in this work are committed to `security-auth-upgrade`. The live `mai
 ## Implemented on this branch
 
 1. Initial database foundation in `supabase/migrations/0001_workshop_security_foundation.sql`.
+2. Administrator-only staff role/activation RPC in `supabase/migrations/0002_admin_staff_management.sql`.
+3. In-app administrator staff directory to assign roles and activate/deactivate existing Auth users.
 2. Staff profiles default to `pending` and inactive when a Supabase Auth user is created.
 3. RLS enabled on `staff_profiles`, `workshop_records`, and `workshop_audit_log`.
 4. Supabase JS v2 browser client configured with persistent sessions, automatic token refresh, URL session detection, and PKCE.
@@ -47,11 +49,12 @@ Do not merge, deploy as production, or enter real customer data on this branch u
 
 ## Supabase Auth configuration
 
-1. In Supabase Authentication settings, enable Email provider.
-2. Set the app's actual HTTPS staging URL in the allowed redirect URLs.
-3. Configure password reset redirect URLs for the same staging host.
-4. Keep public sign-up disabled if the project is intended for invited employees only. Admin provisioning must be implemented through a trusted server/Edge Function; never expose the service-role key in the browser.
-5. Test login with the owner admin and a separate pending user. The pending user must be denied access.
+1. Apply `supabase/migrations/0002_admin_staff_management.sql` in the Supabase SQL Editor. Migration 0001 created the core tables and RLS; migration 0002 adds the admin-only role assignment RPC.
+2. In Supabase Authentication settings, enable Email provider.
+3. Set the app's actual HTTPS staging URL in the allowed redirect URLs.
+4. Configure password reset redirect URLs for the same staging host.
+5. Keep public sign-up disabled if the project is intended for invited employees only. Create each Auth identity through Supabase Authentication → Users (Send invitation or Create user), then use the in-app administrator panel to assign the role and activate it. Do not expose the service-role key in the browser.
+6. Test login with the owner admin and a separate pending user. The pending user must be denied access.
 
 ## Recommended next implementation sequence
 
@@ -61,3 +64,12 @@ Do not merge, deploy as production, or enter real customer data on this branch u
 4. Tighten database authorization with field-specific RPCs for technicians and final inspectors, plus immutable audit handling.
 5. Add automated RLS tests for every role and negative access case.
 6. Test on a staging URL with backups and rollback before any production cutover.
+
+
+## Staff administration panel
+
+After migration 0002 is applied, an active admin sees a Staff access management panel after signing in. It can list existing profiles and update role/active status through the SECURITY DEFINER RPC, which checks the caller's current active admin role in the database. It intentionally prevents an admin from changing their own access. It does not create Auth identities; create/invite an Auth user in Supabase Authentication → Users first. The auth trigger creates that person's inactive pending profile.
+
+## Not yet connected
+
+The workshop form still reads/writes the legacy localStorage store. The cloud `workshop_records` table exists but the app has not switched to it. The current staff panel is role administration only; it does not complete the record migration or role-specific field restrictions.
