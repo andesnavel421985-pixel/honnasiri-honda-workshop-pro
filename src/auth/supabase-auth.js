@@ -58,3 +58,23 @@ export async function getCurrentStaffProfile() {
 export function watchAuthState(callback) {
   return supabase.auth.onAuthStateChange((event, session) => callback(event, session));
 }
+
+/** Administrator-only staff profile management. Auth user creation remains server/dashboard-only. */
+export async function listStaffProfiles() {
+  const { data, error } = await supabase
+    .from('staff_profiles')
+    .select('user_id, display_name, role, is_active, updated_at')
+    .order('display_name');
+  if (error) throw error;
+  return data || [];
+}
+export async function setStaffAccess(userId, displayName, role, isActive) {
+  const { data, error } = await supabase.rpc('admin_set_staff_access', {
+    target_user_id: userId,
+    new_display_name: displayName,
+    new_role: role,
+    new_is_active: isActive
+  });
+  if (error) throw error;
+  return data?.[0] || null;
+}
