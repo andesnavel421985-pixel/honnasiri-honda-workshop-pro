@@ -16,6 +16,7 @@ All changes in this work are committed to `security-auth-upgrade`. The live `mai
 1. Initial database foundation in `supabase/migrations/0001_workshop_security_foundation.sql`.
 2. Administrator-only staff role/activation RPC in `supabase/migrations/0002_admin_staff_management.sql`.
 3. In-app administrator staff directory to assign roles and activate/deactivate existing Auth users.
+4. `supabase/functions/admin-invite-staff/index.ts`: Edge Function that verifies the caller's active admin profile server-side and sends Supabase Auth invitations without exposing the service-role key.
 2. Staff profiles default to `pending` and inactive when a Supabase Auth user is created.
 3. RLS enabled on `staff_profiles`, `workshop_records`, and `workshop_audit_log`.
 4. Supabase JS v2 browser client configured with persistent sessions, automatic token refresh, URL session detection, and PKCE.
@@ -73,3 +74,21 @@ After migration 0002 is applied, an active admin sees a Staff access management 
 ## Not yet connected
 
 The workshop form still reads/writes the legacy localStorage store. The cloud `workshop_records` table exists but the app has not switched to it. The current staff panel is role administration only; it does not complete the record migration or role-specific field restrictions.
+
+
+### Deploy the staff invitation function
+
+From a trusted computer with the Supabase CLI linked to this project:
+
+```sh
+supabase functions deploy admin-invite-staff
+supabase secrets set APP_ORIGIN=https://YOUR-STAGING-HOST APP_REDIRECT_URL=https://YOUR-STAGING-HOST
+```
+
+Use your actual HTTPS staging host, not the placeholder. Supabase supplies the project URL, anon key, and service-role key to Edge Functions as server environment variables. Never copy the service-role key into GitHub or the browser app. If those default variables are unavailable in your project, configure them as Edge Function secrets through the Supabase dashboard without sharing them in chat.
+
+The function uses the default Supabase Auth invite email. Configure the Email provider, SMTP/email templates, and redirect allowlist in Supabase before testing. A successful invite creates a profile as `pending` and inactive; an administrator must then select the correct role and activate the employee in the app.
+
+## Still not production-ready
+
+Even with authentication and staff invitations, workshop records remain in localStorage / legacy Drive sync. Do not switch the live app or store live customer records until cloud record migration, strict role-specific write APIs, and end-to-end tests are complete.
