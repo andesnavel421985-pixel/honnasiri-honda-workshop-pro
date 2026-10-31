@@ -6,9 +6,9 @@ All work is committed to `security-auth-upgrade`. The live `main` branch has not
 
 ## Supabase project
 
-- Project URL: `https://dsznwcwuypyjrndjaicw.supabase.co`
+- Project URL: `https://lxrcivgjkvzasjgqvhxh.supabase.co`
 - Browser config: `supabase-config.js`
-- The configured `sb_publishable_` key is intended for browser use. PostgreSQL RLS must enforce data access.
+- The staging browser key is intentionally a placeholder until the staging project's publishable key is copied from its API Keys settings. Do not reuse the production project's key. PostgreSQL RLS must enforce data access.
 - Never put a Supabase secret key or legacy `service_role` key in browser code, GitHub, or a PWA bundle.
 
 ## Implemented in this branch
@@ -45,7 +45,7 @@ The first Auth user and matching `staff_profiles` row were created in Supabase. 
 
 ## Current app behavior and limitations
 
-The sign-in gate and staff administration UI are committed but cannot be fully exercised until migration 0002 and the Edge Function are deployed. The browser module is wired to the existing Supabase project configuration.
+The sign-in gate and staff administration UI are committed but cannot be fully exercised until migration 0002 and the Edge Function are deployed. The security branch is isolated to the staging project URL. Its publishable key remains a placeholder, so the browser app will fail closed until the staging key is configured.
 
 **Workshop records have not yet been migrated to Supabase.** The service form still reads/writes localStorage and the optional legacy Google Drive JSON file. The `workshop_records` table exists, but the app is not yet using it. Therefore, RLS does not protect records still stored locally or in Drive.
 
@@ -66,3 +66,10 @@ Do not merge this branch, connect the live app to it, or enter live customer dat
 - `supabase/functions/admin-invite-staff/index.ts`: server-side employee invitation.
 - `src/auth/supabase-auth.js`: browser auth client and staff profile operations.
 - `index.html`: login gate and admin staff panel.
+
+
+## Staging isolation correction (2026-10-31)
+
+The security branch browser configuration now points to the staging project ref `lxrcivgjkvzasjgqvhxh`, not the production project. The publishable key is deliberately a placeholder. This prevents accidental authentication against production while staging is being completed. Replace it only with the staging project's publishable key.
+
+The successful Edge Function deployment does not deploy the frontend, apply migrations, configure Auth email delivery, or migrate localStorage/Google Drive workshop records. Do not use this branch as the live workshop app until those tasks and the role-based RLS tests are complete.
