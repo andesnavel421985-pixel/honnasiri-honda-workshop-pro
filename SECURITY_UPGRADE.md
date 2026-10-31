@@ -28,7 +28,7 @@ The first Auth user and matching `staff_profiles` row were created in Supabase. 
 
 ## Required Supabase setup before testing
 
-1. Apply `supabase/migrations/0002_admin_staff_management.sql` in the Supabase SQL Editor. The initial schema/RLS migration 0001 has already been run on the project, as shown in the dashboard screenshots.
+1. Apply `supabase/migrations/0002_admin_staff_management.sql` and then `supabase/migrations/0003_lock_staff_profile_writes.sql` in the Supabase SQL Editor. The initial schema/RLS migration 0001 has already been run on the project, as shown in the dashboard screenshots.
 2. Enable the Email provider under Supabase Authentication.
 3. Add the exact HTTPS staging URL to Authentication → URL Configuration → Redirect URLs. Include the redirect used for password reset and invitation acceptance.
 4. Deploy the invitation Edge Function from a trusted computer with the Supabase CLI linked to this project:
@@ -73,3 +73,8 @@ Do not merge this branch, connect the live app to it, or enter live customer dat
 The security branch browser configuration now points to the staging project ref `lxrcivgjkvzasjgqvhxh`, not the production project. The publishable key is deliberately a placeholder. This prevents accidental authentication against production while staging is being completed. Replace it only with the staging project's publishable key.
 
 The successful Edge Function deployment does not deploy the frontend, apply migrations, configure Auth email delivery, or migrate localStorage/Google Drive workshop records. Do not use this branch as the live workshop app until those tasks and the role-based RLS tests are complete.
+
+
+## Additional hardening (2026-10-31)
+
+Migration `0003_lock_staff_profile_writes.sql` revokes direct authenticated mutation privileges on `staff_profiles`. This closes a bypass in which an administrator could otherwise update profile rows directly instead of using the self-lockout-protected administrative RPC. Apply migration 0003 after 0002 on staging and verify that direct table updates fail while the authorized RPC succeeds.
