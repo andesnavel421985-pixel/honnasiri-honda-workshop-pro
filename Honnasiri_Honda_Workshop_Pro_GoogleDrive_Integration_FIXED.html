@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#c8102e">
+<meta name="description" content="Honnasiri Honda Workshop Pro - service estimates, final quality checks, FRT labour calculator and daily/MTD reports.">
+<link rel="manifest" href="manifest.json">
+<title>Honnasiri Honda Workshop Pro</title>
+<style>
+:root{--red:#c8102e;--red2:#9e0b24;--ink:#172033;--muted:#667085;--line:#e2e6ec;--bg:#f4f6f9;--green:#16834a;--amber:#a35b00;--bad:#b42318}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}header{background:linear-gradient(135deg,var(--red),var(--red2));color:white;padding:20px 16px 18px;position:sticky;top:0;z-index:10;box-shadow:0 3px 12px #0002}header h1{font-size:21px;margin:0;font-weight:850;letter-spacing:.3px}header p{margin:4px 0 0;font-size:12px;letter-spacing:1.3px;opacity:.9}.wrap{max-width:1000px;margin:auto;padding:14px}.topnav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:14px}.navbtn,.sectionbtn,button{font:inherit;font-weight:700;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:13px;padding:12px;min-height:44px}.navbtn.active,.sectionbtn.active{background:#fff0f2;border-color:#e9a1ad;color:var(--red);box-shadow:inset 0 0 0 1px #e9a1ad}.primary{background:var(--red);border-color:var(--red);color:white}.danger{color:var(--bad);border-color:#f2b7b4}.subtle{color:var(--muted);font-size:12px}.card{background:white;border:1px solid var(--line);border-radius:20px;padding:16px;margin:12px 0;box-shadow:0 2px 8px #16233b08}.card h2{font-size:18px;margin:0 0 12px}.card h3{font-size:15px;margin:10px 0}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{min-width:0}.field label{display:block;font-weight:700;font-size:13px;margin-bottom:5px}.field input,.field select,.field textarea,.line input,.line select{width:100%;font:inherit;padding:11px 12px;border:1px solid #cfd5de;border-radius:11px;background:white;min-height:44px;color:var(--ink)}textarea{min-height:82px;resize:vertical}.full{grid-column:1/-1}.sectionnav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0}.sectionbtn{padding:10px 7px;text-align:left;min-height:68px}.sectionbtn strong{display:block;color:var(--red);font-size:12px}.sectionbtn span{display:block;font-size:12px;line-height:1.25;margin-top:4px}.section{display:none}.section.open{display:block}.sectionhead{display:flex;gap:10px;align-items:center;margin-bottom:14px}.num{background:#fde8ec;color:var(--red);border-radius:10px;padding:8px 10px;font-weight:900}.sectionhead h2{margin:0}.checkgroup{border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:12px 0}.checkgroup h3{margin:0;padding:12px;background:#fff2e8;color:#7c3d13}.checkrow{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;padding:10px 12px;border-top:1px solid #eef0f3}.checkrow label.item{font-weight:600;font-size:13px}.tick{display:flex;align-items:center;gap:4px;font-size:12px;font-weight:800;padding:5px 7px;border-radius:9px;border:1px solid var(--line);white-space:nowrap}.tick.ok{color:var(--green)}.tick.notok{color:var(--bad)}.tick input{width:17px;height:17px;accent-color:currentColor}.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.stat{padding:12px;border-radius:13px;background:#f7f8fa;border:1px solid var(--line)}.stat b{display:block;font-size:22px}.stat span{font-size:12px;color:var(--muted)}.line{display:grid;grid-template-columns:minmax(0,2fr) minmax(65px,.7fr) minmax(80px,.8fr) minmax(90px,.9fr) 42px;gap:7px;align-items:center;margin:9px 0;padding:10px;background:#f8f9fb;border-radius:13px}.line.labour{grid-template-columns:minmax(0,1.7fr) minmax(60px,.55fr) minmax(70px,.65fr) minmax(75px,.7fr) minmax(85px,.8fr) 42px}.line .desc{min-width:0}.line .remove{padding:8px;color:var(--bad);min-height:42px}.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.toolbar button{flex:1}.summaryrow{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid #eef0f3}.summaryrow.total{font-size:18px;font-weight:900;border-bottom:0}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:620px}th,td{padding:9px;text-align:left;border-bottom:1px solid var(--line);font-size:12px}th{background:#f7f8fa}.pill{display:inline-block;padding:4px 8px;border-radius:99px;background:#f1f3f6;font-size:11px;font-weight:800}.hidden{display:none!important}.notice{background:#fff7e6;border:1px solid #f4d9a1;padding:11px;border-radius:12px;font-size:12px;color:#774900}.success{color:var(--green)}.muted{color:var(--muted)}footer{text-align:center;color:var(--muted);font-size:11px;padding:24px 8px}
+@media(max-width:620px){.wrap{padding:10px}.grid{grid-template-columns:1fr}.sectionnav{grid-template-columns:repeat(3,minmax(0,1fr))}.line{grid-template-columns:minmax(0,1fr) minmax(70px,.55fr) minmax(80px,.7fr) 40px}.line .amount{grid-column:1/4}.line.labour{grid-template-columns:minmax(0,1fr) minmax(68px,.6fr) minmax(75px,.7fr) 40px}.line.labour .rate,.line.labour .amount{grid-column:auto}.line.labour .desc{grid-column:1/-1}.line.labour .amount{grid-column:1/4}.checkrow{grid-template-columns:minmax(0,1fr) auto auto;gap:4px;padding:9px 7px}.tick{padding:5px 4px;font-size:11px}.stats{grid-template-columns:repeat(3,minmax(0,1fr))}.stat{padding:9px}.stat b{font-size:19px}.topnav{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media print{header,.topnav,.sectionnav,.toolbar,.no-print,button{display:none!important}body{background:white}.wrap{max-width:none;padding:0}.card{box-shadow:none;break-inside:avoid}.section{display:block!important}.checkrow{break-inside:avoid}}
+
+/* Compact executive one-screen report */
+.report-shell{max-width:760px;margin:0 auto}
+.report-switch{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}
+.report-switch button{flex:1;min-width:100px}
+.exec-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.exec-kpi{padding:13px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,#fff,#f9fafc);min-width:0}
+.exec-kpi .k-label{font-size:11px;text-transform:uppercase;letter-spacing:.45px;color:var(--muted);font-weight:800}
+.exec-kpi .k-value{font-size:25px;line-height:1.2;font-weight:900;margin-top:5px;overflow-wrap:anywhere}
+.exec-kpi .k-sub{font-size:11px;color:var(--muted);margin-top:4px}
+.exec-kpi.highlight{border-color:#e9a1ad;background:#fff4f5}
+.report-block{border:1px solid var(--line);border-radius:15px;margin:11px 0;overflow:hidden}
+.report-block h3{margin:0;padding:11px 13px;background:#f7f8fa;font-size:13px}
+.report-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:10px 13px;border-top:1px solid #eef0f3}
+.report-row span{font-size:12px;color:var(--muted)}
+.report-row strong{text-align:right;font-size:13px;overflow-wrap:anywhere}
+.report-status{display:inline-flex;padding:4px 8px;border-radius:99px;font-size:11px;font-weight:850;background:#eef2f6}
+.report-status.good{background:#e8f7ee;color:#12683c}
+.report-status.warn{background:#fff3dd;color:#8a4b00}
+.report-status.bad{background:#ffebea;color:#a51d16}
+.report-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.report-actions button{width:100%}
+@media(max-width:430px){
+ .exec-summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+ .exec-kpi{padding:10px}
+ .exec-kpi .k-value{font-size:22px}
+ .report-row{padding:9px 10px}
+ .report-actions{grid-template-columns:1fr 1fr}
+}
+@media print{
+ body{background:#fff}
+ .report-switch,.report-actions,.topnav,.sectionnav,header{display:none!important}
+ .report-shell{max-width:none}
+ .exec-kpi{break-inside:avoid}
+}
+
+
+.sectionwise-report{max-width:620px;margin:0 auto}
+.sw-section{border:1px solid var(--line);border-radius:16px;overflow:hidden;margin:12px 0;background:#fff}
+.sw-title{display:flex;align-items:center;gap:10px;padding:13px;background:#f8f9fb;border-bottom:1px solid var(--line)}
+.sw-number{display:flex;align-items:center;justify-content:center;width:34px;height:34px;flex:0 0 34px;border-radius:10px;background:#fde8ec;color:var(--red);font-weight:900}
+.sw-title h3{font-size:15px;margin:0}.sw-subtitle{font-size:11px;color:var(--muted);margin-top:2px}.sw-content{padding:12px}
+.sw-kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.sw-kpi{border:1px solid var(--line);border-radius:12px;padding:11px;min-width:0}
+.sw-kpi .lab{font-size:10px;text-transform:uppercase;letter-spacing:.35px;color:var(--muted);font-weight:800}
+.sw-kpi .val{font-size:23px;font-weight:900;line-height:1.2;margin-top:4px;overflow-wrap:anywhere}
+.sw-kpi .hint{font-size:10px;color:var(--muted);margin-top:3px}
+.sw-type-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:9px}
+.sw-type{border:1px solid var(--line);border-radius:10px;padding:9px}.sw-type span{display:block;color:var(--muted);font-size:11px}.sw-type strong{font-size:18px}
+.sw-person{border:1px solid var(--line);border-radius:13px;margin:9px 0;overflow:hidden}
+.sw-person-head{padding:10px 11px;background:#fbfbfc;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.sw-person-head strong{font-size:13px;overflow-wrap:anywhere}.sw-person-body{padding:10px 11px}
+.sw-mini-label{font-size:10px;text-transform:uppercase;color:var(--muted);font-weight:800;letter-spacing:.35px;margin:7px 0 5px}
+.sw-status-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.sw-status{border-radius:9px;padding:8px;background:#f7f8fa;display:flex;justify-content:space-between;gap:8px;font-size:11px}.sw-status b{font-size:13px}
+.sw-chip{display:inline-block;border-radius:99px;padding:4px 8px;background:#fff0f2;color:var(--red);font-size:10px;font-weight:900;white-space:nowrap}
+.sw-empty{padding:12px;color:var(--muted);font-size:12px;text-align:center}.sw-report-controls{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:380px){.sw-kpi .val{font-size:20px}.sw-content{padding:9px}.sw-person-body{padding:8px}.sw-status{padding:7px}}
+@media print{.no-print,.topnav,header{display:none!important}.sectionwise-report{max-width:none}.sw-section,.sw-person{break-inside:avoid}}
+
+
+.google-auth-state{padding:10px 12px;border-radius:11px;background:#f7f8fa;border:1px solid var(--line);font-size:12px}
+.google-auth-state.good{background:#e8f7ee;color:#12683c;border-color:#b8e2c8}
+.google-auth-state.warn{background:#fff7e6;color:#774900;border-color:#f4d9a1}
+
+</style>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+<header><h1>HONNASIRI HONDA</h1><p>WORKSHOP PRO · SERVICE MANAGEMENT · TUMKUR</p></header>
+<div class="wrap">
+<div class="topnav no-print">
+<button class="navbtn active" data-view="formView">＋ New Service Record</button>
+<button class="navbtn" data-view="reportsView">▦ Daily & MTD Reports</button>
+<button class="navbtn" data-view="jobsView">☷ Saved Records</button>
+<button class="navbtn" data-view="backupView">⇧ Backup / Restore</button>
+</div>
+<div id="formView">
+<div class="card no-print"><h2>Service Form — 9 sections</h2><div class="subtle">Tap a numbered section to open its details. Fields are saved on this device when you save the record.</div>
+<div class="sectionnav" id="sectionNav"></div></div>
+<form id="serviceForm">
+<input id="recordId" type="hidden">
+<section class="section open" data-section="1"><div class="card">
+<div class="sectionhead"><span class="num">01</span><h2>Customer & Vehicle Details</h2></div>
+<div class="grid">
+<div class="field"><label for="customer">Customer name *</label><input id="customer" required placeholder="Full customer name"></div>
+<div class="field"><label for="mobile">Mobile number</label><input id="mobile" inputmode="tel" placeholder="Customer contact number"></div>
+<div class="field"><label for="reg">Registration number *</label><input id="reg" required placeholder="e.g. KA-06-AB-1234"></div>
+<div class="field"><label for="model">Vehicle model *</label><input id="model" required list="models" placeholder="Choose or type model"><datalist id="models"><option>Shine 100</option><option>Shine 100X</option><option>CD 110</option><option>Livo</option><option>CB Shine</option><option>SP 125</option><option>CB 125 Hornet</option><option>Unicorn 160</option><option>SP160</option><option>X-Blade</option><option>Hornet 2.0</option><option>CB200X</option><option>Activa</option><option>Dio</option><option>Dio 125</option><option>Activa 125</option></datalist></div>
+<div class="field"><label for="km">Kilometres</label><input id="km" type="number" min="0" inputmode="numeric" placeholder="Odometer reading"></div>
+<div class="field"><label for="jobcard">Job card number *</label><input id="jobcard" required placeholder="HI-RISE job card number"></div>
+<div class="field"><label for="date">Service date *</label><input id="date" type="date" required></div>
+<div class="field"><label for="serviceType">Service type</label><select id="serviceType"><option>Paid Service</option><option>Free Service</option><option>Warranty</option><option>Repair / General</option><option>Accident</option></select></div>
+<div class="field"><label for="amcType">New AMC / EW / EW+</label><select id="amcType"><option value="">None / Not sold</option><option>NEW AMC</option><option>NEW EW</option><option>NEW EW+</option></select></div>
+<div class="field"><label for="workStatus">Current work status</label><select id="workStatus"><option>Work in Process</option><option>Pending</option><option>Completed</option><option>Waiting for Parts</option><option>Waiting for CV Approval</option></select></div>
+<div class="field"><label for="advisor">Service advisor *</label><select id="advisor"><option value="">Choose advisor</option><option>Sanjeev. L</option><option>Sanjeev L</option><option>Sanjeev Reddy</option><option>Deekshit</option><option>Other / Custom</option></select><input id="advisorCustom" class="hidden" placeholder="Type advisor name"></div>
+<div class="field"><label for="technician">Technician *</label><select id="technician"><option value="">Choose technician</option><option>FURKHAN</option><option>SHOIB</option><option>CHAND PASHA</option><option>SACHIN</option><option>ASIF</option><option>MD FAZAL</option><option>ABHI</option><option>IMRAN</option><option>Other / Custom</option></select><input id="technicianCustom" class="hidden" placeholder="Type technician name"></div>
+<div class="field"><label for="timeIn">Time in</label><input id="timeIn" type="time"></div>
+<div class="field"><label for="timeOut">Time out</label><input id="timeOut" type="time"></div>
+<div class="field"><label for="fiDone">FI done</label><select id="fiDone"><option>Pending</option><option>Done</option></select></div>
+<div class="field"><label for="delivery">Delivery status</label><select id="delivery"><option>Not Delivered</option><option>Delivered</option></select></div>
+</div></div></section>
+<section class="section" data-section="2"><div class="card"><div class="sectionhead"><span class="num">02</span><h2>Diagnosis & Work Performed</h2></div><div class="grid">
+<div class="field full"><label for="complaint">Customer complaint / job requested</label><textarea id="complaint" placeholder="Record customer voice and symptoms"></textarea></div>
+<div class="field full"><label for="finding">Inspection finding / diagnosis</label><textarea id="finding" placeholder="Observed condition and confirmed findings"></textarea></div>
+<div class="field full"><label for="cause">Probable / confirmed cause</label><textarea id="cause" placeholder="Cause of concern"></textarea></div>
+<div class="field full"><label for="action">Repair / corrective action performed</label><textarea id="action" placeholder="Work actually completed"></textarea></div>
+<div class="field full"><label for="verify">Post-repair verification</label><textarea id="verify" placeholder="Test results after repair"></textarea></div>
+</div></div></section>
+<section class="section" data-section="3"><div class="card"><div class="sectionhead"><span class="num">03</span><h2>Final Quality Check Sheet</h2></div>
+<div class="notice">For every item, choose OK or NOT OK. Leave both unchecked if the check has not been completed. A NOT OK result should be corrected and rechecked before delivery.</div>
+<div class="stats" style="margin:12px 0"><div class="stat"><b id="qcOk">0</b><span>OK</span></div><div class="stat"><b id="qcBad">0</b><span>NOT OK</span></div><div class="stat"><b id="qcPending">27</b><span>Pending</span></div></div>
+<div id="qcChecklist"></div>
+<div class="grid" style="margin-top:14px">
+<div class="field"><label for="inspector">Final inspection done by</label><input id="inspector" value="Imran" placeholder="Inspector name"></div>
+<div class="field"><label for="qcDecision">Overall QC decision</label><select id="qcDecision"><option>Pending</option><option>Pass</option><option>Fail — corrective action required</option></select></div>
+<div class="field full"><label for="qcRemarks">QC remarks / corrective action</label><textarea id="qcRemarks" placeholder="Record defects, correction and recheck result"></textarea></div>
+</div></div></section>
+<section class="section" data-section="4"><div class="card"><div class="sectionhead"><span class="num">04</span><h2>Parts Estimate</h2></div><div class="subtle">Indicative values only. Verify part number and current MRP before billing.</div><div id="partsList"></div><button type="button" id="addPart" class="primary">＋ Add Part</button></div></section>
+<section class="section" data-section="5"><div class="card"><div class="sectionhead"><span class="num">05</span><h2>Labour Charges & FRT</h2></div><div class="notice">Labour calculation: FRT hours × hourly rate. Initial reference rates: Paid ₹184/hour; Warranty ₹80/hour. FRT hours must be confirmed from the applicable operation list; no missing values are guessed.</div><div id="labourList"></div><button type="button" id="addLabour" class="primary">＋ Add Labour</button></div></section>
+<section class="section" data-section="6"><div class="card"><div class="sectionhead"><span class="num">06</span><h2>Future Repair Recommendations</h2></div><div id="futureList"></div><button type="button" id="addFuture">＋ Add recommendation</button></div></section>
+<section class="section" data-section="7"><div class="card"><div class="sectionhead"><span class="num">07</span><h2>Customer Advisory & Commentary</h2></div><div class="grid"><div class="field full"><label for="advisory">Customer advisory / next service recommendation</label><textarea id="advisory" placeholder="Explain maintenance needs, follow-up and next service"></textarea></div><div class="field full"><label for="remarks">Additional remarks</label><textarea id="remarks" placeholder="Other workshop remarks"></textarea></div></div></div></section>
+<section class="section" data-section="8"><div class="card"><div class="sectionhead"><span class="num">08</span><h2>Estimate Summary</h2></div><div class="grid">
+<div class="field"><label for="discount">Discount (₹)</label><input id="discount" type="number" min="0" step=".01" value="0"></div>
+<div class="field"><label for="taxRate">GST rate (%)</label><input id="taxRate" type="number" min="0" max="100" step=".01" value="18"></div>
+<div class="field"><label for="otherCharges">Other charges (₹)</label><input id="otherCharges" type="number" min="0" step=".01" value="0"></div>
+<div class="field"><label for="advance">Advance paid (₹)</label><input id="advance" type="number" min="0" step=".01" value="0"></div>
+</div><div style="margin-top:12px">
+<div class="summaryrow"><span>Parts subtotal</span><b id="partsTotal">₹0.00</b></div><div class="summaryrow"><span>Labour subtotal</span><b id="labourTotal">₹0.00</b></div><div class="summaryrow"><span>Discount</span><b id="discountTotal">−₹0.00</b></div><div class="summaryrow"><span>GST (estimated)</span><b id="gstTotal">₹0.00</b></div><div class="summaryrow"><span>Other charges</span><b id="otherTotal">₹0.00</b></div><div class="summaryrow total"><span>Estimated total</span><b id="grandTotal">₹0.00</b></div><div class="summaryrow"><span>Advance</span><b id="advanceTotal">₹0.00</b></div><div class="summaryrow total"><span>Estimated balance</span><b id="balanceTotal">₹0.00</b></div></div><p class="subtle">This is an estimate, not actual billed revenue. Confirm tax treatment and dealership rates before invoicing.</p></div></section>
+<section class="section" data-section="9"><div class="card"><div class="sectionhead"><span class="num">09</span><h2>Save & Generate Report</h2></div><div class="toolbar"><button type="button" class="primary" id="saveRecord">Save Service Record</button><button type="button" id="newRecord">New / Clear Form</button><button type="button" id="printRecord">Print / Save PDF</button><button type="button" id="shareRecord">Share Summary</button></div><p id="saveStatus" class="subtle" aria-live="polite"></p></div></section>
+</form>
+</div>
+<div id="reportsView" class="hidden">
+<div class="sectionwise-report">
+<div class="card no-print">
+<h2>Workshop Floor Report</h2><div class="subtle">Section-wise management view · Mobile-friendly · Not an Excel-style report</div>
+<div class="grid" style="margin-top:12px"><div class="field"><label for="reportDate">Daily report date</label><input id="reportDate" type="date"></div><div class="field"><label for="reportMonth">MTD month</label><input id="reportMonth" type="month"></div></div>
+<div class="sw-report-controls" style="margin-top:10px"><button id="showDailyReport" class="navbtn active" type="button">Daily View</button><button id="showMtdReport" class="navbtn" type="button">MTD View</button><button id="refreshReports" class="primary" type="button">Refresh Report</button><button id="printReports" type="button">Print / Save PDF</button></div>
+<div class="toolbar"><button id="downloadDaily">Download Daily Summary</button><button id="downloadMtd">Download MTD Summary</button></div>
+</div>
+<div class="card">
+<div class="sectionhead"><span class="num">R</span><div><h2 id="reportTitle">Daily Workshop Floor Report</h2><div id="reportSubtitle" class="sw-period"></div></div></div>
+<section class="sw-section"><div class="sw-title"><span class="sw-number">01</span><div><h3>Service Volume & AMC / EW</h3><div class="sw-subtitle">Overall workshop volume by service type and new plans</div></div></div><div class="sw-content"><div id="swSection1"></div></div></section>
+<section class="sw-section"><div class="sw-title"><span class="sw-number">02</span><div><h3>Technician-wise Performance</h3><div class="sw-subtitle">Every technician listed by name, with service type and status counts</div></div></div><div class="sw-content"><div id="swSection2"></div></div></section>
+<section class="sw-section"><div class="sw-title"><span class="sw-number">03</span><div><h3>Service Advisor-wise Performance</h3><div class="sw-subtitle">Every advisor listed by name, with service type, new plans and delivery counts</div></div></div><div class="sw-content"><div id="swSection3"></div></div></section>
+<div class="notice">Counts are based on saved records in this browser and the selected period. AMC / EW / EW+ counts are based on the plan recorded on each service record; blank values are not inferred.</div>
+</div></div></div>
+<div id="jobsView" class="hidden"><div class="card"><h2>Saved Service Records</h2><div class="field"><label for="jobSearch">Search by customer, registration or job card</label><input id="jobSearch" placeholder="Type to search"></div><div id="savedJobs" class="tablewrap"></div></div></div>
+<div id="backupView" class="hidden">
+<div class="card">
+<h2>Google Drive Login & Sync</h2>
+<p>Sign in with the same Google account on each phone. Service records will be saved in a dedicated JSON file in your Google Drive. Your Gmail password is never requested by this app.</p>
+<div class="field"><label for="googleClientId">Google OAuth Client ID</label><input id="googleClientId" placeholder="Paste your Google Web application Client ID"></div>
+<div class="toolbar"><button id="saveGoogleConfig">Save Client ID</button><button id="googleLogin" class="primary">Sign in with Google</button><button id="googleLogout" class="danger" disabled>Log out</button></div>
+<div id="googleAccount" class="subtle">Not signed in</div>
+<div id="driveSyncStatus" class="notice" style="margin-top:10px">Cloud sync is not configured. Add your Google OAuth Client ID, then sign in.</div>
+</div>
+<div class="card"><h2>Backup / Restore</h2><p>Local backup is available even when you are offline. Google Drive sync is required for sharing records between phones.</p><div class="toolbar"><button id="exportBackup" class="primary">Download JSON Backup</button><button id="importBackup">Restore JSON Backup</button><input type="file" id="backupFile" accept=".json,application/json" class="hidden"></div><div id="backupStatus" class="subtle"></div></div>
+</div>
+<footer>Honnasiri Honda Workshop Pro · Separate standalone application · Verify estimates and technical values before use.</footer>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const money=n=>'₹'+(Number(n)||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const today=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
+const sections=[['01','Customer & Vehicle'],['02','Diagnosis & Repair'],['03','Final Quality Check'],['04','Parts Estimate'],['05','Labour & FRT'],['06','Future Repairs'],['07','Customer Advisory'],['08','Estimate Summary'],['09','Save & Report']];
+const nav=$('sectionNav');sections.forEach((s,i)=>{const b=document.createElement('button');b.type='button';b.className='sectionbtn'+(i===0?' active':'');b.innerHTML=`<strong>${s[0]}</strong><span>${s[1]}</span>`;b.onclick=()=>openSection(i+1);nav.append(b)});
+function openSection(n){document.querySelectorAll('.section').forEach(s=>s.classList.toggle('open',Number(s.dataset.section)===n));document.querySelectorAll('.sectionbtn').forEach((b,i)=>b.classList.toggle('active',i===n-1));document.querySelector(`.section[data-section="${n}"]`).scrollIntoView({behavior:'smooth',block:'start'})}
+document.querySelectorAll('.navbtn').forEach(b=>b.onclick=()=>{document.querySelectorAll('.navbtn').forEach(x=>x.classList.toggle('active',x===b));['formView','reportsView','jobsView','backupView'].forEach(id=>$(id).classList.toggle('hidden',id!==b.dataset.view));if(b.dataset.view==='reportsView')renderReports();if(b.dataset.view==='jobsView')renderJobs()});
+const qcGroups=[
+['WASHING AND CLEANING',['Total outlook of the vehicle','Floor mat / inner box / tool box','Mudguards from inside','Drying of the vehicle','Check customer belongings like tool kit etc.']],
+['CHECKING THE COMPLETION OF JOB',['Jobs mentioned in the job card have been attended to','Engine oil level','Throttle free play','Front brake free play','Rear brake free play','Clutch free play','Lock operation','Horn operation','All electrical switches operate correctly','Idling RPM','Movement of the steering','Tyre pressure (spare wheel also, if applicable)','No abnormal noise during idling']],
+['ROAD TEST',['Acceleration of the vehicle','Front brake operation','Rear brake operation','Any pulling or wobbling','Horn operation at different speeds','Suspension check','Headlight / indicator operation','Gear shifting (for geared vehicle)','No abnormal noise during riding']]
+];
+let qcIndex=0;const qc=$('qcChecklist');qcGroups.forEach((g,gi)=>{const box=document.createElement('div');box.className='checkgroup';box.innerHTML=`<h3>${g[0]}</h3>`;g[1].forEach(item=>{const id='qc'+(qcIndex++);const row=document.createElement('div');row.className='checkrow';row.innerHTML=`<label class="item" for="${id}ok">${item}</label><label class="tick ok"><input type="checkbox" id="${id}ok" data-qc="${id}" data-state="OK"> OK</label><label class="tick notok"><input type="checkbox" id="${id}bad" data-qc="${id}" data-state="NOT OK"> NOT OK</label>`;box.append(row)});qc.append(box)});
+qc.querySelectorAll('input').forEach(inp=>inp.addEventListener('change',()=>{if(inp.checked){const peer=qc.querySelector(`input[data-qc="${inp.dataset.qc}"]:not(#${inp.id})`);if(peer)peer.checked=false}updateQc()}));
+function updateQc(){let ok=0,bad=0;qc.querySelectorAll('input[data-state="OK"]').forEach(x=>{if(x.checked)ok++});qc.querySelectorAll('input[data-state="NOT OK"]').forEach(x=>{if(x.checked)bad++});$('qcOk').textContent=ok;$('qcBad').textContent=bad;$('qcPending').textContent=27-ok-bad}
+const partCatalog=[
+['Engine oil','0','0'],['Oil filter / strainer','0','0'],['Air cleaner element','0','0'],['Spark plug','0','0'],['Brake shoe / pad','0','0'],['Drive chain / sprocket','0','0'],['Clutch parts','0','0'],['Cable (throttle / brake / clutch)','0','0'],['Bulb / electrical component','0','0'],['Battery','0','0'],['Tyre / tube','0','0'],['Other / custom','0','0']];
+const labourCatalog=['Periodic service labour','Engine oil replacement','Air cleaner cleaning / replacement','Spark plug inspection / replacement','Brake inspection / adjustment','Brake shoe / pad replacement','Chain cleaning / adjustment','Chain sprocket replacement','Clutch adjustment','Cable replacement','Battery check / replacement','Tyre / tube replacement','Electrical diagnosis','PGM-FI diagnosis','Engine noise diagnosis','Other / custom'];
+function addPart(data={}){const row=document.createElement('div');row.className='line';row.innerHTML=`<select class="desc" aria-label="Part description"><option value="">Choose part</option>${partCatalog.map(p=>`<option>${p[0]}</option>`).join('')}</select><input class="qty" type="number" min="0" step=".01" value="${data.qty??1}" placeholder="Qty" aria-label="Quantity"><input class="rate" type="number" min="0" step=".01" value="${data.rate??''}" placeholder="Unit ₹" aria-label="Unit price"><input class="amount" type="text" readonly placeholder="Line total" aria-label="Part line total"><button type="button" class="remove danger" aria-label="Remove part">×</button>`;row.querySelector('.desc').value=data.desc||'';if(data.desc&&!partCatalog.some(p=>p[0]===data.desc)){const o=document.createElement('option');o.textContent=data.desc;o.value=data.desc;row.querySelector('.desc').append(o);row.querySelector('.desc').value=data.desc}row.querySelector('.desc').onchange=()=>{if(row.querySelector('.desc').value==='Other / custom'){const v=prompt('Enter part description');if(v){const o=document.createElement('option');o.value=v;o.textContent=v;row.querySelector('.desc').append(o);row.querySelector('.desc').value=v}}calcTotals()};row.querySelectorAll('input').forEach(x=>x.addEventListener('input',calcTotals));row.querySelector('.remove').onclick=()=>{row.remove();calcTotals()};$('partsList').append(row);calcTotals()}
+function addLabour(data={}){const row=document.createElement('div');row.className='line labour';row.innerHTML=`<select class="desc" aria-label="Labour operation"><option value="">Choose labour operation</option>${labourCatalog.map(x=>`<option>${x}</option>`).join('')}</select><input class="frt" type="number" min="0" step=".01" placeholder="FRT hrs" aria-label="FRT hours" value="${data.frt??''}"><input class="rate" type="number" min="0" step=".01" placeholder="₹/hr" aria-label="Hourly rate" value="${data.rate??184}"><select class="category" aria-label="Labour category"><option>Paid</option><option>Warranty</option></select><input class="amount" type="number" min="0" step=".01" placeholder="Amount ₹" aria-label="Labour amount" value="${data.amount??''}"><button type="button" class="remove danger" aria-label="Remove labour">×</button>`;row.querySelector('.desc').value=data.desc||'';row.querySelector('.category').value=data.category||'Paid';if(data.desc&&!labourCatalog.includes(data.desc)){const o=document.createElement('option');o.textContent=data.desc;o.value=data.desc;row.querySelector('.desc').append(o);row.querySelector('.desc').value=data.desc}let overridden=!!data.override;const amount=row.querySelector('.amount');function calculate(){const frt=Number(row.querySelector('.frt').value),rate=Number(row.querySelector('.rate').value);if(!overridden && row.querySelector('.frt').value!=='')amount.value=(frt*rate).toFixed(2);calcTotals()}row.querySelector('.desc').onchange=()=>{if(row.querySelector('.desc').value==='Other / custom'){const v=prompt('Enter labour description');if(v){const o=document.createElement('option');o.value=v;o.textContent=v;row.querySelector('.desc').append(o);row.querySelector('.desc').value=v}}};row.querySelector('.category').onchange=()=>{row.querySelector('.rate').value=row.querySelector('.category').value==='Warranty'?'80':'184';overridden=false;calculate()};row.querySelector('.frt').addEventListener('input',()=>{overridden=false;calculate()});row.querySelector('.rate').addEventListener('input',()=>{overridden=false;calculate()});amount.addEventListener('input',()=>{overridden=true;calcTotals()});row.querySelector('.remove').onclick=()=>{row.remove();calcTotals()};$('labourList').append(row);calculate()}
+function addFuture(data={}){const row=document.createElement('div');row.className='card';row.style.margin='10px 0';row.innerHTML=`<div class="grid"><div class="field"><label>Part / component</label><input class="fpart" placeholder="Component or part name" value="${esc(data.part||'')}"></div><div class="field"><label>Urgency</label><select class="furgency"><option>Monitor</option><option>Next service</option><option>Urgent</option></select></div><div class="field full"><label>Reason / inspection finding</label><textarea class="freason" placeholder="Why is repair recommended?">${esc(data.reason||'')}</textarea></div><div class="field full"><label>Recommendation</label><textarea class="faction" placeholder="Suggested next action">${esc(data.action||'')}</textarea></div></div><button type="button" class="remove danger" style="margin-top:8px">Remove recommendation</button>`;row.querySelector('.furgency').value=data.urgency||'Monitor';row.querySelector('.remove').onclick=()=>row.remove();$('futureList').append(row)}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function calcTotals(){let p=0,l=0;document.querySelectorAll('#partsList .line').forEach(r=>{const n=(Number(r.querySelector('.qty').value)||0)*(Number(r.querySelector('.rate').value)||0);p+=n;r.querySelector('.amount').value=money(n)});document.querySelectorAll('#labourList .line').forEach(r=>{const n=Number(r.querySelector('.amount').value)||0;l+=n});const disc=Math.max(0,Number($('discount').value)||0),tax=Math.max(0,Number($('taxRate').value)||0),other=Math.max(0,Number($('otherCharges').value)||0),adv=Math.max(0,Number($('advance').value)||0),base=Math.max(0,p+l-disc),gst=base*tax/100,total=base+gst+other;[['partsTotal',p],['labourTotal',l],['discountTotal',-disc],['gstTotal',gst],['otherTotal',other],['grandTotal',total],['advanceTotal',adv],['balanceTotal',Math.max(0,total-adv)]].forEach(([id,v])=>$(id).textContent=(v<0?'−':'')+money(Math.abs(v)))}
+function getVal(id){return $(id).value}
+function getRows(selector){return [...document.querySelectorAll(selector)].map(r=>Object.fromEntries([...r.querySelectorAll('input,select,textarea')].map(el=>[el.className,el.value])))}
+function getRecord(){const qcs=[];qc.querySelectorAll('.checkrow').forEach(row=>{const item=row.querySelector('.item').textContent;qcs.push({item,status:row.querySelector('input[data-state="OK"]').checked?'OK':row.querySelector('input[data-state="NOT OK"]').checked?'NOT OK':'Pending'})});const obj={id:getVal('recordId')||String(Date.now()),updatedAt:new Date().toISOString()};['customer','mobile','reg','model','km','jobcard','date','serviceType','amcType','workStatus','advisor','technician','timeIn','timeOut','fiDone','delivery','complaint','finding','cause','action','verify','inspector','qcDecision','qcRemarks','advisory','remarks','discount','taxRate','otherCharges','advance'].forEach(id=>obj[id]=getVal(id));obj.advisorName=obj.advisor==='Other / Custom'?getVal('advisorCustom'):obj.advisor;obj.technicianName=obj.technician==='Other / Custom'?getVal('technicianCustom'):obj.technician;obj.parts=[...document.querySelectorAll('#partsList .line')].map(r=>({desc:r.querySelector('.desc').value,qty:r.querySelector('.qty').value,rate:r.querySelector('.rate').value,amount:r.querySelector('.amount').value}));obj.labour=[...document.querySelectorAll('#labourList .line')].map(r=>({desc:r.querySelector('.desc').value,frt:r.querySelector('.frt').value,rate:r.querySelector('.rate').value,category:r.querySelector('.category').value,amount:r.querySelector('.amount').value,override:r.querySelector('.amount').value!==''&&r.querySelector('.frt').value!==''&&Number(r.querySelector('.amount').value)!==Number(r.querySelector('.frt').value)*Number(r.querySelector('.rate').value)}));obj.future=[...document.querySelectorAll('#futureList>.card')].map(r=>({part:r.querySelector('.fpart').value,urgency:r.querySelector('.furgency').value,reason:r.querySelector('.freason').value,action:r.querySelector('.faction').value}));obj.qc=qcs;obj.qcCounts={ok:qcs.filter(x=>x.status==='OK').length,notOk:qcs.filter(x=>x.status==='NOT OK').length,pending:qcs.filter(x=>x.status==='Pending').length};obj.totals={parts:Number($('partsTotal').textContent.replace(/[₹,]/g,''))||0,labour:Number($('labourTotal').textContent.replace(/[₹,]/g,''))||0,grand:Number($('grandTotal').textContent.replace(/[₹,]/g,''))||0,balance:Number($('balanceTotal').textContent.replace(/[₹,]/g,''))||0};return obj}
+const STORE='honnasiriHondaWorkshopProRecords_v1';
+function records(){try{return JSON.parse(localStorage.getItem(STORE)||'[]')}catch(e){return []}}
+let suppressCloudSync=false;
+function persist(arr){localStorage.setItem(STORE,JSON.stringify(arr));if(!suppressCloudSync)scheduleDriveSync()}
+
+// Google Drive sync: uses OAuth access tokens in memory only; no passwords or client secrets are stored.
+const GOOGLE_CLIENT_KEY='honnasiri_google_oauth_client_id_v1';
+const DRIVE_FILE_NAME='Honnasiri_Honda_Workshop_Records.json';
+let googleTokenClient=null,driveAccessToken=null,driveFileId=null,driveSyncTimer=null,driveSyncBusy=false;
+function driveStatus(message,kind='warn'){const el=$('driveSyncStatus');if(el){el.textContent=message;el.className='google-auth-state '+(kind==='good'?'good':'warn')}}
+function loadGoogleConfig(){const id=localStorage.getItem(GOOGLE_CLIENT_KEY)||'';$('googleClientId').value=id;return id}
+$('saveGoogleConfig').onclick=()=>{const id=$('googleClientId').value.trim();if(!id.endsWith('.apps.googleusercontent.com')){driveStatus('Enter a valid Google Web OAuth Client ID ending in .apps.googleusercontent.com.');return}localStorage.setItem(GOOGLE_CLIENT_KEY,id);driveStatus('Client ID saved on this device. Use the same Client ID on your other phone, then sign in.','good')};
+function initGoogleTokenClient(){const clientId=localStorage.getItem(GOOGLE_CLIENT_KEY);if(!clientId){driveStatus('Add your Google OAuth Client ID before signing in.');return false}if(!window.google?.accounts?.oauth2){driveStatus('Google sign-in library is still loading. Check internet and try again.');return false}googleTokenClient=google.accounts.oauth2.initTokenClient({client_id:clientId,scope:'openid email profile https://www.googleapis.com/auth/drive.file',callback:async response=>{if(response.error){driveStatus('Google sign-in failed: '+response.error);return}driveAccessToken=response.access_token;try{const u=await driveFetch('https://www.googleapis.com/oauth2/v3/userinfo');$('googleAccount').textContent='Signed in as '+(u.email||'Google account');$('googleLogout').disabled=false;driveStatus('Signed in. Checking Google Drive records…');await syncDriveNow()}catch(e){driveStatus('Google sign-in succeeded, but Drive sync failed: '+e.message)}}});return true}
+$('googleLogin').onclick=()=>{if(!initGoogleTokenClient())return;googleTokenClient.requestAccessToken({prompt:'consent'})};
+$('googleLogout').onclick=()=>{if(driveAccessToken&&window.google?.accounts?.oauth2)google.accounts.oauth2.revoke(driveAccessToken,()=>{});driveAccessToken=null;driveFileId=null;googleTokenClient=null;$('googleAccount').textContent='Not signed in';$('googleLogout').disabled=true;driveStatus('Logged out. Your local records remain on this device.')};
+async function driveFetch(url,options={}){if(!driveAccessToken)throw new Error('Not signed in to Google');const headers=new Headers(options.headers||{});headers.set('Authorization','Bearer '+driveAccessToken);const res=await fetch(url,{...options,headers});if(!res.ok){let msg='Google Drive request failed ('+res.status+')';try{const j=await res.json();msg=j.error?.message||msg}catch(e){}throw new Error(msg)}if(res.status===204)return null;return res.json()}
+async function findDriveDataFile(){const q=encodeURIComponent("name='"+DRIVE_FILE_NAME+"' and trashed=false");const result=await driveFetch('https://www.googleapis.com/drive/v3/files?q='+q+'&spaces=drive&fields=files(id,name,modifiedTime)&pageSize=10');return result.files?.[0]||null}
+function mergeRecords(local,cloud){const map=new Map();[...(cloud||[]),...(local||[])].forEach(r=>{if(!r?.id)return;const old=map.get(r.id);if(!old||String(r.updatedAt||'')>=String(old.updatedAt||''))map.set(r.id,r)});return [...map.values()]}
+async function writeDriveDataFile(recordsArray){const body=JSON.stringify({app:'Honnasiri Honda Workshop Pro',schemaVersion:1,updatedAt:new Date().toISOString(),records:recordsArray});if(!driveFileId){const meta=await driveFetch('https://www.googleapis.com/drive/v3/files?fields=id',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:DRIVE_FILE_NAME,mimeType:'application/json'})});driveFileId=meta.id}const res=await fetch('https://www.googleapis.com/upload/drive/v3/files/'+encodeURIComponent(driveFileId)+'?uploadType=media',{method:'PATCH',headers:{Authorization:'Bearer '+driveAccessToken,'Content-Type':'application/json'},body});if(!res.ok)throw new Error('Could not save records to Drive ('+res.status+').');return true}
+async function syncDriveNow(){if(!driveAccessToken||driveSyncBusy)return;driveSyncBusy=true;try{driveStatus('Syncing records with Google Drive…');const f=await findDriveDataFile();let cloud=[];if(f){driveFileId=f.id;const data=await driveFetch('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(f.id)+'?alt=media');cloud=Array.isArray(data)?data:(data.records||[])}const merged=mergeRecords(records(),cloud);suppressCloudSync=true;persist(merged);suppressCloudSync=false;await writeDriveDataFile(merged);renderJobs();renderReports();driveStatus('Synced successfully · '+merged.length+' service record(s) in Google Drive.','good')}catch(e){suppressCloudSync=false;driveStatus('Sync issue: '+e.message+'. Local records are still saved on this device.')}finally{driveSyncBusy=false}}
+function scheduleDriveSync(){if(!driveAccessToken)return;clearTimeout(driveSyncTimer);driveSyncTimer=setTimeout(()=>syncDriveNow(),1200)}
+
+$('saveRecord').onclick=()=>{const f=$('serviceForm');if(!f.reportValidity()){openSection(1);return}const r=getRecord();const arr=records();const i=arr.findIndex(x=>x.id===r.id);if(i>=0)arr[i]=r;else arr.push(r);persist(arr);$('recordId').value=r.id;$('saveStatus').textContent='Saved on this device at '+new Date().toLocaleString();$('saveStatus').className='success';renderJobs();renderReports()};
+$('newRecord').onclick=()=>{if(!confirm('Start a new record? Save current changes first if needed.'))return;resetForm();openSection(1)};
+function resetForm(){ $('serviceForm').reset();$('recordId').value='';$('date').value=today();$('inspector').value='Imran';$('discount').value=0;$('taxRate').value=18;$('otherCharges').value=0;$('advance').value=0;$('partsList').innerHTML='';$('labourList').innerHTML='';$('futureList').innerHTML='';qc.querySelectorAll('input').forEach(x=>x.checked=false);updateQc();addPart();addLabour();calcTotals();$('saveStatus').textContent=''}
+function loadRecord(id){const r=records().find(x=>x.id===id);if(!r)return;resetForm();$('recordId').value=r.id;['customer','mobile','reg','model','km','jobcard','date','serviceType','amcType','workStatus','advisor','technician','timeIn','timeOut','fiDone','delivery','complaint','finding','cause','action','verify','inspector','qcDecision','qcRemarks','advisory','remarks','discount','taxRate','otherCharges','advance'].forEach(k=>{if(r[k]!=null)$(k).value=r[k]});if(r.advisor==='Other / Custom'){$('advisorCustom').classList.remove('hidden');$('advisorCustom').value=r.advisorName||''}if(r.technician==='Other / Custom'){$('technicianCustom').classList.remove('hidden');$('technicianCustom').value=r.technicianName||''}qc.querySelectorAll('.checkrow').forEach(row=>{const item=row.querySelector('.item').textContent;const found=(r.qc||[]).find(x=>x.item===item);if(found){row.querySelector('input[data-state="OK"]').checked=found.status==='OK';row.querySelector('input[data-state="NOT OK"]').checked=found.status==='NOT OK'}});updateQc();$('partsList').innerHTML='';(r.parts||[]).forEach(addPart);$('labourList').innerHTML='';(r.labour||[]).forEach(addLabour);$('futureList').innerHTML='';(r.future||[]).forEach(addFuture);calcTotals();document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.view==='formView'));['formView','reportsView','jobsView','backupView'].forEach(id=>$(id).classList.toggle('hidden',id!=='formView'));openSection(1);window.scrollTo({top:0,behavior:'smooth'})}
+$('addPart').onclick=()=>addPart();$('addLabour').onclick=()=>addLabour();$('addFuture').onclick=()=>addFuture();
+$('advisor').onchange=()=> $('advisorCustom').classList.toggle('hidden',$('advisor').value!=='Other / Custom');$('technician').onchange=()=> $('technicianCustom').classList.toggle('hidden',$('technician').value!=='Other / Custom');
+['discount','taxRate','otherCharges','advance'].forEach(id=>$(id).addEventListener('input',calcTotals));
+$('printRecord').onclick=()=>window.print();
+$('shareRecord').onclick=async()=>{const r=getRecord();const txt=`Honnasiri Honda Workshop Estimate\nCustomer: ${r.customer}\nRegistration: ${r.reg}\nJob Card: ${r.jobcard}\nAdvisor: ${r.advisorName}\nTechnician: ${r.technicianName}\nFinal inspection: ${r.inspector}\nEstimated total: ${money(r.totals.grand)}\nQC: ${r.qcCounts.ok} OK, ${r.qcCounts.notOk} NOT OK, ${r.qcCounts.pending} Pending`;if(navigator.share){try{await navigator.share({title:'Honnasiri Honda Workshop Report',text:txt})}catch(e){}}else{try{await navigator.clipboard.writeText(txt);alert('Summary copied. Paste it into WhatsApp or email.')}catch(e){alert(txt)}}};
+
+
+let activeReportMode='daily';
+function serviceTypeCounts(list){return [['Paid Service',list.filter(r=>r.serviceType==='Paid Service').length],['Free Service',list.filter(r=>r.serviceType==='Free Service').length],['Warranty',list.filter(r=>r.serviceType==='Warranty').length],['Repair / General',list.filter(r=>r.serviceType==='Repair / General').length],['Accident',list.filter(r=>r.serviceType==='Accident').length]]}
+function groupPeople(arr,field){
+ const roster=field==='technicianName'
+  ? ['FURKHAN','SHOIB','CHAND PASHA','SACHIN','ASIF','MD FAZAL','ABHI','IMRAN']
+  : ['Sanjeev. L','Sanjeev L','Sanjeev Reddy','Deekshit'];
+ const map={};roster.forEach(name=>map[name]=[]);
+ arr.forEach(r=>{let name=(r[field]||'').trim();if(!name)name='Not assigned';if(!map[name])map[name]=[];map[name].push(r)});
+ return Object.entries(map).sort((a,b)=>{const diff=b[1].length-a[1].length;return diff||a[0].localeCompare(b[0])});
+}
+function swKpi(label,value,hint=''){return `<div class="sw-kpi"><div class="lab">${esc(label)}</div><div class="val">${esc(value)}</div>${hint?`<div class="hint">${esc(hint)}</div>`:''}</div>`}
+function swType(label,value){return `<div class="sw-type"><span>${esc(label)}</span><strong>${value}</strong></div>`}
+function swStatus(label,value){return `<div class="sw-status"><span>${esc(label)}</span><b>${value}</b></div>`}
+function peopleCards(entries,kind){
+ if(!entries.length)return '<div class="sw-empty">No staff roster available.</div>';
+ return entries.map(([name,list])=>{
+  const types=serviceTypeCounts(list),total=list.length;
+  let out=`<div class="sw-person"><div class="sw-person-head"><strong>${esc(name)}</strong><span class="sw-chip">${total} vehicle${total===1?'':'s'}</span></div><div class="sw-person-body">${total===0?`<div class="subtle">No saved jobs assigned to this staff member for the selected period.</div>`:'' }<div class="sw-mini-label">Type of service</div><div class="sw-type-grid">${types.map(([t,n])=>swType(t,n)).join('')}</div>`;
+  if(kind==='technician'){
+   out+=`<div class="sw-mini-label">Vehicle status</div><div class="sw-status-grid">${[['Total vehicles',total],['Completed',list.filter(r=>r.workStatus==='Completed'||r.fiDone==='Done').length],['Pending',list.filter(r=>r.workStatus==='Pending'||(!r.workStatus&&r.fiDone!=='Done')).length],['Waiting for Parts',list.filter(r=>r.workStatus==='Waiting for Parts').length],['Work in Process',list.filter(r=>r.workStatus==='Work in Process').length],['Waiting for CV Approval',list.filter(r=>r.workStatus==='Waiting for CV Approval').length]].map(([l,n])=>swStatus(l,n)).join('')}</div>`;
+  } else {
+   out+=`<div class="sw-mini-label">New AMC / EW / EW+</div><div class="sw-type-grid">${[['NEW AMC',list.filter(r=>r.amcType==='NEW AMC').length],['NEW EW',list.filter(r=>r.amcType==='NEW EW').length],['NEW EW+',list.filter(r=>r.amcType==='NEW EW+').length]].map(([l,n])=>swType(l,n)).join('')}</div><div class="sw-mini-label">Delivery & pending</div><div class="sw-status-grid">${swStatus('Not delivered',list.filter(r=>r.delivery!=='Delivered').length)}${swStatus('Delivered',list.filter(r=>r.delivery==='Delivered').length)}${swStatus('Pending',list.filter(r=>r.workStatus==='Pending'||(!r.workStatus&&r.fiDone!=='Done')).length)}</div>`;
+  }
+  return out+'</div></div>';
+ }).join('');
+}
+function reportData(){const day=$('reportDate').value||today(),month=$('reportMonth').value||day.slice(0,7),all=records(),daily=all.filter(r=>r.date===day),mtd=all.filter(r=>r.date&&r.date.slice(0,7)===month&&r.date<=day);return {day,month,daily,mtd,arr:activeReportMode==='daily'?daily:mtd}}
+function getSectionMetrics(arr){const sum=k=>arr.reduce((s,r)=>s+(Number(r.totals?.[k])||0),0);return {jobs:arr.length,paid:arr.filter(r=>r.serviceType==='Paid Service').length,free:arr.filter(r=>r.serviceType==='Free Service').length,warranty:arr.filter(r=>r.serviceType==='Warranty').length,repair:arr.filter(r=>r.serviceType==='Repair / General').length,accident:arr.filter(r=>r.serviceType==='Accident').length,amc:arr.filter(r=>r.amcType==='NEW AMC').length,ew:arr.filter(r=>r.amcType==='NEW EW').length,ewp:arr.filter(r=>r.amcType==='NEW EW+').length,parts:sum('parts'),labour:sum('labour'),estimate:sum('grand')}}
+function renderReports(){
+ const d=reportData(),arr=d.arr,m=getSectionMetrics(arr),daily=activeReportMode==='daily';
+ $('showDailyReport').classList.toggle('active',daily);$('showMtdReport').classList.toggle('active',!daily);
+ $('reportTitle').textContent=daily?'Daily Workshop Floor Report':'MTD Workshop Floor Report';
+ $('reportSubtitle').textContent=daily?`Date: ${d.day} · ${arr.length} service record(s)`:`Month: ${d.month} · Through ${d.day} · ${arr.length} service record(s)`;
+ $('swSection1').innerHTML=`<div class="sw-kpis">${swKpi('Total service volume',m.jobs,'All service records')}${swKpi('Paid service',m.paid)}${swKpi('Free service',m.free)}${swKpi('Warranty',m.warranty)}${swKpi('Repair / general',m.repair)}${swKpi('Accident',m.accident)}</div><div class="sw-mini-label">New plan sales</div><div class="sw-type-grid">${swType('NEW AMC',m.amc)}${swType('NEW EW',m.ew)}${swType('NEW EW+',m.ewp)}</div><div class="sw-mini-label">Estimated value — not actual billed revenue</div><div class="sw-type-grid">${swType('Parts estimate',money(m.parts))}${swType('Labour estimate',money(m.labour))}${swType('Total estimate',money(m.estimate))}</div>`;
+ $('swSection2').innerHTML=peopleCards(groupPeople(arr,'technicianName'),'technician');
+ $('swSection3').innerHTML=peopleCards(groupPeople(arr,'advisorName'),'advisor');
+}
+$('showDailyReport').onclick=()=>{activeReportMode='daily';renderReports()};
+$('showMtdReport').onclick=()=>{activeReportMode='mtd';renderReports()};
+function tableHTML(arr){
+ if(!arr.length)return '<div class="subtle">No saved service records found.</div>';
+ const cols=[['Date',r=>r.date],['Job Card',r=>r.jobcard],['Registration',r=>r.reg],['Customer',r=>r.customer],['Model',r=>r.model],['Service',r=>r.serviceType],['Advisor',r=>r.advisorName],['Technician',r=>r.technicianName],['Status',r=>r.delivery||r.workStatus||'Pending'],['Estimate',r=>money(r.totals?.grand)]];
+ return '<table><thead><tr>'+cols.map(c=>'<th>'+c[0]+'</th>').join('')+'</tr></thead><tbody>'+arr.slice().sort((a,b)=>String(b.updatedAt||b.date||'').localeCompare(String(a.updatedAt||a.date||''))).map(r=>'<tr>'+cols.map(c=>'<td>'+esc(c[1](r)??'')+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
+}
+function renderJobs(){const q=($('jobSearch').value||'').toLowerCase();const arr=records().filter(r=>[r.customer,r.reg,r.jobcard,r.advisorName,r.technicianName].some(x=>String(x||'').toLowerCase().includes(q)));$('savedJobs').innerHTML=tableHTML(arr)}
+$('jobSearch').oninput=renderJobs;
+function csv(arr){const cols=['date','jobcard','reg','customer','mobile','model','km','serviceType','advisorName','technicianName','timeIn','timeOut','fiDone','delivery','inspector','qcDecision','qcCounts.ok','qcCounts.notOk','qcCounts.pending','totals.parts','totals.labour','totals.grand','totals.balance','complaint','finding','action','remarks'];const val=(r,k)=>k.split('.').reduce((a,p)=>a?.[p],r);return [cols.join(','),...arr.map(r=>cols.map(k=>`"${String(val(r,k)??'').replace(/"/g,'""')}"`).join(','))].join('\r\n')}
+function download(name,content,type){const blob=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+function summaryCsv(mode){
+ const d=reportData(),arr=mode==='daily'?d.daily:d.mtd,m=getSectionMetrics(arr),tech=groupPeople(arr,'technicianName'),adv=groupPeople(arr,'advisorName');
+ const rows=[['HONNASIRI HONDA — WORKSHOP FLOOR REPORT',mode==='daily'?'DAILY':'MTD'],['Period',mode==='daily'?d.day:`${d.month} through ${d.day}`],['SECTION 1 — SERVICE VOLUME'],['Total service volume',m.jobs],['Paid Service',m.paid],['Free Service',m.free],['Warranty',m.warranty],['Repair / General',m.repair],['Accident',m.accident],['NEW AMC',m.amc],['NEW EW',m.ew],['NEW EW+',m.ewp],['SECTION 2 — TECHNICIAN-WISE'],['Technician','Service type','Total vehicles','Completed','Pending','Waiting for Parts','Work in Process','Waiting for CV Approval']];
+ tech.forEach(([name,list])=>{rows.push([name,'All service types',list.length,list.filter(r=>r.workStatus==='Completed'||r.fiDone==='Done').length,list.filter(r=>r.workStatus==='Pending'||(!r.workStatus&&r.fiDone!=='Done')).length,list.filter(r=>r.workStatus==='Waiting for Parts').length,list.filter(r=>r.workStatus==='Work in Process').length,list.filter(r=>r.workStatus==='Waiting for CV Approval').length]);serviceTypeCounts(list).filter(x=>x[1]).forEach(([type,n])=>rows.push([name,type,n,'','','','','']))});
+ rows.push(['SECTION 3 — SERVICE ADVISOR-WISE'],['Service advisor','Service type','Total vehicles','NEW AMC','NEW EW','NEW EW+','Not delivered','Delivered','Pending']);
+ adv.forEach(([name,list])=>{rows.push([name,'All service types',list.length,list.filter(r=>r.amcType==='NEW AMC').length,list.filter(r=>r.amcType==='NEW EW').length,list.filter(r=>r.amcType==='NEW EW+').length,list.filter(r=>r.delivery!=='Delivered').length,list.filter(r=>r.delivery==='Delivered').length,list.filter(r=>r.workStatus==='Pending'||(!r.workStatus&&r.fiDone!=='Done')).length]);serviceTypeCounts(list).filter(x=>x[1]).forEach(([type,n])=>rows.push([name,type,n,'','','','','','']))});
+ return rows.map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\r\n')
+}
+$('downloadDaily').onclick=()=>{const d=$('reportDate').value||today();download(`Honnasiri_Daily_Summary_${d}.csv`,summaryCsv('daily'),'text/csv;charset=utf-8')};
+$('downloadMtd').onclick=()=>{const d=$('reportDate').value||today(),m=$('reportMonth').value||d.slice(0,7);download(`Honnasiri_MTD_Summary_${m}_through_${d}.csv`,summaryCsv('mtd'),'text/csv;charset=utf-8')};
+$('printReports').onclick=()=>window.print();
+$('exportBackup').onclick=()=>download(`Honnasiri_Workshop_Backup_${today()}.json`,JSON.stringify({app:'Honnasiri Honda Workshop Pro',version:1,exportedAt:new Date().toISOString(),records:records()},null,2),'application/json');
+$('importBackup').onclick=()=>$('backupFile').click();
+$('backupFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const data=JSON.parse(await f.text());const incoming=Array.isArray(data)?data:data.records;if(!Array.isArray(incoming))throw new Error('Backup must contain a records array.');if(!confirm(`Import ${incoming.length} records? Matching record IDs will be updated; other records are preserved.`))return;const map=new Map(records().map(r=>[r.id,r]));incoming.forEach(r=>map.set(r.id||String(Date.now()+Math.random()),r));persist([...map.values()]);$('backupStatus').textContent=`Restored/merged ${incoming.length} records successfully.`;renderJobs();renderReports()}catch(err){$('backupStatus').textContent='Restore failed: '+err.message}e.target.value=''};
+function init(){const d=today();$('date').value=d;$('reportDate').value=d;$('reportMonth').value=d.slice(0,7);addPart();addLabour();renderReports();loadGoogleConfig();if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{})}
+init();
+</script>
+</body></html>
