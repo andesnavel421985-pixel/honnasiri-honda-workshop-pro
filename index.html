@@ -120,7 +120,15 @@ body.dark .diagnostic-reference{background:#1c2635!important;color:#edf1f7!impor
 .diagnostic-reference[open]>summary::before{content:"−"}
 .diagnostic-reference>summary:focus,.diagnostic-reference>summary:focus-visible{outline:3px solid #f4bd4f!important;outline-offset:3px}
 .diagnostic-reference>summary:active{filter:brightness(1.12)}
-.staff-identity{display:flex;flex-wrap:wrap;align-items:center;gap:5px 12px;margin-top:10px;padding-top:9px;border-top:1px solid #ffffff55;font-size:13px;line-height:1.4}.staff-identity strong{font-size:14px;letter-spacing:.5px}.staff-identity span{font-weight:750;letter-spacing:.7px}.staff-identity a{color:#fff;text-decoration:none;font-weight:750}.staff-identity a:focus,.staff-identity a:active{text-decoration:underline}</style>
+/* Brand and dealer code are the visual priority; staff contact remains compact. */
+header h1{font-size:27px!important;font-weight:950!important;letter-spacing:.65px!important;line-height:1.15}
+header .dealer-code{font-size:19px!important;font-weight:950!important;letter-spacing:.8px!important;opacity:1!important;margin-top:8px!important;text-shadow:0 1px 2px #650018}
+.staff-identity{display:flex;flex-wrap:wrap;align-items:center;gap:3px 9px;margin-top:7px;padding-top:6px;border-top:1px solid #ffffff44;font-size:10px;line-height:1.25;opacity:.9}
+.staff-identity strong{font-size:11px;font-weight:700;letter-spacing:.25px}
+.staff-identity span{font-size:10px;font-weight:600;letter-spacing:.35px}
+.staff-identity a{color:#fff;text-decoration:none;font-size:11px;font-weight:650}
+.staff-identity a:focus,.staff-identity a:active{text-decoration:underline}
+@media(max-width:620px){header h1{font-size:23px!important}header .dealer-code{font-size:17px!important}.staff-identity{gap:2px 8px;margin-top:6px;padding-top:5px}.staff-identity strong,.staff-identity a{font-size:10px}.staff-identity span{font-size:9px}}</style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
