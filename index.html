@@ -81,6 +81,10 @@
 .dealer-code{margin-top:5px!important;font-size:13px!important;font-weight:900;letter-spacing:1px;opacity:1!important}.call-customer{width:100%;margin-top:7px;background:#e8f7ee;border-color:#b8e2c8;color:#12683c}.call-customer:disabled{opacity:.45;cursor:not-allowed}
 
 
+/* Match vehicle model selector to the active theme; avoid a white control in dark mode. */
+body.dark #model{background-color:#121b28!important;background-image:none!important;color:#edf1f7!important;-webkit-text-fill-color:#edf1f7!important;border-color:#c8102e!important;color-scheme:dark!important}
+body.dark #model option{background-color:#1c2635!important;color:#edf1f7!important}
+body.dark #model:focus{outline:3px solid #f3a6b3!important;outline-offset:2px}
 /* User-selectable appearance */
 body.dark{--ink:#edf1f7;--muted:#aab4c3;--line:#394456;--bg:#111722;color-scheme:dark}
 body.dark .card,body.dark .navbtn,body.dark .sectionbtn,body.dark button,
