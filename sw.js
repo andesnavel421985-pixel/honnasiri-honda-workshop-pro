@@ -1,4 +1,4 @@
-const CACHE_NAME = "honnasiri-honda-v3";
+const CACHE_NAME = "honnasiri-honda-v4";
 
 const APP_FILES = [
   "./",
