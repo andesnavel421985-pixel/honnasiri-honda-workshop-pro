@@ -401,7 +401,7 @@ $('shareRecord').onclick=async()=>{const r=getRecord();const txt=`Honnasiri Hond
 
 let activeReportMode='daily';
 function serviceTypeCounts(list){return [['Paid Service',list.filter(r=>r.serviceType==='Paid Service').length],['Free Service',list.filter(r=>r.serviceType==='Free Service').length],['Warranty',list.filter(r=>r.serviceType==='Warranty').length],['Repair / General',list.filter(r=>r.serviceType==='Repair / General').length],['Accident',list.filter(r=>r.serviceType==='Accident').length]]}
-function canonicalAdvisorName(value){const name=String(value||'').trim();const key=name.toLowerCase().replace(/[.\\s]/g,'');return key==='sanjeevl'?'Sanjeev. L':name}
+function canonicalAdvisorName(value){const name=String(value||'').trim();const key=name.toLowerCase().replace(/ /g,'').replace(/\\./g,'');return key==='sanjeevl'?'Sanjeev. L':name}
 function isImranInspectionRecord(r){return /^imran$/i.test(String(r.technicianName||r.technician||'').trim())}
 function groupPeople(arr,field){
  const roster=field==='technicianName'?['FURKHAN','SHOIB','CHAND PASHA','SACHIN','ASIF','MD FAZAL','ABHI']:field==='advisorName'?['Sanjeev. L','Sanjeev Reddy','Deekshit']:['Imran'];
