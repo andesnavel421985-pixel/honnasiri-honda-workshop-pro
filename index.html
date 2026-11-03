@@ -165,6 +165,40 @@ body.black .request-option span{color:#f5f5f5!important;-webkit-text-fill-color:
 body.black .request-option input{background:#050505!important;border:2px solid #777!important;accent-color:#ff6b81!important;color-scheme:dark}
 body.black .request-option-count{color:#b8b8b8!important}
 body.black .customer-request-field>.subtle{color:#b8b8b8!important}
+
+/* Section 02 customer-request picker: explicit backgrounds for every appearance mode.
+   Light mode must not inherit the dark fallback panel color. */
+body:not(.dark):not(.black) .request-picker,
+body:not(.dark):not(.black) .request-option-list{
+  background:#f7f9fc!important;color:#172033!important;border-color:#e2e6ec!important;
+}
+body:not(.dark):not(.black) .request-option{
+  background:#ffffff!important;color:#17202c!important;border-color:#cbd3df!important;
+}
+body:not(.dark):not(.black) .request-option span{
+  color:#17202c!important;-webkit-text-fill-color:#17202c!important;
+}
+body.dark .request-picker,
+body.dark .request-option-list{
+  background:#172231!important;color:#edf1f7!important;border-color:#394456!important;
+}
+body.dark .request-option{
+  background:#253246!important;color:#f2f5fa!important;border-color:#596a82!important;
+}
+body.dark .request-option span{
+  color:#f2f5fa!important;-webkit-text-fill-color:#f2f5fa!important;
+}
+body.black .request-picker,
+body.black .request-option-list{
+  background:#080808!important;color:#f5f5f5!important;border-color:#303030!important;
+}
+body.black .request-option{
+  background:#111111!important;color:#f5f5f5!important;border-color:#383838!important;
+}
+body.black .request-option span{
+  color:#f5f5f5!important;-webkit-text-fill-color:#f5f5f5!important;
+}
+
 </style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
