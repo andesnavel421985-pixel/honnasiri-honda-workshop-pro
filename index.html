@@ -334,7 +334,7 @@ body.dark .subtle,body.black .subtle,body.dark label,body.black label{color:var(
 </div></div></div>
 
 <div id="planningView" class="hidden"><div class="card">
-<h2>Target vs Plan & Actual</h2><p class="subtle">Monthly targets and daily plan are based on the uploaded HH Service_Workshop_Revenue_Analysis workbook. Daily plan uses 25 working days. Edit target values to match the latest HMSI AM target.</p>
+<h2>Target vs Plan & Actual</h2><p class="subtle">Monthly targets and daily plan are based on the uploaded HH Service_Workshop_Revenue_Analysis workbook. Monthly vehicle targets automatically scale up or down in proportion to working days. Increasing working days increases monthly service volume and all linked monthly revenue targets; daily productivity plan remains consistent. Edit target values to match the latest HMSI AM target.</p>
 <div class="grid"><div class="field"><label>Working days per month</label><input id="planWorkingDays" type="number" min="1" value="25"></div><div class="field"><label>Monthly Free Service target</label><input id="targetFree" type="number" min="0" value="240"></div><div class="field"><label>Monthly Paid Service target</label><input id="targetPaid" type="number" min="0" value="560"></div><div class="field"><label>Monthly General Service target</label><input id="targetGeneral" type="number" min="0" value="160"></div><div class="field"><label>Monthly Minor Repair target</label><input id="targetMinor" type="number" min="0" value="35"></div><div class="field"><label>Monthly Accidental Service target</label><input id="targetAccident" type="number" min="0" value="5"></div><div class="field"><label>Monthly NEW AMC target (separate)</label><input id="targetAmc" type="number" min="0" value="200"></div></div>
 <div class="toolbar"><button type="button" class="primary" id="saveTargets">Save Target Settings</button><button type="button" id="resetTargets">Restore Workbook Defaults</button></div><p id="targetSaveStatus" class="subtle" aria-live="polite">Changes recalculate automatically as you edit.</p><div id="targetActualTable"></div>
 <div class="report-block"><h3>Workbook calculation assumptions</h3><p class="subtle">Source: approved workshop planning calculation shown in the target sheet. LP'VA paid labour ₹875/vehicle, FSC ₹110/vehicle, General Service labour ₹150/vehicle, PP'VA parts ₹1,020.25/paid vehicle, LUB-P'VA lubricant ₹380/eligible free + paid vehicle. Daily plan is calculated using 25 working days. These are planning assumptions and can be edited if management revises the rates.</p>
@@ -701,7 +701,17 @@ init();
   if($id('targetActualTable'))$id('targetActualTable').innerHTML=countTable+revTable;
   if($id('workbookRevenuePlan'))$id('workbookRevenuePlan').innerHTML='<b>Source workbook calculation assumptions:</b> FSC ₹'+targets.freeLabour+'; LP’VA ₹'+targets.paidLabour+'; General Service labour ₹'+targets.generalLabour+'; PP’VA ₹'+targets.parts+'; LUB-P’VA ₹'+targets.lube+'.<br><b>Monthly target:</b> Labour '+moneyFmt(targetRevenue.labour)+' + Parts '+moneyFmt(targetRevenue.parts)+' + Lubricant '+moneyFmt(targetRevenue.lube)+' = <b>'+moneyFmt(targetRevenue.labour+targetRevenue.parts+targetRevenue.lube)+'</b>.<br><b>Daily plan:</b> '+moneyFmt((targetRevenue.labour+targetRevenue.parts+targetRevenue.lube)/days)+' per working day ('+days+' working days).';
  }
- function saveTargets(){Object.entries(targetFields).forEach(([k,id])=>{if($id(id))targets[k]=validNum(id)});targets.workingDays=Math.max(1,targets.workingDays);setJson(TARGET_KEY,targets);updateTargetReport()}
+ function saveTargets(){
+  const previousDays=Math.max(1,Number(targets.workingDays)||25);
+  Object.entries(targetFields).forEach(([k,id])=>{if($id(id))targets[k]=validNum(id)});
+  const nextDays=Math.max(1,Number(targets.workingDays)||1);
+  if(nextDays!==previousDays){
+   const scale=nextDays/previousDays;
+   ['free','paid','general','minor','accident','amc'].forEach(k=>{targets[k]=Math.round(targets[k]*scale);const id=targetFields[k];if($id(id))$id(id).value=targets[k]});
+  }
+  targets.workingDays=nextDays;
+  setJson(TARGET_KEY,targets);updateTargetReport();
+ }
  // Live recalculation: every target or per-vehicle rate edit immediately updates all dependent totals and persists locally.
  Object.values(targetFields).forEach(id=>$id(id)?.addEventListener('input',()=>{saveTargets();const status=$id('targetSaveStatus');if(status)status.textContent='Calculations updated and saved automatically.'}));
  $id('saveTargets')?.addEventListener('click',()=>{saveTargets();const status=$id('targetSaveStatus');if(status)status.textContent='Target settings saved.';else alert('Target and planning assumptions saved on this device.')});
