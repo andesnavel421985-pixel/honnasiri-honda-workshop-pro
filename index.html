@@ -199,6 +199,41 @@ body.black .request-option span{
   color:#f5f5f5!important;-webkit-text-fill-color:#f5f5f5!important;
 }
 
+
+
+/* Appearance mode consistency patch: keep page, cards, controls and tables in the selected palette. */
+body,body .wrap{background-color:var(--bg)!important;color:var(--ink)}
+body .card,body .report-block,body .sw-section,body .diagnostic-row,body .spec-row,
+body .request-picker,body .request-option-list{background-color:var(--panel);color:var(--ink);border-color:var(--line)}
+body .field input,body .field select,body .field textarea,body .line input,body .line select,
+body .line textarea,body input:not([type=checkbox]):not([type=radio]):not([type=file]),
+body select,body textarea{color:var(--ink);border-color:var(--line);color-scheme:inherit}
+body.dark .card,body.dark .report-block,body.dark .sw-section,body.dark .diagnostic-row,body.dark .spec-row,
+body.dark .request-picker,body.dark .request-option-list{background:var(--panel)!important;color:var(--ink)!important;border-color:var(--line)!important}
+body.dark .field input,body.dark .field select,body.dark .field textarea,body.dark .line input,body.dark .line select,
+body.dark .line textarea,body.dark input:not([type=checkbox]):not([type=radio]):not([type=file]),body.dark select,body.dark textarea{
+ background:var(--field)!important;background-color:var(--field)!important;color:var(--ink)!important;
+ -webkit-text-fill-color:var(--ink);border-color:var(--line)!important;color-scheme:dark!important
+}
+body.black .card,body.black .report-block,body.black .sw-section,body.black .diagnostic-row,body.black .spec-row,
+body.black .request-picker,body.black .request-option-list{background:var(--panel)!important;color:var(--ink)!important;border-color:var(--line)!important}
+body.black .field input,body.black .field select,body.black .field textarea,body.black .line input,body.black .line select,
+body.black .line textarea,body.black input:not([type=checkbox]):not([type=radio]):not([type=file]),body.black select,body.black textarea{
+ background:var(--field)!important;background-color:var(--field)!important;color:var(--ink)!important;
+ -webkit-text-fill-color:var(--ink);border-color:var(--line)!important;color-scheme:dark!important
+}
+body.dark th,body.dark .checkgroup h3,body.dark .sw-title,body.dark .sw-person-head,body.dark .line,body.dark .stat,body.dark .sw-status,
+body.black th,body.black .checkgroup h3,body.black .sw-title,body.black .sw-person-head,body.black .line,body.black .stat,body.black .sw-status{
+ background:var(--soft)!important;color:var(--ink)!important;border-color:var(--line)!important
+}
+body.dark td,body.black td,body.dark .report-row,body.black .report-row,body.dark .checkrow,body.black .checkrow{color:var(--ink)!important;border-color:var(--line)!important}
+body:not(.dark):not(.black) .card,body:not(.dark):not(.black) .report-block,body:not(.dark):not(.black) .sw-section{background:#fff!important;color:#172033!important}
+.theme-options button.theme-selected{outline:3px solid #c8102e!important;outline-offset:2px;font-weight:900!important;box-shadow:0 0 0 2px #ffffff inset!important}
+body.dark .theme-options button,body.black .theme-options button{background:var(--panel)!important;color:var(--ink)!important;border-color:var(--line)!important}
+body.dark .theme-options button.theme-selected,body.black .theme-options button.theme-selected{background:#42232d!important;color:#ffffff!important;border-color:#ff9aaa!important}
+body:not(.dark):not(.black) .theme-options button.theme-selected{background:#fff0f2!important;color:#8e1028!important;border-color:#c8102e!important}
+body.dark .pill,body.black .pill,body.dark .sw-chip,body.black .sw-chip{background:var(--soft)!important;color:var(--ink)!important}
+body.dark .subtle,body.black .subtle,body.dark label,body.black label{color:var(--muted)}
 </style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
@@ -568,7 +603,42 @@ function updateCurrentDeviceName(){
  const el=$('currentDeviceName');
  if(el)el.textContent=getCurrentDeviceName();
 }
-function applyTheme(mode,save=true){const selected=['light','dark','black'].includes(String(mode).toLowerCase())?String(mode).toLowerCase():'light';const root=document.documentElement;const body=document.body;root.dataset.theme=selected;root.style.colorScheme=selected==='light'?'light':'dark';body.dataset.theme=selected;body.classList.remove('dark','black');if(selected!=='light')body.classList.add(selected);const palette=selected==='black'?{bg:'#000000',ink:'#f5f5f5',panel:'#090909',line:'#303030',meta:'#000000'}:selected==='dark'?{bg:'#111722',ink:'#edf1f7',panel:'#1c2635',line:'#394456',meta:'#111722'}:{bg:'#f4f6f9',ink:'#172033',panel:'#ffffff',line:'#e2e6ec',meta:'#c8102e'};body.style.setProperty('background-color',palette.bg,'important');body.style.setProperty('color',palette.ink,'important');body.style.setProperty('--bg',palette.bg);body.style.setProperty('--ink',palette.ink);body.style.setProperty('--line',palette.line);body.style.setProperty('--panel',palette.panel);const schemeMeta=document.querySelector('meta[name="color-scheme"]');if(schemeMeta)schemeMeta.content=selected;$('themeModeLabel').textContent=selected==='black'?'Black mode':selected==='dark'?'Dark mode':'Light mode';$('darkModeButton').classList.toggle('primary',selected==='dark');$('lightModeButton').classList.toggle('primary',selected==='light');$('blackModeButton').classList.toggle('primary',selected==='black');$('darkModeButton').setAttribute('aria-pressed',String(selected==='dark'));$('lightModeButton').setAttribute('aria-pressed',String(selected==='light'));$('blackModeButton').setAttribute('aria-pressed',String(selected==='black'));const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=palette.meta;if(save){try{localStorage.setItem('honnasiri-theme',selected)}catch(e){}}return selected}
+function applyTheme(mode,save=true){
+ const selected=['light','dark','black'].includes(String(mode||'').trim().toLowerCase())?String(mode).trim().toLowerCase():'light';
+ const root=document.documentElement,body=document.body;
+ const palettes={
+  light:{bg:'#f4f6f9',ink:'#172033',muted:'#667085',panel:'#ffffff',field:'#ffffff',line:'#e2e6ec',soft:'#f7f8fa',meta:'#c8102e'},
+  dark:{bg:'#111722',ink:'#edf1f7',muted:'#aab4c3',panel:'#1c2635',field:'#121b28',line:'#394456',soft:'#253144',meta:'#111722'},
+  black:{bg:'#000000',ink:'#f5f5f5',muted:'#b8b8b8',panel:'#090909',field:'#050505',line:'#303030',soft:'#111111',meta:'#000000'}
+ };
+ const p=palettes[selected];
+ root.dataset.theme=selected;body.dataset.theme=selected;
+ body.classList.remove('dark','black');if(selected!=='light')body.classList.add(selected);
+ [root,body].forEach(el=>{
+  el.style.setProperty('color-scheme',selected==='light'?'light':'dark');
+  el.style.setProperty('--bg',p.bg);el.style.setProperty('--ink',p.ink);
+  el.style.setProperty('--muted',p.muted);el.style.setProperty('--panel',p.panel);
+  el.style.setProperty('--field',p.field);el.style.setProperty('--line',p.line);
+  el.style.setProperty('--soft',p.soft);
+ });
+ body.style.setProperty('background-color',p.bg,'important');
+ body.style.setProperty('color',p.ink,'important');
+ const schemeMeta=document.querySelector('meta[name="color-scheme"]');if(schemeMeta)schemeMeta.content=selected;
+ const themeMeta=document.querySelector('meta[name="theme-color"]');if(themeMeta)themeMeta.content=p.meta;
+ const label=$('themeModeLabel');if(label)label.textContent=selected==='black'?'Black mode':selected==='dark'?'Dark mode':'Light mode';
+ [['lightModeButton','light'],['darkModeButton','dark'],['blackModeButton','black']].forEach(([id,value])=>{
+  const button=$(id);if(!button)return;
+  const active=value===selected;
+  button.classList.toggle('primary',active);button.classList.toggle('theme-selected',active);
+  button.setAttribute('aria-pressed',String(active));button.dataset.selected=String(active);
+ });
+ if(save){try{localStorage.setItem('honnasiri-theme',selected)}catch(e){if(label)label.textContent+=' · could not save on this device'}}
+ return selected;
+}
+$('lightModeButton').addEventListener('click',()=>applyTheme('light'));
+$('darkModeButton').addEventListener('click',()=>applyTheme('dark'));
+$('blackModeButton').addEventListener('click',()=>applyTheme('black'));
+window.addEventListener('storage',event=>{if(event.key==='honnasiri-theme'&&['light','dark','black'].includes(event.newValue))applyTheme(event.newValue,false)});
 $('lightModeButton').addEventListener('click',()=>applyTheme('light'));$('darkModeButton').addEventListener('click',()=>applyTheme('dark'));$('blackModeButton').addEventListener('click',()=>applyTheme('black'));window.addEventListener('storage',event=>{if(event.key==='honnasiri-theme'&&event.newValue)applyTheme(event.newValue,false)});
 let deferredInstallPrompt=null;function isStandalone(){return window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true}function updateInstallStatus(){const status=$('installStatus'),button=$('installAppButton');if(isStandalone()){status.textContent='App is installed on this device and running as an app.';button.textContent='Already Installed';button.disabled=true}else if(deferredInstallPrompt){status.textContent='Chrome has made the app installation prompt available. Tap Install App.';button.textContent='Install App';button.disabled=false}else{status.textContent='If the Install App button is unavailable, use Chrome menu ⋮ → Install app or Add to Home screen.';button.textContent='Install App';button.disabled=true}}window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;updateInstallStatus()});window.addEventListener('appinstalled',()=>{deferredInstallPrompt=null;updateInstallStatus();});$('installAppButton').onclick=async()=>{if(!deferredInstallPrompt){updateInstallStatus();return}deferredInstallPrompt.prompt();await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;updateInstallStatus()};$('refreshAppButton').onclick=async()=>{try{if('serviceWorker'in navigator){const reg=await navigator.serviceWorker.getRegistration();if(reg)await reg.update()}window.location.reload()}catch(e){alert('Could not check for an update. Please reload Chrome.')}};$('shareAppButton').onclick=async()=>{const url=location.href;if(navigator.share){try{await navigator.share({title:'Honnasiri Honda Workshop Pro',text:'Honnasiri Honda Workshop Pro · Dealer Code KA110003',url})}catch(e){}}else if(navigator.clipboard){await navigator.clipboard.writeText(url);alert('App link copied. Share it in WhatsApp.')}else{alert(url)}};
 function init(){updateCurrentDeviceName();applyTheme((()=>{try{return localStorage.getItem('honnasiri-theme')||'light'}catch(e){return 'light'}})(),false);installSectionControls();const d=today();$('date').value=d;$('reportDate').value=d;$('reportMonth').value=d.slice(0,7);addPart();addLabour();renderReports();loadGoogleConfig();if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});updateInstallStatus()}
