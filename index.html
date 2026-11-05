@@ -543,7 +543,7 @@ function peopleCards(entries,kind){
   return out+'</div></div>';
  }).join('');
 }
-function reportData(){const day=$('reportDate').value||today(),month=$('reportMonth').value||day.slice(0,7),all=records().filter(r=>!r.isDraft),daily=all.filter(r=>r.date===day),mtd=all.filter(r=>r.date&&r.date.slice(0,7)===month&&r.date<=day);return {day,month,daily,mtd,arr:activeReportMode==='daily'?daily:mtd}}
+function reportData(){const day=$('reportDate').value||today(),month=$('reportMonth').value||day.slice(0,7),all=records(),daily=all.filter(r=>r.date===day),mtd=all.filter(r=>r.date&&r.date.slice(0,7)===month&&r.date<=day);return {day,month,daily,mtd,arr:activeReportMode==='daily'?daily:mtd}}
 function getSectionMetrics(arr){const sum=k=>arr.reduce((s,r)=>s+(Number(r.totals?.[k])||0),0);return {jobs:arr.length,paid:arr.filter(r=>r.serviceType==='Paid Service').length,free:arr.filter(r=>r.serviceType==='Free Service').length,warranty:arr.filter(r=>r.serviceType==='Warranty').length,repair:arr.filter(r=>r.serviceType==='Repair / General').length,accident:arr.filter(r=>r.serviceType==='Accident').length,amc:arr.filter(r=>r.amcType==='NEW AMC').length,ew:arr.filter(r=>r.amcType==='NEW EW').length,ewp:arr.filter(r=>r.amcType==='NEW EW+').length,parts:sum('parts'),labour:sum('labour'),estimate:sum('grand')}}
 function renderReports(){
  const d=reportData(),arr=d.arr,m=getSectionMetrics(arr),daily=activeReportMode==='daily';
