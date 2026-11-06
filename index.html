@@ -465,6 +465,15 @@ let diagnosisEvidence=[],diagnosisFiles=[];
 function renderEvidenceFiles(){const box=$('evidenceFilesList');if(!box)return;box.innerHTML='';diagnosisFiles.forEach((file,i)=>{const row=document.createElement('div');row.className='summaryrow';const label=document.createElement('span');label.textContent=file.name+' ('+Math.round((file.size||0)/1024)+' KB)';const actions=document.createElement('span');const open=document.createElement('button');open.type='button';open.textContent='Open';open.onclick=()=>{const w=window.open();if(w){w.document.write('<iframe style="border:0;width:100%;height:100%" src="'+file.dataUrl+'"></iframe>')}};const remove=document.createElement('button');remove.type='button';remove.className='danger no-print';remove.textContent='Remove';remove.onclick=()=>{diagnosisFiles.splice(i,1);renderEvidenceFiles()};actions.append(open,remove);row.append(label,actions);box.append(row)});$('evidenceFilesStatus').textContent=diagnosisFiles.length+' of 5 supporting file(s) attached.'}
 function readEvidenceFile(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onerror=()=>reject(new Error('Could not read '+file.name));reader.onload=()=>resolve({name:file.name,type:file.type||'application/octet-stream',size:file.size||0,dataUrl:reader.result,createdAt:new Date().toISOString()});reader.readAsDataURL(file)})}
 async function addEvidenceDocuments(files){const chosen=[...files].slice(0,Math.max(0,5-diagnosisFiles.length));if(!chosen.length){$('evidenceFilesStatus').textContent='Maximum of 5 supporting files per job card.';return}for(const file of chosen){try{diagnosisFiles.push(await readEvidenceFile(file))}catch(e){$('evidenceFilesStatus').textContent=e.message}}renderEvidenceFiles();if(diagnosisFiles.length&&$('recordId').value){try{saveDraftSection(2);$('evidenceFilesStatus').textContent=diagnosisFiles.length+' of 5 supporting files attached and saved to this job card draft.'}catch(err){$('evidenceFilesStatus').textContent='File attached, but draft save failed: '+err.message+' Please use Save Section before leaving this job card.'}}}
+function evidenceDataUrlToBlob(dataUrl){
+ if(typeof dataUrl!=='string')throw new Error('Saved photo data is not text.');
+ const match=dataUrl.match(/^data:([^;,]+)?;base64,([\s\S]*)$/);
+ if(!match)throw new Error('Saved photo is not a valid Base64 image.');
+ const mime=match[1]||'image/jpeg',raw=atob(match[2]),bytes=new Uint8Array(raw.length);
+ for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);
+ if(!bytes.length)throw new Error('Saved photo is empty.');
+ return new Blob([bytes],{type:mime});
+}
 let activeEvidenceViewerUrl=null;
 function closeEvidencePhotoViewer(){const viewer=$('evidencePhotoViewer'),image=$('evidencePhotoViewerImage');if(viewer)viewer.classList.remove('open');if(image)image.removeAttribute('src');if(activeEvidenceViewerUrl){URL.revokeObjectURL(activeEvidenceViewerUrl);activeEvidenceViewerUrl=null}}
 $('closeEvidencePhotoViewer').onclick=closeEvidencePhotoViewer;
@@ -483,14 +492,26 @@ function renderEvidencePhotos(){
   img.onload=()=>{if(finished)return;finished=true;clearTimeout(timeout);status.textContent='Photo preview ready.'};
   img.onerror=()=>fail('This saved image cannot be decoded for preview. The attachment data is retained.');
   const open=document.createElement('button');open.type='button';open.textContent='Open Photo';open.className='secondary';open.style.marginTop='8px';
-  open.onclick=async()=>{try{if(!previewUrl){const blob=await (await fetch(p.dataUrl)).blob();if(!blob.size)throw new Error('No image data found');previewUrl=URL.createObjectURL(blob)}closeEvidencePhotoViewer();activeEvidenceViewerUrl=previewUrl;$('evidencePhotoViewerImage').src=previewUrl;$('evidencePhotoViewer').classList.add('open')}catch(e){status.textContent='Could not display saved photo: '+(e.message||'preview error')}};
+  open.onclick=()=>{
+ try{
+  const viewer=$('evidencePhotoViewer'),viewerImage=$('evidencePhotoViewerImage');
+  viewerImage.onload=()=>{status.textContent='Photo opened successfully.'};
+  viewerImage.onerror=()=>{status.textContent='Photo data exists, but this image cannot be decoded on this phone.';viewer.classList.remove('open')};
+  if(activeEvidenceViewerUrl){URL.revokeObjectURL(activeEvidenceViewerUrl);activeEvidenceViewerUrl=null}
+  const blob=evidenceDataUrlToBlob(p.dataUrl);activeEvidenceViewerUrl=URL.createObjectURL(blob);
+  viewerImage.src=activeEvidenceViewerUrl;viewer.classList.add('open');
+ }catch(e){status.textContent='Could not display saved photo: '+(e.message||'invalid photo data')}
+};
   if(typeof p.dataUrl==='string'&&p.dataUrl.startsWith('data:image/')){
    // Convert the saved data URL to a Blob URL. This avoids asking older Android browsers
    // to decode a very long inline base64 string directly in the preview element.
-   fetch(p.dataUrl).then(response=>response.blob()).then(blob=>{
-    if(!blob.size)throw new Error('The saved photo contains no image data.');
+   try{
+    const blob=evidenceDataUrlToBlob(p.dataUrl);
     previewUrl=URL.createObjectURL(blob);img.src=previewUrl;
-   }).catch(e=>fail('Photo preview failed: '+(e.message||'invalid image data')+'. The saved attachment has not been deleted.'));
+   }catch(e){
+    img.src=p.dataUrl;
+    status.textContent='Loading saved image directly…';
+   }
   }else fail('Saved photo data is missing or invalid. The record has not been removed.');
   const caption=document.createElement('div');caption.className='subtle';caption.textContent=p.name||('Evidence photo '+(i+1));
   const remove=document.createElement('button');remove.type='button';remove.className='danger no-print';remove.textContent='Remove';remove.style.marginTop='8px';remove.onclick=()=>{if(previewUrl)URL.revokeObjectURL(previewUrl);diagnosisEvidence.splice(i,1);renderEvidencePhotos()};
