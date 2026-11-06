@@ -469,15 +469,25 @@ function renderEvidencePhotos(){
   const card=document.createElement('div');card.className='card';card.style.margin='0';
   const img=document.createElement('img');img.alt=p.name||'Diagnosis evidence';img.loading='eager';img.decoding='async';
   img.style.cssText='display:block;width:100%;height:auto;min-height:130px;max-height:360px;object-fit:contain;background:#fff;border:1px solid #777;border-radius:10px';
-  const status=document.createElement('div');status.className='subtle';status.textContent='Loading photo preview…';
-  img.onload=()=>{status.textContent='Photo preview ready. Tap the image to view full size.'};
-  img.onerror=()=>{status.textContent='Preview could not be decoded. The saved attachment is retained. Try opening the photo in full view or reattach it as JPG.'};
-  if(typeof p.dataUrl==='string'&&p.dataUrl.startsWith('data:image/'))img.src=p.dataUrl;
-  else status.textContent='Saved photo data is missing or invalid. The record has not been removed.';
-  img.onclick=()=>{if(!img.naturalWidth)return;const w=window.open('','_blank');if(w){const image=w.document.createElement('img');image.src=p.dataUrl;image.style.cssText='max-width:100%;height:auto;display:block;margin:auto';w.document.body.style.cssText='margin:0;background:#111;padding:8px';w.document.body.append(image)}};
+  const status=document.createElement('div');status.className='subtle';status.textContent='Preparing photo preview…';
+  let previewUrl=null,finished=false;
+  const timeout=setTimeout(()=>{if(!finished){status.textContent='Preview is taking too long on this phone. The saved photo is retained. Tap Open Photo to view it separately.'}},5000);
+  const fail=message=>{if(finished)return;finished=true;clearTimeout(timeout);status.textContent=message};
+  img.onload=()=>{if(finished)return;finished=true;clearTimeout(timeout);status.textContent='Photo preview ready.'};
+  img.onerror=()=>fail('This saved image cannot be decoded for preview. The attachment data is retained.');
+  const open=document.createElement('button');open.type='button';open.textContent='Open Photo';open.className='secondary';open.style.marginTop='8px';
+  open.onclick=async()=>{try{if(!previewUrl){const blob=await (await fetch(p.dataUrl)).blob();previewUrl=URL.createObjectURL(blob)}window.open(previewUrl,'_blank')}catch(e){status.textContent='Could not open saved photo: '+(e.message||'preview error')}};
+  if(typeof p.dataUrl==='string'&&p.dataUrl.startsWith('data:image/')){
+   // Convert the saved data URL to a Blob URL. This avoids asking older Android browsers
+   // to decode a very long inline base64 string directly in the preview element.
+   fetch(p.dataUrl).then(response=>response.blob()).then(blob=>{
+    if(!blob.size)throw new Error('The saved photo contains no image data.');
+    previewUrl=URL.createObjectURL(blob);img.src=previewUrl;
+   }).catch(e=>fail('Photo preview failed: '+(e.message||'invalid image data')+'. The saved attachment has not been deleted.'));
+  }else fail('Saved photo data is missing or invalid. The record has not been removed.');
   const caption=document.createElement('div');caption.className='subtle';caption.textContent=p.name||('Evidence photo '+(i+1));
-  const remove=document.createElement('button');remove.type='button';remove.className='danger no-print';remove.textContent='Remove';remove.style.marginTop='8px';remove.onclick=()=>{diagnosisEvidence.splice(i,1);renderEvidencePhotos()};
-  card.append(img,status,caption,remove);box.append(card);
+  const remove=document.createElement('button');remove.type='button';remove.className='danger no-print';remove.textContent='Remove';remove.style.marginTop='8px';remove.onclick=()=>{if(previewUrl)URL.revokeObjectURL(previewUrl);diagnosisEvidence.splice(i,1);renderEvidencePhotos()};
+  card.append(img,status,caption,open,remove);box.append(card);
  });
  $('evidencePhotoStatus').textContent=diagnosisEvidence.length+' of 4 evidence photo(s) attached.';
 }
