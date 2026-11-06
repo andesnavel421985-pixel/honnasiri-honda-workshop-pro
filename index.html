@@ -701,7 +701,20 @@ $('jobSearch').oninput=scheduleSearchRefresh;
 $('clearJobSearch').onclick=()=>{$('jobSearch').value='';renderJobs();$('jobSearch').focus()};
 $('savedJobs').addEventListener('click',e=>{const call=e.target.closest('.call-history');if(call){const n=call.dataset.phone||'';if(customerPhoneDigits(n).length>=7)window.location.href='tel:'+n.replace(/[^0-9+*#,;]/g,'');return}const edit=e.target.closest('.continue-draft');if(edit){const r=records().find(x=>x.id===edit.dataset.recordId);if(!r)return;loadRecord(r.id);openSection(Math.min(8,Math.max(1,Number(r.lastSavedSection||1)+1)));return}const b=e.target.closest('.open-history');if(b)loadRecord(b.dataset.recordId)});
 function csv(arr){const cols=['date','jobcard','reg','customer','mobile','model','km','serviceType','advisorName','technicianName','timeIn','timeOut','fiDone','delivery','inspector','qcDecision','qcCounts.ok','qcCounts.notOk','qcCounts.pending','totals.parts','totals.labour','totals.grand','totals.balance','complaint','finding','action','remarks'];const val=(r,k)=>k.split('.').reduce((a,p)=>a?.[p],r);return [cols.join(','),...arr.map(r=>cols.map(k=>`"${String(val(r,k)??'').replace(/"/g,'""')}"`).join(','))].join('\r\n')}
-function download(name,content,type){const blob=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+function download(name,content,type){
+ const blob=new Blob([content],{type:type||'application/octet-stream'});
+ const url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download=name;a.rel='noopener';a.style.display='none';
+ document.body.appendChild(a);
+ let clicked=false;
+ try{a.click();clicked=true}catch(e){}
+ setTimeout(()=>{a.remove();URL.revokeObjectURL(url)},60000);
+ if(!clicked){
+  const w=window.open(url,'_blank');
+  if(!w)throw new Error('Browser blocked the download window. Allow downloads/pop-ups for this site or use Share.');
+ }
+ return {blob,url,name};
+}
 function summaryCsv(mode){
  const d=reportData(),arr=mode==='daily'?d.daily:d.mtd,m=getSectionMetrics(arr),tech=groupPeople(arr,'technicianName'),adv=groupPeople(arr,'advisorName');
  const rows=[['HONNASIRI HONDA — WORKSHOP FLOOR REPORT',mode==='daily'?'DAILY':'MTD'],['Period',mode==='daily'?d.day:`${d.month} through ${d.day}`],['SECTION 1 — SERVICE VOLUME'],['Total service volume',m.jobs],['Paid Service',m.paid],['Free Service',m.free],['Warranty',m.warranty],['Repair / General',m.repair],['Accident',m.accident],['NEW AMC',m.amc],['NEW EW',m.ew],['NEW EW+',m.ewp],['SECTION 2 — TECHNICIAN-WISE'],['Technician','Service type','Total vehicles','Completed','Pending','Waiting for Parts','Work in Process','Waiting for CV Approval']];
@@ -870,7 +883,24 @@ init();
  document.querySelectorAll('.topnav .navbtn').forEach(btn=>btn.addEventListener('click',()=>{if(btn.dataset.view==='planningView')updateTargetReport();if(btn.dataset.view==='toolsView')renderTools();if(btn.dataset.view==='revenueView')renderRevenue()}));
  // Preserve actual billing and technician tool data in manual backup / restore without modifying existing service-record schema.
  const oldExport=$id('exportBackup').onclick;
- $id('exportBackup').onclick=()=>download('Honnasiri_Workshop_Backup_'+today()+'.json',JSON.stringify({app:'Honnasiri Honda Workshop Pro',version:2,exportedAt:new Date().toISOString(),records:allRecords(),ultraPro:{targets,tools:toolState,billing}},null,2),'application/json');
+ $id('exportBackup').onclick=async()=>{
+ const status=$id('backupStatus');
+ try{
+  const payload={app:'Honnasiri Honda Workshop Pro',version:2,exportedAt:new Date().toISOString(),records:allRecords(),ultraPro:{targets,tools:toolState,billing}};
+  const json=JSON.stringify(payload,null,2),filename='Honnasiri_Workshop_Backup_'+today()+'.json';
+  const result=download(filename,json,'application/json;charset=utf-8');
+  status.textContent='Backup prepared: '+payload.records.length+' service records. If the download did not appear, use your browser Downloads list or Share the backup file.';
+  status.className='subtle success';
+  if(navigator.share&&navigator.canShare){
+   const file=new File([result.blob],filename,{type:'application/json'});
+   if(navigator.canShare({files:[file]})){
+    const shareBtn=document.createElement('button');shareBtn.type='button';shareBtn.className='secondary';shareBtn.textContent='Share / Save JSON Backup';
+    shareBtn.onclick=()=>navigator.share({files:[file],title:'Honnasiri Workshop JSON Backup'}).then(()=>{status.textContent='Backup shared. Save it to Downloads or your preferred storage.'}).catch(e=>{status.textContent='Share cancelled or unavailable. Check browser Downloads.'});
+    status.appendChild(document.createTextNode(' '));status.appendChild(shareBtn);
+   }
+  }
+ }catch(err){status.textContent='Backup download failed: '+(err.message||'Browser blocked the file').toString()+'. Allow downloads for this site and try again.';status.className='subtle error'}
+};
  const oldImport=$id('backupFile').onchange;
  $id('backupFile').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{const data=JSON.parse(await file.text());const incoming=Array.isArray(data)?data:data.records;if(!Array.isArray(incoming))throw new Error('Backup must contain a records array.');if(!confirm('Import '+incoming.length+' records? Matching IDs will be updated; other records are preserved.'))return;const map=new Map(allRecords().map(r=>[r.id,r]));incoming.forEach((r,i)=>map.set(r.id||('import-'+Date.now()+'-'+i),r));persist([...map.values()]);if(data.ultraPro){targets={...targetDefaults,...(data.ultraPro.targets||{})};toolState=data.ultraPro.tools||{};billing=data.ultraPro.billing||[];setJson(TARGET_KEY,targets);setJson(TOOLS_KEY,toolState);setJson(BILL_KEY,billing);syncTargetInputs();renderTools();renderRevenue()}$id('backupStatus').textContent='Restored/merged '+incoming.length+' service records and available Ultra Pro data.';renderJobs();renderReports()}catch(err){$id('backupStatus').textContent='Restore failed: '+err.message}e.target.value=''};
  // New intake: commit current form then reset immediately for next customer without changing record ID semantics.
