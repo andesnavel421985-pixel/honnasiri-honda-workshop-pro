@@ -463,7 +463,24 @@ let diagnosisEvidence=[],diagnosisFiles=[];
 function renderEvidenceFiles(){const box=$('evidenceFilesList');if(!box)return;box.innerHTML='';diagnosisFiles.forEach((file,i)=>{const row=document.createElement('div');row.className='summaryrow';const label=document.createElement('span');label.textContent=file.name+' ('+Math.round((file.size||0)/1024)+' KB)';const actions=document.createElement('span');const open=document.createElement('button');open.type='button';open.textContent='Open';open.onclick=()=>{const w=window.open();if(w){w.document.write('<iframe style="border:0;width:100%;height:100%" src="'+file.dataUrl+'"></iframe>')}};const remove=document.createElement('button');remove.type='button';remove.className='danger no-print';remove.textContent='Remove';remove.onclick=()=>{diagnosisFiles.splice(i,1);renderEvidenceFiles()};actions.append(open,remove);row.append(label,actions);box.append(row)});$('evidenceFilesStatus').textContent=diagnosisFiles.length+' of 5 supporting file(s) attached.'}
 function readEvidenceFile(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onerror=()=>reject(new Error('Could not read '+file.name));reader.onload=()=>resolve({name:file.name,type:file.type||'application/octet-stream',size:file.size||0,dataUrl:reader.result,createdAt:new Date().toISOString()});reader.readAsDataURL(file)})}
 async function addEvidenceDocuments(files){const chosen=[...files].slice(0,Math.max(0,5-diagnosisFiles.length));if(!chosen.length){$('evidenceFilesStatus').textContent='Maximum of 5 supporting files per job card.';return}for(const file of chosen){try{diagnosisFiles.push(await readEvidenceFile(file))}catch(e){$('evidenceFilesStatus').textContent=e.message}}renderEvidenceFiles();if(diagnosisFiles.length&&$('recordId').value){try{saveDraftSection(2);$('evidenceFilesStatus').textContent=diagnosisFiles.length+' of 5 supporting files attached and saved to this job card draft.'}catch(err){$('evidenceFilesStatus').textContent='File attached, but draft save failed: '+err.message+' Please use Save Section before leaving this job card.'}}}
-function renderEvidencePhotos(){const box=$('evidencePhotoPreview');if(!box)return;box.innerHTML='';diagnosisEvidence.forEach((p,i)=>{const card=document.createElement('div');card.className='card';card.style.margin='0';const img=document.createElement('img');img.src=p.dataUrl;img.alt=p.name||'Diagnosis evidence';img.style.cssText='width:100%;height:130px;object-fit:cover;border-radius:10px';const caption=document.createElement('div');caption.className='subtle';caption.textContent=p.name||('Evidence photo '+(i+1));const remove=document.createElement('button');remove.type='button';remove.className='danger no-print';remove.textContent='Remove';remove.style.marginTop='8px';remove.onclick=()=>{diagnosisEvidence.splice(i,1);renderEvidencePhotos()};card.append(img,caption,remove);box.append(card)});$('evidencePhotoStatus').textContent=diagnosisEvidence.length+' of 4 evidence photo(s) attached.'}
+function renderEvidencePhotos(){
+ const box=$('evidencePhotoPreview');if(!box)return;box.innerHTML='';
+ diagnosisEvidence.forEach((p,i)=>{
+  const card=document.createElement('div');card.className='card';card.style.margin='0';
+  const img=document.createElement('img');img.alt=p.name||'Diagnosis evidence';img.loading='eager';img.decoding='async';
+  img.style.cssText='display:block;width:100%;height:auto;min-height:130px;max-height:360px;object-fit:contain;background:#fff;border:1px solid #777;border-radius:10px';
+  const status=document.createElement('div');status.className='subtle';status.textContent='Loading photo preview…';
+  img.onload=()=>{status.textContent='Photo preview ready. Tap the image to view full size.'};
+  img.onerror=()=>{status.textContent='Preview could not be decoded. The saved attachment is retained. Try opening the photo in full view or reattach it as JPG.'};
+  if(typeof p.dataUrl==='string'&&p.dataUrl.startsWith('data:image/'))img.src=p.dataUrl;
+  else status.textContent='Saved photo data is missing or invalid. The record has not been removed.';
+  img.onclick=()=>{if(!img.naturalWidth)return;const w=window.open('','_blank');if(w){const image=w.document.createElement('img');image.src=p.dataUrl;image.style.cssText='max-width:100%;height:auto;display:block;margin:auto';w.document.body.style.cssText='margin:0;background:#111;padding:8px';w.document.body.append(image)}};
+  const caption=document.createElement('div');caption.className='subtle';caption.textContent=p.name||('Evidence photo '+(i+1));
+  const remove=document.createElement('button');remove.type='button';remove.className='danger no-print';remove.textContent='Remove';remove.style.marginTop='8px';remove.onclick=()=>{diagnosisEvidence.splice(i,1);renderEvidencePhotos()};
+  card.append(img,status,caption,remove);box.append(card);
+ });
+ $('evidencePhotoStatus').textContent=diagnosisEvidence.length+' of 4 evidence photo(s) attached.';
+}
 async function compressEvidenceImage(file){
  if(!file)throw new Error('No photo file was received from Android.');
  const name=String(file.name||'diagnosis-evidence').toLowerCase(),mime=String(file.type||'').toLowerCase();
@@ -484,6 +501,8 @@ async function compressEvidenceImage(file){
   let quality=.42,dataUrl=canvas.toDataURL('image/jpeg',quality);
   while(dataUrl.length>145000&&quality>.20){quality-=.05;dataUrl=canvas.toDataURL('image/jpeg',quality)}
   if(dataUrl.length>190000)throw new Error('Photo could not be reduced enough for safe phone storage. Choose a smaller photo.');
+  const verified=await new Promise((resolve,reject)=>{const test=new Image();test.onload=()=>resolve(test.naturalWidth>0&&test.naturalHeight>0);test.onerror=()=>reject(new Error('The compressed photo could not be reopened for preview. Please reattach it as a JPG.'));test.src=dataUrl});
+  if(!verified)throw new Error('The compressed photo preview is invalid. Please reattach the photo.');
   return {name:file.name||'diagnosis-evidence.jpg',type:'image/jpeg',size:Math.round(dataUrl.length*.75),dataUrl,createdAt:new Date().toISOString()};
  }finally{if(bitmap&&bitmap.close)bitmap.close();if(objectUrl)URL.revokeObjectURL(objectUrl)}
 }
