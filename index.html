@@ -855,7 +855,7 @@ function applyTheme(mode,save=true){
  root.dataset.theme=selected;body.dataset.theme=selected;
  body.classList.remove('dark','black');if(selected!=='light')body.classList.add(selected);
  [root,body].forEach(el=>{
-  el.style.setProperty('color-scheme',selected==='light'?'light':'dark');
+  el.style.setProperty('color-scheme',selected==='light'?'only light':'only dark');
   el.style.setProperty('--bg',p.bg);el.style.setProperty('--ink',p.ink);
   el.style.setProperty('--muted',p.muted);el.style.setProperty('--panel',p.panel);
   el.style.setProperty('--field',p.field);el.style.setProperty('--line',p.line);
