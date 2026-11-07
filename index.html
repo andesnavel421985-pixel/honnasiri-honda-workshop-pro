@@ -601,9 +601,32 @@ $('frameNo').addEventListener('input',checkFrameYear);
 $('checkRegistration').addEventListener('click',()=>window.open('https://mparivahan.parivahan.gov.in/','_blank','noopener'));
 $('checkHondaVin').addEventListener('click',()=>window.open('https://www.honda2wheelersindia.com/resources/owners-manual','_blank','noopener'));
 
-const HMSI_SERVICE_INTERVALS=[{models:['Shine 100','Livo','Shine 125','SP 125','Activa 125','NX200'],km:6000,months:6,source:'HMSI official model FAQ: paid service every 6,000 km or within 6 months'}];
-function addMonthsSafe(date,months){const d=new Date(date+'T12:00:00');if(Number.isNaN(d.getTime()))return '';const day=d.getDate();d.setMonth(d.getMonth()+months);if(d.getDate()<day)d.setDate(0);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
-function updateNextServiceDue(){const model=String($('model').value||'').trim(),odoText=String($('km').value||'').trim(),odo=Number(odoText),date=$('date').value;const rule=HMSI_SERVICE_INTERVALS.find(x=>x.models.includes(model));const kmField=$('nextServiceKm'),dateField=$('nextServiceDate'),status=$('serviceScheduleStatus'),advisoryKm=$('advisoryNextServiceKm'),advisoryDate=$('advisoryNextServiceDate'),advisoryStatus=$('advisoryServiceDueStatus');if(!rule){kmField.value='';dateField.value='';status.textContent='Automatic interval is not verified for this exact model. Check its model-year HMSI owner manual before entering a due reminder.';if(advisoryKm)advisoryKm.value='';if(advisoryDate)advisoryDate.value='';if(advisoryStatus)advisoryStatus.textContent=status.textContent;return}kmField.value=odoText!==''&&Number.isFinite(odo)&&odo>=0?String(Math.round(odo+rule.km)):'';dateField.value=date?addMonthsSafe(date,rule.months):'';status.textContent=rule.source+'. Next paid service is due at the calculated kilometre reading or date, whichever comes first. Confirm the exact model-year manual and service history.';if(advisoryKm)advisoryKm.value=kmField.value;if(advisoryDate)advisoryDate.value=dateField.value;if(advisoryStatus)advisoryStatus.textContent=status.textContent}
+const HMSI_SERVICE_INTERVALS=[
+{models:['Shine 100','Shine 100X','Shine 100 DX','Livo','Shine 125','CB Shine 125','SP 125','SP125','CB 125 Hornet','CB125 Hornet','Unicorn 160','CB Unicorn 160','Activa 110','Activa 6G','Activa 110 Anniversary Edition','Activa 125','Activa 125 BS6','Activa 125 OBD2','Activa 125 Anniversary Edition','Dio 110','Dio BS6','Dio 125','Dio 125 OBD2','Dio 125 X-Edition','SP160','SP 160','Hornet 2.0'],km:6000,months:6,source:'HMSI India model FAQ: paid service every 6,000 km or within 6 months. Apply only to listed current model families; confirm year-specific owner manual.'}
+];
+const HMSI_SERVICE_MODEL_ALIASES={
+'Activa':'Activa 110','Dio':'Dio 110','Shine100':'Shine 100','Shine100 DX':'Shine 100 DX','Shine125':'Shine 125','SP 125':'SP 125','SP125':'SP 125','CB 125 Hornet':'CB 125 Hornet','CB125 Hornet':'CB 125 Hornet','Unicorn':'Unicorn 160','Unicorn 160':'Unicorn 160','CB Unicorn 160':'Unicorn 160','SP160':'SP160','SP 160':'SP160','Activa 6G':'Activa 110','Activa 125 BS6':'Activa 125','Activa 125 OBD2':'Activa 125','Dio BS6':'Dio 110','Dio 125 OBD2':'Dio 125'
+};
+function addMonthsSafe(date,months){const parts=String(date||'').split('-').map(Number);if(parts.length!==3||parts.some(x=>!Number.isFinite(x)))return '';const [y,m,d]=parts;const targetMonth=m-1+months;const targetYear=y+Math.floor(targetMonth/12);const normalizedMonth=((targetMonth%12)+12)%12;const lastDay=new Date(targetYear,normalizedMonth+1,0).getDate();const result=new Date(targetYear,normalizedMonth,Math.min(d,lastDay),12);return result.getFullYear()+'-'+String(result.getMonth()+1).padStart(2,'0')+'-'+String(result.getDate()).padStart(2,'0')}
+function updateNextServiceDue(){
+ const selected=String($('model').value||'').trim(),model=HMSI_SERVICE_MODEL_ALIASES[selected]||selected;
+ const odoText=String($('km').value||'').trim(),odo=Number(odoText),date=$('date').value;
+ const rule=HMSI_SERVICE_INTERVALS.find(x=>x.models.includes(model));
+ const kmField=$('nextServiceKm'),dateField=$('nextServiceDate'),status=$('serviceScheduleStatus');
+ const advisoryKm=$('advisoryNextServiceKm'),advisoryDate=$('advisoryNextServiceDate'),advisoryStatus=$('advisoryServiceDueStatus');
+ let dueKm='',dueDate='';
+ if(rule){
+   if(odoText!==''&&Number.isFinite(odo)&&odo>=0)dueKm=String(Math.round(odo+rule.km));
+   if(date)dueDate=addMonthsSafe(date,rule.months);
+   status.textContent=rule.source+' Next service is due at the calculated kilometre reading or date, whichever comes first. Confirm against the exact model-year owner manual and service history.';
+ }else{
+   status.textContent='No verified automatic interval is available for this exact model/year. Check the matching HMSI owner manual before setting a reminder.';
+ }
+ kmField.value=dueKm;dateField.value=dueDate;
+ if(advisoryKm)advisoryKm.value=dueKm;
+ if(advisoryDate)advisoryDate.value=dueDate;
+ if(advisoryStatus)advisoryStatus.textContent=status.textContent;
+}
 ['model','km','date'].forEach(id=>$(id).addEventListener('input',updateNextServiceDue));['model','km','date'].forEach(id=>$(id).addEventListener('change',updateNextServiceDue));
 $('model').addEventListener('change',()=>{refreshSpecificationStandards();updateNextServiceDue();const hint=$('modelSelectionHint');if(hint)hint.textContent=$('model').value?'Selected model: '+$('model').value:'Select the exact vehicle model from the list.'});
 $('takeEvidencePhoto').onclick=startEvidenceCamera;
