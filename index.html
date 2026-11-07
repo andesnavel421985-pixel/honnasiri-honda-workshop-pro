@@ -1079,44 +1079,38 @@ $('frameNo').addEventListener('input',checkFrameYear);
 $('checkRegistration').addEventListener('click',()=>window.open('https://mparivahan.parivahan.gov.in/','_blank','noopener'));
 $('checkHondaVin').addEventListener('click',()=>window.open('https://www.honda2wheelersindia.com/resources/owners-manual','_blank','noopener'));
 
-const HMSI_SERVICE_INTERVALS=[
-{models:['Shine 100','Shine 100X','Shine 100 DX','Shine 125','SP 125','SP125','Activa 125','Activa 125 BS6','Activa 125 OBD2','Activa 125 Anniversary Edition','Dio 125','Dio 125 OBD2','Dio 125 X-Edition','Dio 110','Dio BS6'],km:6000,months:6,source:'HMSI model FAQ: paid service every 6,000 km or within 6 months. Verify the matching model-year owner manual and service history.'}
-];
-const HMSI_SERVICE_MODEL_ALIASES={
-'Shine100':'Shine 100','Shine100 DX':'Shine 100 DX','Shine125':'Shine 125','SP125':'SP 125','Activa125':'Activa 125','Activa 125 OBD2':'Activa 125','Activa 125 Anniversary Edition':'Activa 125','Dio125':'Dio 125','Dio 125 OBD2':'Dio 125','Dio 125 X-Edition':'Dio 125','Dio':'Dio 110','Dio BS6':'Dio 110'
-};
-function addMonthsSafe(date,months){const parts=String(date||'').split('-').map(Number);if(parts.length!==3||parts.some(x=>!Number.isFinite(x)))return '';const [y,m,d]=parts;const targetMonth=m-1+months;const targetYear=y+Math.floor(targetMonth/12);const normalizedMonth=((targetMonth%12)+12)%12;const lastDay=new Date(targetYear,normalizedMonth+1,0).getDate();const result=new Date(targetYear,normalizedMonth,Math.min(d,lastDay),12);return result.getFullYear()+'-'+String(result.getMonth()+1).padStart(2,'0')+'-'+String(result.getDate()).padStart(2,'0')}
+const HMSI_LEGACY_4K_MODELS=['Activa','Activa 3G','Activa 4G','Activa 5G','Aviator','Dio','Grazia','Grazia 125','Cliq','Navi','CD 110','CD 110 Dream','Dream Neo','Dream Yuga','Livo','CB Shine','CB Shine SP','CB Shine 125','CB Twister','CBF Stunner','Shine 100','Shine 100X','Shine 100 DX'];
+const HMSI_BS4_6K_MODELS=['CB Unicorn 150','Unicorn 150','CB Trigger','CB Hornet 160R','Hornet 160R','Unicorn 160','CB Unicorn 160','CBR150R','CBR250R'];
+const HMSI_BS6_6K_MODELS=['Shine 100','Shine 100X','Shine 100 DX','Shine 125','SP 125','SP125','CB 125 Hornet','CB125 Hornet','Activa 110 Anniversary Edition','Activa 125','Activa 125 BS6','Activa 125 OBD2','Activa 125 Anniversary Edition','Dio BS6','Dio 110','Dio 125','Dio 125 OBD2','Dio 125 X-Edition','SP160','SP 160','Hornet 2.0','CB200X'];
+const HMSI_SERVICE_MODEL_ALIASES={'Shine100':'Shine 100','Shine100 DX':'Shine 100 DX','Shine125':'Shine 125','SP125':'SP 125','CB125 Hornet':'CB 125 Hornet','Activa125':'Activa 125','Activa 125 OBD2':'Activa 125','Activa 125 Anniversary Edition':'Activa 125','Dio125':'Dio 125','Dio 125 OBD2':'Dio 125','Dio 125 X-Edition':'Dio 125','Dio':'Dio 110','Dio BS6':'Dio 110'};
+function addMonthsSafe(date,months){const parts=String(date||'').split('-').map(Number);if(parts.length!==3||parts.some(x=>!Number.isFinite(x)))return '';const [y,m,d]=parts;const tm=m-1+months,ty=y+Math.floor(tm/12),nm=((tm%12)+12)%12,last=new Date(ty,nm+1,0).getDate(),out=new Date(ty,nm,Math.min(d,last),12);return out.getFullYear()+'-'+String(out.getMonth()+1).padStart(2,'0')+'-'+String(out.getDate()).padStart(2,'0')}
+function classifyHmsiGeneration(year){const y=Number(year);if(!Number.isInteger(y)||y<1990||y>new Date().getFullYear())return '';if(y<=2016)return 'BS-III / earlier';if(y===2017)return 'BS-III or BS-IV (verify VIN / RC)';if(y<=2019)return 'BS-IV';return 'BS-VI'}
 function calculateNextServiceDue(record){
- const selected=String(record.model||'').trim(),model=HMSI_SERVICE_MODEL_ALIASES[selected]||selected;
- const rule=HMSI_SERVICE_INTERVALS.find(x=>x.models.includes(model));
- const serviceType=String(record.serviceType||'').trim().toLowerCase();
- const odoText=String(record.km??'').trim(),odo=Number(odoText),date=String(record.date||'');
- if(serviceType!=='paid service')return {km:'',date:'',status:serviceType==='free service'?'Free-service milestone depends on the vehicle sale date and service number. Confirm the HMSI schedule before setting the next due.':'Automatic next-service interval is not applied to repair / general or warranty visits.'};
- if(!rule)return {km:'',date:'',status:'No verified paid-service interval is configured for this exact model variant. Check its model-year HMSI owner manual.'};
- if(!date||odoText===''||!Number.isFinite(odo)||odo<0)return {km:'',date:'',status:'Enter a valid service date and current odometer reading to calculate the next due.'};
- return {km:String(Math.round(odo+rule.km)),date:addMonthsSafe(date,rule.months),status:rule.source+' Next paid service is due at the calculated kilometre reading or date, whichever comes first.'};
+ const model=HMSI_SERVICE_MODEL_ALIASES[String(record.model||'').trim()]||String(record.model||'').trim();
+ const year=Number(record.manufactureYear||0),generation=classifyHmsiGeneration(year),type=String(record.serviceType||'').trim().toLowerCase();
+ const kmText=String(record.km??'').trim(),odo=Number(kmText),date=String(record.date||'');
+ if(type!=='paid service')return {km:'',date:'',generation,status:type==='free service'?'Free-service due points must be calculated from the sale date and completed free-service sequence. Enter sale date and verify the model-year HMSI schedule.':'Periodic next-service reminder is not calculated for repair/general or warranty-only visits.'};
+ if(!generation)return {km:'',date:'',generation:'',status:'Enter manufacturing year. Model name alone cannot reliably distinguish BS-III, BS-IV and BS-VI.'};
+ if(generation.startsWith('BS-III or'))return {km:'',date:'',generation,status:'2017 is a BS transition year. Verify exact BS norm using VIN/RC or HMSI owner manual before calculating.'};
+ let interval=null,source='';
+ if(generation==='BS-III / earlier'&&HMSI_LEGACY_4K_MODELS.includes(model)){interval=4000;source='Legacy HMSI model extended-warranty schedule: maximum 4,000 km or 4 months between services.'}
+ else if(generation==='BS-IV'&&HMSI_BS4_6K_MODELS.includes(model)){interval=6000;source='BS-IV higher-capacity model schedule: maximum 6,000 km or 6 months between services.'}
+ else if(generation==='BS-IV'&&HMSI_LEGACY_4K_MODELS.includes(model)){interval=4000;source='BS-IV commuter/scooter schedule: maximum 4,000 km or 4 months between services.'}
+ else if(generation==='BS-VI'&&HMSI_BS6_6K_MODELS.includes(model)){interval=6000;source='BS-VI HMSI paid-service interval: 6,000 km or 6 months.'}
+ if(!interval)return {km:'',date:'',generation,status:'No model-year-specific verified interval configured for '+model+' '+generation+'. Check the exact HMSI owner manual; no value has been guessed.'};
+ if(!date||kmText===''||!Number.isFinite(odo)||odo<0)return {km:'',date:'',generation,status:'Enter a valid service date and odometer reading.'};
+ return {km:String(Math.round(odo+interval)),date:addMonthsSafe(date,generation==='BS-III / earlier'||(generation==='BS-IV'&&interval===4000)?4:6),generation,status:source+' Whichever occurs first. This is a periodic-service reminder, not a free-service entitlement.'};
 }
 function updateNextServiceDue(){
- const result=calculateNextServiceDue({model:$('model').value,serviceType:$('serviceType').value,km:$('km').value,date:$('date').value});
+ const result=calculateNextServiceDue({model:$('model').value,manufactureYear:$('manufactureYear').value,serviceType:$('serviceType').value,km:$('km').value,date:$('date').value});
  $('nextServiceKm').value=result.km;$('nextServiceDate').value=result.date;
  if($('advisoryNextServiceKm'))$('advisoryNextServiceKm').value=result.km;
  if($('advisoryNextServiceDate'))$('advisoryNextServiceDate').value=result.date;
- $('serviceScheduleStatus').textContent=result.status;
- if($('advisoryServiceDueStatus'))$('advisoryServiceDueStatus').textContent=result.status;
+ $('serviceScheduleStatus').textContent=(result.generation?'Generation: '+result.generation+'. ':'')+result.status;
+ if($('advisoryServiceDueStatus'))$('advisoryServiceDueStatus').textContent=(result.generation?'Generation: '+result.generation+'. ':'')+result.status;
 }
-function migrateSavedServiceDueValues(){
- const all=records();let changed=false;
- const migrated=all.map(r=>{
-  const result=calculateNextServiceDue(r);
-  if(String(r.nextServiceKm||'')!==result.km||String(r.nextServiceDate||'')!==result.date||r.nextServiceCalculationVersion!==2){
-   changed=true;return {...r,nextServiceKm:result.km,nextServiceDate:result.date,nextServiceDueStatus:result.status,nextServiceCalculationVersion:2,updatedAt:new Date().toISOString()};
-  }
-  return r;
- });
- if(changed){suppressCloudSync=true;persist(migrated);suppressCloudSync=false;}
-}
-['model','km','date','serviceType'].forEach(id=>$(id).addEventListener('input',updateNextServiceDue));['model','km','date','serviceType'].forEach(id=>$(id).addEventListener('change',updateNextServiceDue));
-migrateSavedServiceDueValues();updateNextServiceDue();
+['model','manufactureYear','km','date','serviceType'].forEach(id=>$(id).addEventListener('input',updateNextServiceDue));['model','manufactureYear','km','date','serviceType'].forEach(id=>$(id).addEventListener('change',updateNextServiceDue));
+updateNextServiceDue();
 $('model').addEventListener('change',()=>{refreshSpecificationStandards();updateNextServiceDue();const hint=$('modelSelectionHint');if(hint)hint.textContent=$('model').value?'Selected model: '+$('model').value:'Select the exact vehicle model from the list.'});
 $('takeEvidencePhoto').onclick=startEvidenceCamera;
 $('captureEvidencePhoto').onclick=captureEvidencePhoto;
