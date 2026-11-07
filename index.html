@@ -383,11 +383,164 @@ body.black .checkgroup h3,body.black .report-block h3,body.black .sw-title{
 }
 @media(prefers-reduced-motion:reduce){.topnav .navbtn,.sectionnav .sectionbtn{transition:none}}
 
+
+/* Premium Honnasiri Honda 3D glossy visual system */
+:root{--hh-red:#c8102e;--hh-red-dark:#76051e;--hh-gold:#f6dca0;--hh-board:#fff}
+header.premium-header{
+ position:sticky;top:0;z-index:20;overflow:hidden;
+ padding:20px 18px 16px!important;
+ background:
+  radial-gradient(ellipse at 14% -15%,rgba(255,255,255,.34),transparent 43%),
+  radial-gradient(ellipse at 90% 115%,rgba(255,125,145,.22),transparent 42%),
+  linear-gradient(145deg,#f21b40 0%,#c8102e 35%,#a10829 72%,#65051c 100%)!important;
+ border-bottom:1px solid rgba(255,255,255,.38);
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.38),inset 0 -5px 12px rgba(48,0,12,.28),0 7px 20px rgba(70,0,20,.24)!important;
+}
+header.premium-header:before{
+ content:"";position:absolute;inset:0 0 auto;height:48%;pointer-events:none;
+ background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,0));
+ border-bottom:1px solid rgba(255,255,255,.09)
+}
+header.premium-header .brand-lockup{position:relative;z-index:1}
+header.premium-header h1{
+ font-size:clamp(25px,5.2vw,36px)!important;line-height:1.08;
+ letter-spacing:1.1px!important;font-weight:1000!important;color:#fff!important;
+ text-shadow:0 1px 0 #ffd9df,0 2px 0 #b90d2b,0 4px 0 #76051e,0 7px 12px rgba(35,0,8,.52);
+}
+header.premium-header .brand-rule{
+ height:2px;width:min(100%,520px);margin:11px 0 9px;
+ background:linear-gradient(90deg,rgba(255,255,255,.95),rgba(255,225,172,.8),rgba(255,255,255,0));
+ box-shadow:0 1px 3px rgba(0,0,0,.25)
+}
+header.premium-header .staff-identity{
+ display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:0!important;
+ color:#fff;font-size:13px;letter-spacing:.55px;text-shadow:0 2px 4px #570018
+}
+header.premium-header .staff-identity strong{
+ font-size:17px;font-weight:950;letter-spacing:1.15px;color:#fff;
+ text-shadow:0 1px 0 #ffd9df,0 2px 0 #8e0924,0 4px 7px rgba(30,0,8,.5)
+}
+header.premium-header .staff-identity span{font-weight:800;opacity:.92}
+header.premium-header .staff-identity a{color:#fff;text-decoration:none;font-weight:850}
+header.premium-header .dealer-code{
+ margin:7px 0 0!important;font-size:15px!important;font-weight:950!important;
+ letter-spacing:1.15px!important;color:#fff!important;
+ text-shadow:0 1px 0 #ffd9df,0 2px 0 #8e0924,0 4px 7px rgba(30,0,8,.48)
+}
+header.premium-header .brand-subtitle{
+ margin:5px 0 0!important;font-size:11px!important;letter-spacing:1.55px!important;
+ font-weight:750;opacity:.9;color:#fff
+}
+header.premium-header .header-actions{position:relative;z-index:1;margin-top:13px!important}
+header.premium-header .header-actions button{
+ border:1px solid rgba(255,255,255,.92)!important;border-radius:14px!important;
+ background:linear-gradient(155deg,#fff 0%,#fff7f8 48%,#e9dce0 100%)!important;
+ color:#970b28!important;font-weight:950!important;
+ box-shadow:inset 0 1px 0 #fff,0 3px 0 #8b0925,0 6px 13px rgba(38,0,10,.28)!important
+}
+.topnav .navbtn,.sectionnav .sectionbtn{
+ position:relative;overflow:hidden;
+ border:1px solid #e1cbd1!important;border-radius:16px!important;
+ background:linear-gradient(155deg,#fff 0%,#fff9fa 38%,#f0e4e7 100%)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.98),inset 0 -1px 0 rgba(139,20,49,.08),0 3px 0 #d2b5bd,0 6px 12px rgba(71,19,34,.10)!important;
+ transition:transform .16s ease,box-shadow .16s ease,filter .16s ease;
+}
+.topnav .navbtn:before,.sectionnav .sectionbtn:before{
+ content:"";position:absolute;left:0;right:0;top:0;height:44%;
+ background:linear-gradient(180deg,rgba(255,255,255,.78),rgba(255,255,255,0));
+ pointer-events:none
+}
+.topnav .navbtn:active,.sectionnav .sectionbtn:active{
+ transform:translateY(2px);box-shadow:inset 0 1px 2px rgba(60,0,15,.12),0 1px 0 #d2b5bd!important
+}
+.topnav .navbtn.active,.sectionnav .sectionbtn.active{
+ background:linear-gradient(145deg,#fff2f4 0%,#f7d9df 55%,#edc1cb 100%)!important;
+ color:#9e0b2b!important;border:1px solid #d88a9a!important;
+ box-shadow:inset 0 1px 0 #fff,0 3px 0 #b96a7a,0 7px 14px rgba(142,9,37,.17)!important
+}
+.sectionnav .sectionbtn{padding-top:11px!important;padding-bottom:11px!important}
+.sectionnav .sectionbtn strong{position:relative;z-index:1;color:#a30b2c!important;font-weight:1000!important}
+.sectionnav .sectionbtn span{position:relative;z-index:1;font-size:13px!important;font-weight:850!important;color:#202a3a!important}
+.sectionnav .sectionbtn:after{
+ position:absolute;left:auto;right:8px;top:8px;width:25px;height:25px;
+ display:flex;align-items:center;justify-content:center;border-radius:8px;
+ font-size:15px;font-weight:900;color:#a30b2c;
+ background:linear-gradient(145deg,#fff,#f3d1d9);
+ border:1px solid #e7b9c3;box-shadow:inset 0 1px 0 #fff,0 2px 4px rgba(90,0,20,.1)
+}
+.sectionnav .sectionbtn:nth-child(1):after{content:"👤"}
+.sectionnav .sectionbtn:nth-child(2):after{content:"🔧"}
+.sectionnav .sectionbtn:nth-child(3):after{content:"✓"}
+.sectionnav .sectionbtn:nth-child(4):after{content:"₹"}
+.sectionnav .sectionbtn:nth-child(5):after{content:"🧩"}
+.sectionnav .sectionbtn:nth-child(6):after{content:"📋"}
+.sectionnav .sectionbtn:nth-child(7):after{content:"📷"}
+.sectionnav .sectionbtn:nth-child(8):after{content:"💾"}
+.card{
+ border:1px solid #e2d5d9;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.96),0 4px 13px rgba(28,20,25,.065)!important
+}
+.card>h2,.sectionhead h2{font-weight:950!important;letter-spacing:-.35px}
+.sectionhead{
+ padding:10px 12px;border:1px solid #e8c4cc;border-radius:14px;
+ background:linear-gradient(115deg,#fff1f3 0%,#f8e0e5 48%,#fff 100%);
+ box-shadow:inset 0 1px 0 #fff,0 3px 8px rgba(120,0,25,.08)
+}
+.sectionhead .num{
+ background:linear-gradient(145deg,#fff,#edc0ca)!important;color:#9b0a29!important;
+ border:1px solid #d99aa7!important;box-shadow:inset 0 1px 0 #fff,0 3px 0 #c27b89,0 4px 8px rgba(100,0,20,.12)!important
+}
+.checkgroup h3,.report-block h3,.sw-title{
+ background:linear-gradient(105deg,#fff0f3 0%,#f3d5dc 52%,#eadde0 100%)!important;
+ color:#851029!important;border-bottom:1px solid #dfb2bc!important;
+ box-shadow:inset 0 1px 0 #fff,0 2px 5px rgba(95,0,22,.06);
+ font-weight:950!important
+}
+.sw-title .sw-number{background:linear-gradient(145deg,#fff,#f1cbd4)!important}
+button.primary,.primary{
+ background:linear-gradient(145deg,#f52d4e 0%,#c8102e 52%,#85071f 100%)!important;
+ border-color:#9f0a28!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.38),0 3px 0 #690419,0 6px 13px rgba(130,0,30,.22)!important;
+ text-shadow:0 1px 2px rgba(50,0,10,.3)
+}
+body.dark .topnav .navbtn,body.dark .sectionnav .sectionbtn{
+ background:linear-gradient(155deg,#344258,#202b3c 62%,#151e2b)!important;
+ border-color:#526176!important;color:#f4f6fa!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 3px 0 #101722,0 6px 12px rgba(0,0,0,.28)!important
+}
+body.dark .topnav .navbtn.active,body.dark .sectionnav .sectionbtn.active{
+ background:linear-gradient(145deg,#6b3544,#3c202b)!important;border-color:#c16a7c!important;color:#fff!important
+}
+body.dark .sectionnav .sectionbtn span,body.black .sectionnav .sectionbtn span{color:var(--ink)!important}
+body.dark .sectionhead,body.black .sectionhead{
+ background:linear-gradient(115deg,#452832,#242b38)!important;border-color:#694452!important
+}
+body.dark .sectionhead h2,body.black .sectionhead h2{color:#f3dce2!important}
+body.dark .sectionhead .num,body.black .sectionhead .num{background:linear-gradient(145deg,#653343,#30202a)!important;color:#ffeaf0!important;border-color:#87505e!important}
+body.dark .checkgroup h3,body.dark .report-block h3,body.dark .sw-title,
+body.black .checkgroup h3,body.black .report-block h3,body.black .sw-title{
+ background:linear-gradient(105deg,#482b36,#253044 78%)!important;color:#f8e6eb!important;border-color:#654653!important
+}
+body.black .topnav .navbtn,body.black .sectionnav .sectionbtn{
+ background:linear-gradient(145deg,#272020,#090909)!important;border-color:#554149!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 3px 0 #000,0 6px 12px rgba(0,0,0,.55)!important
+}
+@media(max-width:620px){
+ header.premium-header{padding:17px 14px 14px!important}
+ header.premium-header h1{font-size:27px!important}
+ header.premium-header .staff-identity strong{font-size:16px}
+ header.premium-header .dealer-code{font-size:14px!important}
+ .sectionnav .sectionbtn{padding:10px 6px 10px 9px!important;min-height:78px!important}
+ .sectionnav .sectionbtn:after{right:6px;top:6px;width:22px;height:22px;font-size:13px}
+ .sectionnav .sectionbtn span{padding-right:20px}
+}
+@media(prefers-reduced-motion:reduce){.topnav .navbtn,.sectionnav .sectionbtn{transition:none}}
+
 </style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
-<header><h1>HONNASIRI HONDA</h1><p>WORKSHOP PRO · SERVICE MANAGEMENT · TUMKUR</p><p class="dealer-code">DEALER CODE: KA110003</p><div class="staff-identity"><strong>ANDES NAVEL</strong><span>FLOOR CONTROLLER</span><a href="tel:9187928972">☎ 9187928972</a></div><div class="header-actions"><button type="button" id="refreshAppButtonTop" aria-label="Check for app updates and refresh">↻ Refresh App</button></div></header>
+<header class="premium-header"><div class="brand-lockup"><h1>HONNASIRI HONDA</h1><div class="brand-rule"></div><div class="staff-identity"><strong>ANDES NAVEL</strong><span>FLOOR CONTROLLER</span></div><p class="dealer-code">DEALER CODE: KA110003</p><p class="brand-subtitle">WORKSHOP PRO · SERVICE MANAGEMENT · TUMKUR</p></div><div class="header-actions"><button type="button" id="refreshAppButtonTop" aria-label="Check for app updates and refresh">↻ Refresh App</button></div></header>
 <div class="wrap">
 <div class="topnav no-print">
 <button class="navbtn active" data-view="formView">＋ New Service Record</button>
