@@ -536,6 +536,68 @@ body.black .topnav .navbtn,body.black .sectionnav .sectionbtn{
 }
 @media(prefers-reduced-motion:reduce){.topnav .navbtn,.sectionnav .sectionbtn{transition:none}}
 
+
+/* High-visibility icon badges and brighter section boards */
+.sectionnav .sectionbtn{
+ background:linear-gradient(150deg,#ffffff 0%,#fff4f6 48%,#f8dce2 100%)!important;
+ border:1.5px solid #d995a4!important;
+ box-shadow:inset 0 2px 0 #fff,0 4px 0 #c27b89,0 8px 15px rgba(135,13,42,.16)!important;
+}
+.sectionnav .sectionbtn:after{
+ right:7px!important;top:7px!important;
+ width:42px!important;height:42px!important;
+ border-radius:13px!important;font-size:25px!important;line-height:1!important;
+ color:#7f0925!important;
+ background:linear-gradient(145deg,#fff 0%,#ffe3e9 42%,#ed9eaf 100%)!important;
+ border:2px solid #d66c83!important;
+ box-shadow:inset 0 2px 0 rgba(255,255,255,.98),0 3px 0 #bd6578,0 5px 10px rgba(96,0,22,.2)!important;
+}
+.sectionnav .sectionbtn span{font-size:14px!important;font-weight:900!important;color:#171d2b!important;text-shadow:0 1px 0 #fff}
+.sectionnav .sectionbtn strong{font-size:14px!important;color:#8e0827!important;text-shadow:0 1px 0 #fff}
+.sectionnav .sectionbtn.active{
+ background:linear-gradient(145deg,#fff5f7 0%,#ffdce3 48%,#f5b9c6 100%)!important;
+ border:2px solid #c94d68!important;
+ box-shadow:inset 0 2px 0 #fff,0 4px 0 #a83e55,0 9px 17px rgba(160,8,42,.22)!important
+}
+.topnav .navbtn{
+ background:linear-gradient(150deg,#fff 0%,#fff5f7 50%,#f6e2e6 100%)!important;
+ border:1.5px solid #dfb0ba!important;
+ box-shadow:inset 0 2px 0 #fff,0 3px 0 #cda1aa,0 6px 12px rgba(110,10,34,.12)!important;
+ color:#1c2433!important;font-weight:900!important
+}
+.topnav .navbtn.active{
+ background:linear-gradient(145deg,#ffedf1 0%,#f7c5d0 55%,#ed9daf 100%)!important;
+ border:2px solid #c94d68!important;color:#850720!important
+}
+.sectionhead{
+ background:linear-gradient(110deg,#fff0f3 0%,#ffd8e0 48%,#fff 100%)!important;
+ border:1.5px solid #dc91a1!important;
+ box-shadow:inset 0 2px 0 #fff,0 4px 11px rgba(135,13,42,.13)!important
+}
+.checkgroup h3,.report-block h3,.sw-title{
+ background:linear-gradient(100deg,#ffebef 0%,#f7c5d0 55%,#ffe9ee 100%)!important;
+ color:#76051e!important;border-bottom:2px solid #df8d9e!important;
+ text-shadow:0 1px 0 #fff!important;
+}
+@media(max-width:620px){
+ .sectionnav .sectionbtn{min-height:86px!important;padding:11px 7px!important}
+ .sectionnav .sectionbtn:after{width:40px!important;height:40px!important;font-size:24px!important;right:6px!important;top:6px!important}
+ .sectionnav .sectionbtn span{font-size:13.5px!important;padding-right:28px!important}
+}
+body.dark .sectionnav .sectionbtn:after,body.black .sectionnav .sectionbtn:after{
+ background:linear-gradient(145deg,#ffe9ee,#d9788e)!important;color:#57051a!important;border-color:#f0a7b6!important
+}
+body.dark .sectionnav .sectionbtn span,body.black .sectionnav .sectionbtn span{color:#fff!important;text-shadow:0 1px 2px #000!important}
+body.dark .sectionnav .sectionbtn strong,body.black .sectionnav .sectionbtn strong{color:#ffb8c5!important}
+body.dark .sectionnav .sectionbtn,body.black .sectionnav .sectionbtn{
+ background:linear-gradient(145deg,#3d2932,#222b39)!important;border-color:#9c5869!important
+}
+body.dark .sectionhead,body.black .sectionhead{background:linear-gradient(110deg,#552b39,#302432)!important;border-color:#a75c70!important}
+body.dark .checkgroup h3,body.dark .report-block h3,body.dark .sw-title,
+body.black .checkgroup h3,body.black .report-block h3,body.black .sw-title{
+ background:linear-gradient(100deg,#542d3a,#302536 65%,#293448)!important;color:#ffeaf0!important;text-shadow:none!important
+}
+
 </style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
