@@ -1080,32 +1080,43 @@ $('checkRegistration').addEventListener('click',()=>window.open('https://mpariva
 $('checkHondaVin').addEventListener('click',()=>window.open('https://www.honda2wheelersindia.com/resources/owners-manual','_blank','noopener'));
 
 const HMSI_SERVICE_INTERVALS=[
-{models:['Shine 100','Shine 100X','Shine 100 DX','Livo','Shine 125','CB Shine 125','SP 125','SP125','CB 125 Hornet','CB125 Hornet','Unicorn 160','CB Unicorn 160','Activa 110','Activa 6G','Activa 110 Anniversary Edition','Activa 125','Activa 125 BS6','Activa 125 OBD2','Activa 125 Anniversary Edition','Dio 110','Dio BS6','Dio 125','Dio 125 OBD2','Dio 125 X-Edition','SP160','SP 160','Hornet 2.0'],km:6000,months:6,source:'HMSI India model FAQ: paid service every 6,000 km or within 6 months. Apply only to listed current model families; confirm year-specific owner manual.'}
+{models:['Shine 100','Shine 100X','Shine 100 DX','Shine 125','SP 125','SP125','Activa 125','Activa 125 BS6','Activa 125 OBD2','Activa 125 Anniversary Edition','Dio 125','Dio 125 OBD2','Dio 125 X-Edition','Dio 110','Dio BS6'],km:6000,months:6,source:'HMSI model FAQ: paid service every 6,000 km or within 6 months. Verify the matching model-year owner manual and service history.'}
 ];
 const HMSI_SERVICE_MODEL_ALIASES={
-'Activa':'Activa 110','Dio':'Dio 110','Shine100':'Shine 100','Shine100 DX':'Shine 100 DX','Shine125':'Shine 125','SP 125':'SP 125','SP125':'SP 125','CB 125 Hornet':'CB 125 Hornet','CB125 Hornet':'CB 125 Hornet','Unicorn':'Unicorn 160','Unicorn 160':'Unicorn 160','CB Unicorn 160':'Unicorn 160','SP160':'SP160','SP 160':'SP160','Activa 6G':'Activa 110','Activa 125 BS6':'Activa 125','Activa 125 OBD2':'Activa 125','Dio BS6':'Dio 110','Dio 125 OBD2':'Dio 125'
+'Shine100':'Shine 100','Shine100 DX':'Shine 100 DX','Shine125':'Shine 125','SP125':'SP 125','Activa125':'Activa 125','Activa 125 OBD2':'Activa 125','Activa 125 Anniversary Edition':'Activa 125','Dio125':'Dio 125','Dio 125 OBD2':'Dio 125','Dio 125 X-Edition':'Dio 125','Dio':'Dio 110','Dio BS6':'Dio 110'
 };
 function addMonthsSafe(date,months){const parts=String(date||'').split('-').map(Number);if(parts.length!==3||parts.some(x=>!Number.isFinite(x)))return '';const [y,m,d]=parts;const targetMonth=m-1+months;const targetYear=y+Math.floor(targetMonth/12);const normalizedMonth=((targetMonth%12)+12)%12;const lastDay=new Date(targetYear,normalizedMonth+1,0).getDate();const result=new Date(targetYear,normalizedMonth,Math.min(d,lastDay),12);return result.getFullYear()+'-'+String(result.getMonth()+1).padStart(2,'0')+'-'+String(result.getDate()).padStart(2,'0')}
-function updateNextServiceDue(){
- const selected=String($('model').value||'').trim(),model=HMSI_SERVICE_MODEL_ALIASES[selected]||selected;
- const odoText=String($('km').value||'').trim(),odo=Number(odoText),date=$('date').value;
+function calculateNextServiceDue(record){
+ const selected=String(record.model||'').trim(),model=HMSI_SERVICE_MODEL_ALIASES[selected]||selected;
  const rule=HMSI_SERVICE_INTERVALS.find(x=>x.models.includes(model));
- const kmField=$('nextServiceKm'),dateField=$('nextServiceDate'),status=$('serviceScheduleStatus');
- const advisoryKm=$('advisoryNextServiceKm'),advisoryDate=$('advisoryNextServiceDate'),advisoryStatus=$('advisoryServiceDueStatus');
- let dueKm='',dueDate='';
- if(rule){
-   if(odoText!==''&&Number.isFinite(odo)&&odo>=0)dueKm=String(Math.round(odo+rule.km));
-   if(date)dueDate=addMonthsSafe(date,rule.months);
-   status.textContent=rule.source+' Next service is due at the calculated kilometre reading or date, whichever comes first. Confirm against the exact model-year owner manual and service history.';
- }else{
-   status.textContent='No verified automatic interval is available for this exact model/year. Check the matching HMSI owner manual before setting a reminder.';
- }
- kmField.value=dueKm;dateField.value=dueDate;
- if(advisoryKm)advisoryKm.value=dueKm;
- if(advisoryDate)advisoryDate.value=dueDate;
- if(advisoryStatus)advisoryStatus.textContent=status.textContent;
+ const serviceType=String(record.serviceType||'').trim().toLowerCase();
+ const odoText=String(record.km??'').trim(),odo=Number(odoText),date=String(record.date||'');
+ if(serviceType!=='paid service')return {km:'',date:'',status:serviceType==='free service'?'Free-service milestone depends on the vehicle sale date and service number. Confirm the HMSI schedule before setting the next due.':'Automatic next-service interval is not applied to repair / general or warranty visits.'};
+ if(!rule)return {km:'',date:'',status:'No verified paid-service interval is configured for this exact model variant. Check its model-year HMSI owner manual.'};
+ if(!date||odoText===''||!Number.isFinite(odo)||odo<0)return {km:'',date:'',status:'Enter a valid service date and current odometer reading to calculate the next due.'};
+ return {km:String(Math.round(odo+rule.km)),date:addMonthsSafe(date,rule.months),status:rule.source+' Next paid service is due at the calculated kilometre reading or date, whichever comes first.'};
 }
-['model','km','date'].forEach(id=>$(id).addEventListener('input',updateNextServiceDue));['model','km','date'].forEach(id=>$(id).addEventListener('change',updateNextServiceDue));
+function updateNextServiceDue(){
+ const result=calculateNextServiceDue({model:$('model').value,serviceType:$('serviceType').value,km:$('km').value,date:$('date').value});
+ $('nextServiceKm').value=result.km;$('nextServiceDate').value=result.date;
+ if($('advisoryNextServiceKm'))$('advisoryNextServiceKm').value=result.km;
+ if($('advisoryNextServiceDate'))$('advisoryNextServiceDate').value=result.date;
+ $('serviceScheduleStatus').textContent=result.status;
+ if($('advisoryServiceDueStatus'))$('advisoryServiceDueStatus').textContent=result.status;
+}
+function migrateSavedServiceDueValues(){
+ const all=records();let changed=false;
+ const migrated=all.map(r=>{
+  const result=calculateNextServiceDue(r);
+  if(String(r.nextServiceKm||'')!==result.km||String(r.nextServiceDate||'')!==result.date||r.nextServiceCalculationVersion!==2){
+   changed=true;return {...r,nextServiceKm:result.km,nextServiceDate:result.date,nextServiceDueStatus:result.status,nextServiceCalculationVersion:2,updatedAt:new Date().toISOString()};
+  }
+  return r;
+ });
+ if(changed){suppressCloudSync=true;persist(migrated);suppressCloudSync=false;}
+}
+['model','km','date','serviceType'].forEach(id=>$(id).addEventListener('input',updateNextServiceDue));['model','km','date','serviceType'].forEach(id=>$(id).addEventListener('change',updateNextServiceDue));
+migrateSavedServiceDueValues();updateNextServiceDue();
 $('model').addEventListener('change',()=>{refreshSpecificationStandards();updateNextServiceDue();const hint=$('modelSelectionHint');if(hint)hint.textContent=$('model').value?'Selected model: '+$('model').value:'Select the exact vehicle model from the list.'});
 $('takeEvidencePhoto').onclick=startEvidenceCamera;
 $('captureEvidencePhoto').onclick=captureEvidencePhoto;
@@ -1160,7 +1171,7 @@ $('mobile').addEventListener('input',updateCallCustomer);
 callCustomerButton.onclick=()=>{const n=String($('mobile').value||'').trim();if(customerPhoneDigits(n).length>=7)window.location.href='tel:'+n.replace(/[^0-9+*#,;]/g,'')};
 
 function saveDraftSection(sectionNumber){try{const r=getRecord();r.isDraft=true;r.lastSavedSection=sectionNumber;const arr=records();const i=arr.findIndex(x=>x.id===r.id);if(i>=0)arr[i]={...arr[i],...r};else arr.push(r);persist(arr);$('recordId').value=r.id;const message='Section '+String(sectionNumber).padStart(2,'0')+' saved on this device at '+new Date().toLocaleTimeString()+'.';document.querySelectorAll('.section-save-status').forEach(x=>x.textContent='');const status=document.querySelector('.section[data-section="'+sectionNumber+'"] .section-save-status');if(status)status.textContent=message+' You can reopen this draft from Saved Records.';$('saveStatus').textContent=message;$('saveStatus').className='success';renderJobs();renderReports();return true}catch(err){const message='Save failed: '+(err&&err.name==='QuotaExceededError'?'Device storage is full. Remove large attachments or export a backup before continuing.':err.message||'Unknown storage error')+' Your current form remains open.';const status=document.querySelector('.section[data-section="'+sectionNumber+'"] .section-save-status');if(status)status.textContent=message;$('saveStatus').textContent=message;$('saveStatus').className='error';return false}}
-$('saveRecord').onclick=()=>{const f=$('serviceForm');if(!f.reportValidity()){const bad=f.querySelector(':invalid');const sec=bad?.closest('.section');if(sec)openSection(Number(sec.dataset.section));return}const r=getRecord();r.isDraft=false;r.completedAt=new Date().toISOString();const arr=records();const i=arr.findIndex(x=>x.id===r.id);if(i>=0)arr[i]=r;else arr.push(r);try{persist(arr)}catch(e){$('saveStatus').textContent='Save failed: '+e.message+' Your form has been kept open. Export a backup before retrying.';$('saveStatus').className='error';return}resetForm();openSection(1);$('saveStatus').textContent=driveAccessToken?'Job card '+(r.jobcard||'')+' saved on this device. Google Drive synchronization is starting.':'Job card '+(r.jobcard||'')+' saved on this device. Sign in with Google to synchronize it across devices.';$('saveStatus').className='success';renderJobs();renderReports();if(driveAccessToken){clearTimeout(driveSyncTimer);syncDriveNow()}};
+$('saveRecord').onclick=()=>{const f=$('serviceForm');if(!f.reportValidity()){const bad=f.querySelector(':invalid');const sec=bad?.closest('.section');if(sec)openSection(Number(sec.dataset.section));return}const r=getRecord();updateNextServiceDue();r=getRecord();r.isDraft=false;r.completedAt=new Date().toISOString();const arr=records();const i=arr.findIndex(x=>x.id===r.id);if(i>=0)arr[i]=r;else arr.push(r);try{persist(arr)}catch(e){$('saveStatus').textContent='Save failed: '+e.message+' Your form has been kept open. Export a backup before retrying.';$('saveStatus').className='error';return}resetForm();openSection(1);$('saveStatus').textContent=driveAccessToken?'Job card '+(r.jobcard||'')+' saved on this device. Google Drive synchronization is starting.':'Job card '+(r.jobcard||'')+' saved on this device. Sign in with Google to synchronize it across devices.';$('saveStatus').className='success';renderJobs();renderReports();if(driveAccessToken){clearTimeout(driveSyncTimer);syncDriveNow()}};
 $('newRecord').onclick=()=>{if(!confirm('Start a new record? Save current changes first if needed.'))return;resetForm();openSection(1)};
 let customerVehicleSaveTimer=null;
 function scheduleCustomerVehicleAutosave(){clearTimeout(customerVehicleSaveTimer);customerVehicleSaveTimer=setTimeout(()=>{const hasIdentity=['customer','mobile','reg','model','jobcard'].some(id=>String(getVal(id)||'').trim());if(hasIdentity)saveDraftSection(1)},800)}
