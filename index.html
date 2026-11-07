@@ -627,6 +627,70 @@ body.black .checkgroup h3,body.black .report-block h3,body.black .sw-title{
 .estimate-totals .summaryrow.total{font-size:17px;color:#850720;font-weight:900}
 @media(max-width:620px){.estimate-adjustments{grid-template-columns:1fr 1fr;gap:8px}.estimate-totals{padding:8px 10px}}
 
+
+/* REAL BUTTON SYSTEM v1: consistent tactile controls across every app section */
+button:not(.native-picker-overlay):not(.navbtn):not(.sectionbtn){
+  appearance:none;-webkit-appearance:none;
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  min-height:46px;padding:11px 16px;
+  border:1px solid #cbd2dc;border-radius:12px;
+  background:linear-gradient(180deg,#ffffff 0%,#f4f6f9 100%);
+  color:#202a3a;font:750 14px/1.25 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  text-align:center;text-decoration:none;white-space:normal;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 3px 0 #d2d7df,0 5px 10px rgba(20,30,48,.09);
+  cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+  transition:transform .12s ease,box-shadow .12s ease,filter .12s ease,background .12s ease;
+}
+button.primary:not(.native-picker-overlay),.primary:not(button){
+  background:linear-gradient(145deg,#f52d4e 0%,#c8102e 52%,#85071f 100%)!important;
+  color:#fff!important;border-color:#9f0a28!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.38),0 3px 0 #690419,0 6px 13px rgba(130,0,30,.22)!important;
+}
+button.secondary{
+  background:linear-gradient(180deg,#fff 0%,#edf1f5 100%);
+  color:#344054;border-color:#b9c2ce;
+}
+button.danger{
+  background:linear-gradient(180deg,#fff6f5 0%,#fce7e6 100%);
+  color:#a51d16;border-color:#e7aaa6;
+  box-shadow:inset 0 1px 0 #fff,0 3px 0 #e6c1be,0 5px 10px rgba(165,29,22,.08);
+}
+button:active:not(:disabled):not(.native-picker-overlay){
+  transform:translateY(2px);
+  filter:brightness(.97);
+  box-shadow:inset 0 2px 5px rgba(20,30,48,.16),0 1px 0 rgba(20,30,48,.12)!important;
+}
+button:focus-visible:not(.native-picker-overlay){
+  outline:3px solid rgba(200,16,46,.3);outline-offset:3px;
+}
+button:disabled,.native-picker-wrap>button:disabled{
+  opacity:.48;cursor:not-allowed;filter:grayscale(.35);
+  transform:none!important;box-shadow:none!important;
+}
+@media(hover:hover){
+ button:not(:disabled):not(.native-picker-overlay):hover{filter:brightness(.98);transform:translateY(-1px)}
+ button.primary:not(:disabled):hover{filter:brightness(1.07)}
+}
+body.dark button:not(.navbtn):not(.sectionbtn):not(.native-picker-overlay):not(.primary):not(.danger){
+  background:linear-gradient(180deg,#344258 0%,#202b3c 100%)!important;
+  color:#f4f6fa!important;border-color:#526176!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 3px 0 #101722,0 5px 10px rgba(0,0,0,.28)!important;
+}
+body.black button:not(.navbtn):not(.sectionbtn):not(.native-picker-overlay):not(.primary):not(.danger){
+  background:linear-gradient(180deg,#242424 0%,#090909 100%)!important;
+  color:#f5f5f5!important;border-color:#555!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 3px 0 #000,0 5px 10px rgba(0,0,0,.5)!important;
+}
+body.dark button.secondary,body.black button.secondary{
+  background:linear-gradient(180deg,#344258,#202b3c)!important;color:#f4f6fa!important;border-color:#526176!important;
+}
+body.dark button.danger,body.black button.danger{
+  background:linear-gradient(180deg,#552c34,#351c24)!important;color:#ffdadd!important;border-color:#8d4c57!important;
+}
+@media(prefers-reduced-motion:reduce){
+ button:not(.native-picker-overlay){transition:none!important}
+}
+
 </style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
