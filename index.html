@@ -278,7 +278,21 @@ body.dark .subtle,body.black .subtle,body.dark label,body.black label{color:var(
 <div class="field"><label for="customer">Customer name *</label><input id="customer" required placeholder="Full customer name"></div>
 <div class="field"><label for="mobile">Mobile number</label><input id="mobile" type="tel" inputmode="tel" autocomplete="tel" placeholder="Customer contact number"><button type="button" id="callCustomer" class="call-customer" disabled>☎ Call Customer</button></div>
 <div class="field"><label for="reg">Registration number *</label><input id="reg" required placeholder="e.g. KA-06-AB-1234"></div>
-<div class="field"><label for="model">Vehicle model *</label><select id="model" required aria-label="Select vehicle model"><option value="" selected disabled>Choose vehicle model</option><option>Shine 100</option><option>Shine 100X</option><option>CD 110</option><option>Livo</option><option>CB Shine</option><option>SP 125</option><option>CB 125 Hornet</option><option>Unicorn 160</option><option>SP160</option><option>X-Blade</option><option>Hornet 2.0</option><option>CB200X</option><option>Activa</option><option>Dio</option><option>Dio 125</option><option>Activa 125</option></select><div class="subtle" id="modelSelectionHint">Select the exact vehicle model from the list.</div></div>
+<div class="field"><label for="model">Vehicle model *</label><select id="model" required aria-label="Select vehicle model">
+<option value="" selected disabled>Choose vehicle model</option>
+<optgroup label="Scooters | Current and previous HMSI models">
+<option>Activa</option><option>Activa 3G</option><option>Activa 4G</option><option>Activa 5G</option><option>Activa 6G</option><option>Activa 110 Anniversary Edition</option><option>Activa 125</option><option>Activa 125 BS6</option><option>Activa 125 OBD2</option><option>Activa 125 Anniversary Edition</option><option>Aviator</option><option>Dio</option><option>Dio BS6</option><option>Dio 110</option><option>Dio 125</option><option>Dio 125 OBD2</option><option>Dio 125 X-Edition</option><option>Grazia</option><option>Grazia 125</option><option>Cliq</option><option>Navi</option>
+</optgroup>
+<optgroup label="Commuter motorcycles | 100cc to 125cc">
+<option>Shine 100</option><option>Shine 100X</option><option>Shine 100 DX</option><option>CD 110</option><option>CD 110 Dream</option><option>Dream Neo</option><option>Dream Yuga</option><option>Livo</option><option>CB Shine</option><option>CB Shine SP</option><option>CB Shine 125</option><option>Shine 125</option><option>SP 125</option><option>SP125</option><option>CB 125 Hornet</option><option>CB125 Hornet</option>
+</optgroup>
+<optgroup label="Motorcycles | 150cc to 200cc">
+<option>CB Unicorn 150</option><option>Unicorn 150</option><option>Unicorn 160</option><option>CB Unicorn 160</option><option>CB Trigger</option><option>CB Twister</option><option>CBF Stunner</option><option>CB Hornet 160R</option><option>Hornet 160R</option><option>X-Blade</option><option>SP160</option><option>SP 160</option><option>Hornet 2.0</option><option>CB200X</option>
+</optgroup>
+<optgroup label="Other HMSI India motorcycles">
+<option>CBR150R</option><option>CBR250R</option>
+</optgroup>
+</select><div class="subtle" id="modelSelectionHint">Select the exact vehicle model from the list.</div></div>
 <div class="field"><label for="km">Kilometres</label><input id="km" type="number" min="0" inputmode="numeric" placeholder="Odometer reading"></div>
 <div class="field"><label for="jobcard">Job card number *</label><input id="jobcard" required placeholder="HI-RISE job card number"></div>
 <div class="field"><label for="date">Service date *</label><input id="date" type="date" required></div>
