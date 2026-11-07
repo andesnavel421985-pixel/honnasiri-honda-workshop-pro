@@ -251,7 +251,139 @@ body.dark .theme-options button.theme-selected,body.black .theme-options button.
 body:not(.dark):not(.black) .theme-options button.theme-selected{background:#fff0f2!important;color:#8e1028!important;border-color:#c8102e!important}
 body.dark .pill,body.black .pill,body.dark .sw-chip,body.black .sw-chip{background:var(--soft)!important;color:var(--ink)!important}
 body.dark .subtle,body.black .subtle,body.dark label,body.black label{color:var(--muted)}
-.part-search-results{display:grid;gap:8px;margin:8px 0 14px}.part-search-result{display:block;width:100%;text-align:left;padding:12px 14px;border:1px solid #d7dce3;border-radius:12px;background:#fff;color:#202938;font:inherit}.part-search-result:active{background:#f5e8eb}</style>
+.part-search-results{display:grid;gap:8px;margin:8px 0 14px}.part-search-result{display:block;width:100%;text-align:left;padding:12px 14px;border:1px solid #d7dce3;border-radius:12px;background:#fff;color:#202938;font:inherit}.part-search-result:active{background:#f5e8eb}
+/* HONNASIRI HONDA premium metallic 3D visual refresh (visual-only; app logic and data schema unchanged) */
+:root{--brand-gloss:linear-gradient(145deg,#f52b4b 0%,#c8102e 34%,#92051f 72%,#650018 100%)}
+header{
+ background:
+  radial-gradient(ellipse at 12% -25%,rgba(255,255,255,.34),transparent 44%),
+  radial-gradient(ellipse at 92% 8%,rgba(255,150,170,.18),transparent 35%),
+  linear-gradient(145deg,#e51b3b 0%,#bd092b 42%,#87001d 100%)!important;
+ border-bottom:1px solid rgba(255,255,255,.32);
+ box-shadow:0 7px 22px rgba(77,0,18,.28),inset 0 1px 0 rgba(255,255,255,.28),inset 0 -10px 22px rgba(52,0,12,.15)!important;
+}
+header h1{
+ color:#fff!important;
+ letter-spacing:1.05px!important;
+ text-shadow:0 2px 0 #8c0822,0 4px 0 rgba(73,0,15,.5),0 7px 14px rgba(30,0,8,.45),0 -1px 0 rgba(255,255,255,.55)!important;
+ filter:drop-shadow(0 1px 1px rgba(0,0,0,.2));
+}
+header>p:first-of-type{font-weight:750;text-shadow:0 1px 5px rgba(50,0,10,.32)}
+header .dealer-code{
+ display:inline-block!important;
+ padding:7px 12px!important;
+ border:1px solid rgba(255,255,255,.42);
+ border-radius:10px;
+ background:linear-gradient(180deg,rgba(255,255,255,.2),rgba(55,0,10,.2));
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.34),0 3px 9px rgba(55,0,10,.22);
+ text-shadow:0 2px 2px rgba(45,0,8,.55),0 -1px 0 rgba(255,255,255,.35)!important;
+}
+.staff-identity{
+ border-top-color:rgba(255,255,255,.36)!important;
+ text-shadow:0 1px 3px rgba(40,0,8,.38);
+}
+.staff-identity strong{font-weight:950!important;letter-spacing:.7px!important}
+.header-actions button{
+ border:1px solid rgba(255,255,255,.9)!important;
+ background:linear-gradient(180deg,#fff 0%,#fff5f6 48%,#e8dfe1 100%)!important;
+ color:#97102b!important;
+ box-shadow:inset 0 1px 0 #fff,0 3px 0 rgba(91,0,20,.28),0 7px 15px rgba(45,0,12,.24)!important;
+}
+.topnav .navbtn,.sectionnav .sectionbtn{
+ position:relative;
+ overflow:hidden;
+ border:1px solid #d9cbd0!important;
+ background:linear-gradient(155deg,#fff 0%,#fff 42%,#f0e9ec 100%)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.98),inset 0 -2px 0 rgba(107,27,48,.055),0 3px 0 rgba(87,17,37,.10),0 6px 13px rgba(27,35,51,.075)!important;
+ transition:transform .16s ease,box-shadow .16s ease;
+}
+.topnav .navbtn:before,.sectionnav .sectionbtn:before{
+ content:"";
+ position:absolute;inset:0 0 auto;height:43%;
+ background:linear-gradient(180deg,rgba(255,255,255,.68),rgba(255,255,255,0));
+ pointer-events:none;
+}
+.topnav .navbtn:active,.sectionnav .sectionbtn:active{transform:translateY(2px);box-shadow:inset 0 2px 5px rgba(0,0,0,.12)!important}
+.topnav .navbtn.active,.sectionnav .sectionbtn.active{
+ background:linear-gradient(155deg,#fff1f3 0%,#ffe1e6 48%,#f4c3cd 100%)!important;
+ border-color:#d97b8d!important;
+ color:#a5092a!important;
+ box-shadow:inset 0 1px 0 #fff, inset 0 -2px 0 rgba(128,0,30,.08),0 3px 0 rgba(127,0,28,.13),0 7px 15px rgba(200,16,46,.14)!important;
+}
+.sectionnav .sectionbtn{padding-left:38px!important;min-height:76px!important}
+.sectionnav .sectionbtn:after{
+ position:absolute;left:10px;top:50%;transform:translateY(-50%);
+ width:25px;height:25px;display:grid;place-items:center;
+ border-radius:8px;background:linear-gradient(145deg,#fff,#f3dce2);
+ box-shadow:inset 0 1px 0 #fff,0 2px 4px rgba(70,0,18,.12);
+ font-size:16px;line-height:1;
+}
+.sectionnav .sectionbtn:nth-child(1):after{content:"👤"}
+.sectionnav .sectionbtn:nth-child(2):after{content:"🔧"}
+.sectionnav .sectionbtn:nth-child(3):after{content:"🛡️"}
+.sectionnav .sectionbtn:nth-child(4):after{content:"🧾"}
+.sectionnav .sectionbtn:nth-child(5):after{content:"📦"}
+.sectionnav .sectionbtn:nth-child(6):after{content:"💬"}
+.sectionnav .sectionbtn:nth-child(7):after{content:"📋"}
+.sectionnav .sectionbtn:nth-child(8):after{content:"✅"}
+.sectionnav .sectionbtn strong{position:relative;z-index:1;color:#a20b2b!important;font-weight:950!important}
+.sectionnav .sectionbtn span{position:relative;z-index:1;font-weight:800!important;color:#202a3a!important}
+.card{
+ border-color:#e1d9dd;
+ box-shadow:0 3px 10px rgba(23,32,51,.055),inset 0 1px 0 rgba(255,255,255,.9);
+}
+.card>h2,.sectionhead h2{
+ font-weight:900;letter-spacing:-.25px;
+}
+.sectionhead .num,.sw-number,.num{
+ background:linear-gradient(145deg,#fff1f3 0%,#f6cbd3 100%)!important;
+ border:1px solid #e5a5b2;
+ box-shadow:inset 0 1px 0 #fff,0 3px 7px rgba(140,0,30,.12);
+}
+.sectionhead h2{color:#202a3a}
+.checkgroup h3,.report-block h3,.sw-title{
+ background:linear-gradient(105deg,#fff0f2 0%,#f7dce2 52%,#f2e9eb 100%)!important;
+ color:#86132b!important;
+ border-bottom:1px solid #e8c3cb;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.9);
+ font-weight:900!important;
+}
+.report-block h3:before,.checkgroup h3:before{content:"✦";margin-right:8px;color:#c8102e}
+.sw-title .sw-number{background:linear-gradient(145deg,#fff,#f4cbd4)!important}
+button.primary{
+ background:linear-gradient(145deg,#f02b4b 0%,#c8102e 55%,#8e0824 100%)!important;
+ border-color:#a90928!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.32),0 3px 0 #78051c,0 6px 13px rgba(200,16,46,.2)!important;
+ text-shadow:0 1px 2px rgba(50,0,10,.28);
+}
+body.dark .topnav .navbtn,body.dark .sectionnav .sectionbtn{
+ background:linear-gradient(155deg,#2d394b 0%,#1c2635 55%,#151e2b 100%)!important;
+ border-color:#4b596e!important;color:#edf1f7!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 3px 0 rgba(0,0,0,.28),0 6px 12px rgba(0,0,0,.18)!important;
+}
+body.dark .topnav .navbtn.active,body.dark .sectionnav .sectionbtn.active{
+ background:linear-gradient(145deg,#62303d,#3a202b)!important;color:#fff!important;border-color:#b85d70!important;
+}
+body.dark .sectionnav .sectionbtn span,body.black .sectionnav .sectionbtn span{color:var(--ink)!important}
+body.black .topnav .navbtn,body.black .sectionnav .sectionbtn{
+ background:linear-gradient(145deg,#242424,#090909)!important;border-color:#454545!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 3px 0 #000,0 6px 12px rgba(0,0,0,.55)!important;
+}
+body.black .topnav .navbtn.active,body.black .sectionnav .sectionbtn.active{background:linear-gradient(145deg,#4a1d28,#1b090e)!important;border-color:#a84a5c!important}
+body.dark .checkgroup h3,body.dark .report-block h3,body.dark .sw-title,
+body.black .checkgroup h3,body.black .report-block h3,body.black .sw-title{
+ background:linear-gradient(105deg,#3b2630,#222b39 75%)!important;color:#f3dce2!important;border-color:#5b3c48!important;
+}
+@media(max-width:620px){
+ header{padding:17px 14px 15px!important}
+ header h1{font-size:25px!important;letter-spacing:.8px!important}
+ header .dealer-code{font-size:17px!important}
+ .sectionnav .sectionbtn{padding:9px 6px 9px 34px!important;min-height:72px!important}
+ .sectionnav .sectionbtn:after{left:7px;width:23px;height:23px;font-size:14px}
+}
+@media(prefers-reduced-motion:reduce){.topnav .navbtn,.sectionnav .sectionbtn{transition:none}}
+
+</style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
