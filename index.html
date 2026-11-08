@@ -1131,9 +1131,11 @@ function calculateNextServiceDue(record){
  if(type!=='paid service'&&type!=='free service')return {km:'',date:'',generation,status:'Next periodic-service reminder is calculated for completed Free Service or Paid Service entries. Repair, warranty-only and accident jobs do not reset the maintenance schedule.'};
  if(!model)return {km:'',date:'',generation,status:'Select the exact Honda model.'};
  if(!entry)return {km:'',date:'',generation,status:'No verified recurring interval is configured for '+model+'. Check the exact model/year owner manual. No interval has been guessed.'};
- if(!Number.isInteger(year)||year<1990||year>new Date().getFullYear())return {km:'',date:'',generation,status:'Enter the confirmed manufacturing year and emission norm before calculating.'};
- if(generation.startsWith('BS-III or'))return {km:'',date:'',generation,status:'2017 is a BS transition year. Confirm BS-III or BS-IV from RC / Honda record before calculating.'};
- if(generation!=='BS-VI')return {km:'',date:'',generation,status:'The available verified 6,000 km / 6-month schedule applies to the listed BS-VI model variants. This vehicle is '+generation+'. Check its exact HMSI owner manual; no older-model interval is assumed.'};
+ const yearEntered=String(record.manufactureYear||'').trim()!=='';
+ if(yearEntered&&(!Number.isInteger(year)||year<1990||year>new Date().getFullYear()))return {km:'',date:'',generation,status:'Manufacturing year is invalid. Enter the year shown on the RC or leave it blank for an exact verified model variant.'};
+ if(yearEntered&&generation.startsWith('BS-III or'))return {km:'',date:'',generation,status:'2017 is a BS transition year. Confirm BS-III or BS-IV from RC / Honda record before calculating.'};
+ if(yearEntered&&generation!=='BS-VI')return {km:'',date:'',generation,status:'The verified 6,000 km / 6-month schedule applies to the listed BS-VI model variants. This vehicle is '+generation+'. Check its exact HMSI owner manual; no older-model interval is assumed.'};
+ if(!yearEntered)generation='Verified model variant; manufacturing year not required';
  if(!date||kmText===''||!Number.isFinite(odo)||odo<0)return {km:'',date:'',generation,status:'Enter a valid present odometer reading and present service date.'};
  const dueDate=addMonthsSafe(date,6);
  if(!dueDate)return {km:'',date:'',generation,status:'Service date is invalid. Please re-enter the service date.'};
