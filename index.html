@@ -739,7 +739,7 @@ body.dark button.danger,body.black button.danger{
 </select><div class="subtle" id="modelSelectionHint">Select the exact vehicle model from the list.</div></div>
 <div class="field"><label for="km">Kilometres</label><input id="km" type="number" min="0" inputmode="numeric" placeholder="Odometer reading"></div>
 <div class="field"><label for="jobcard">Job card number *</label><input id="jobcard" required placeholder="HI-RISE job card number"></div>
-<div class="field"><label for="date">Service date *</label><input id="date" type="date" required></div><div class="field"><label for="nextServiceKm">Next service due at (km)</label><input id="nextServiceKm" type="number" readonly placeholder="Auto-calculated from current km"></div><div class="field"><label for="nextServiceDate">Next service due date</label><input id="nextServiceDate" type="date" readonly></div><div class="field full"><p class="subtle" id="serviceScheduleStatus" aria-live="polite">Select a supported model, enter current kilometres and service date.</p></div>
+<div class="field"><label for="date">Service date *</label><input id="date" type="date" required></div><div class="field"><label for="nextServiceKm">Next service due at (km)</label><input id="nextServiceKm" type="number" readonly placeholder="Auto-calculated from current km"></div><div class="field"><label for="nextServiceDate">Next service due date</label><input id="nextServiceDate" type="date" readonly></div><div class="field full"><p class="subtle" id="serviceScheduleStatus" aria-live="polite">Select a verified Honda model, enter current kilometres and service date. Due reminder uses whichever comes first.</p></div>
 <div class="field"><label for="serviceType">Service type</label><select id="serviceType"><option>Paid Service</option><option>Free Service</option><option>Warranty</option><option>Repair / General</option><option>Accident</option></select></div><div class="field full customer-request-field"><label>Customer requests (select all that apply)</label><p class="subtle">Search and select one or more concerns. New requests you add are saved to the main list on this device.</p><input id="customerRequestSearch" type="search" placeholder="Search customer requests..." autocomplete="off"><div class="grid" style="grid-template-columns:minmax(0,1fr) auto;align-items:end"><div class="field"><label for="customerRequestNew">Add new customer request</label><input id="customerRequestNew" type="text" placeholder="Enter a new customer request"></div><button type="button" id="addCustomerRequest" class="primary">＋ Add to list</button></div><div id="customerRequestOptions" class="request-option-list request-option-list-visible"></div><p id="customerRequestSummary" class="request-option-count" aria-live="polite">No customer requests selected</p><input id="complaintCategory" type="hidden"><input id="requestType" type="hidden"><input id="requestTypeCustom" class="hidden" placeholder="Enter other customer request"></div>
 <div class="field"><label for="amcType">New AMC / EW / EW+</label><select id="amcType"><option value="">None / Not sold</option><option>NEW AMC</option><option>NEW EW</option><option>NEW EW+</option></select></div>
 <div class="field"><label for="workStatus">Current work status</label><select id="workStatus"><option>Work in Process</option><option>Pending</option><option>Completed</option><option>Waiting for Parts</option><option>Waiting for CV Approval</option></select></div>
@@ -1093,27 +1093,54 @@ $('frameNo').addEventListener('input',checkFrameYear);
 $('checkRegistration').addEventListener('click',()=>window.open('https://mparivahan.parivahan.gov.in/','_blank','noopener'));
 $('checkHondaVin').addEventListener('click',()=>window.open('https://www.honda2wheelersindia.com/resources/owners-manual','_blank','noopener'));
 
-const HMSI_LEGACY_4K_MODELS=['Activa','Activa 3G','Activa 4G','Activa 5G','Aviator','Dio','Grazia','Grazia 125','Cliq','Navi','CD 110','CD 110 Dream','Dream Neo','Dream Yuga','Livo','CB Shine','CB Shine SP','CB Shine 125','CB Twister','CBF Stunner','Shine 100','Shine 100X','Shine 100 DX'];
-const HMSI_BS4_6K_MODELS=['CB Unicorn 150','Unicorn 150','CB Trigger','CB Hornet 160R','Hornet 160R','Unicorn 160','CB Unicorn 160','CBR150R','CBR250R'];
-const HMSI_BS6_6K_MODELS=['Shine 100','Shine 100X','Shine 100 DX','Shine 125','SP 125','SP125','CB 125 Hornet','CB125 Hornet','Activa 110 Anniversary Edition','Activa 125','Activa 125 BS6','Activa 125 OBD2','Activa 125 Anniversary Edition','Dio BS6','Dio 110','Dio 125','Dio 125 OBD2','Dio 125 X-Edition','SP160','SP 160','Hornet 2.0','CB200X'];
-const HMSI_SERVICE_MODEL_ALIASES={'Shine100':'Shine 100','Shine100 DX':'Shine 100 DX','Shine125':'Shine 125','SP125':'SP 125','CB125 Hornet':'CB 125 Hornet','Activa125':'Activa 125','Activa 125 OBD2':'Activa 125','Activa 125 Anniversary Edition':'Activa 125','Dio125':'Dio 125','Dio 125 OBD2':'Dio 125','Dio 125 X-Edition':'Dio 125','Dio':'Dio 110','Dio BS6':'Dio 110'};
+// Verified recurring paid-maintenance intervals from HMSI India model pages.
+// Unsupported legacy model/year combinations deliberately return no calculated reminder.
+const HMSI_VERIFIED_6K_6M_MODELS={
+ 'activa':['Activa 110 / Activa 6G','https://www.honda2wheelersindia.com/scooter/activa110'],
+ 'activa 6g':['Activa 110 / Activa 6G','https://www.honda2wheelersindia.com/scooter/activa110'],
+ 'activa 110 anniversary edition':['Activa 110','https://www.honda2wheelersindia.com/scooter/activa110'],
+ 'activa 125':['Activa 125','https://www.honda2wheelersindia.com/scooter/activa125'],
+ 'activa 125 bs6':['Activa 125','https://www.honda2wheelersindia.com/scooter/activa125'],
+ 'activa 125 obd2':['Activa 125','https://www.honda2wheelersindia.com/scooter/activa125'],
+ 'activa 125 anniversary edition':['Activa 125 Anniversary Edition','https://www.honda2wheelersindia.com/scooter/activa125-anniversary-edition'],
+ 'dio':['Dio 110','https://www.honda2wheelersindia.com/scooter/dio-110'],
+ 'dio bs6':['Dio 110','https://www.honda2wheelersindia.com/scooter/dio-110'],
+ 'dio 110':['Dio 110','https://www.honda2wheelersindia.com/scooter/dio-110'],
+ 'dio 125':['Dio 125','https://www.honda2wheelersindia.com/scooter/dio-125'],
+ 'dio 125 obd2':['Dio 125','https://www.honda2wheelersindia.com/scooter/dio-125'],
+ 'dio 125 x-edition':['Dio 125','https://www.honda2wheelersindia.com/scooter/dio-125'],
+ 'shine 100':['Shine 100','https://www.honda2wheelersindia.com/motorcycle/shine-100'],
+ 'shine100':['Shine 100','https://www.honda2wheelersindia.com/motorcycle/shine-100'],
+ 'shine 100 dx':['Shine 100 DX','https://www.honda2wheelersindia.com/motorcycle/shine-100-dx'],
+ 'shine 100x':['Shine 100','https://www.honda2wheelersindia.com/motorcycle/shine-100'],
+ 'shine 125':['Shine 125','https://www.honda2wheelersindia.com/motorcycle/shine-125'],
+ 'cb shine 125':['Shine 125','https://www.honda2wheelersindia.com/motorcycle/shine-125'],
+ 'sp 125':['SP125','https://www.honda2wheelersindia.com/motorcycle/sp-125'],
+ 'sp125':['SP125','https://www.honda2wheelersindia.com/motorcycle/sp-125'],
+ 'livo':['Livo','https://www.honda2wheelersindia.com/motorcycle/livo'],
+ 'unicorn 160':['Unicorn 160','https://www.honda2wheelersindia.com/motorcycle/unicorn'],
+ 'cb unicorn 160':['Unicorn 160','https://www.honda2wheelersindia.com/motorcycle/unicorn'],
+ 'unicorn 150':['Unicorn','https://www.honda2wheelersindia.com/motorcycle/unicorn'],
+ 'cb unicorn 150':['Unicorn','https://www.honda2wheelersindia.com/motorcycle/unicorn'],
+ 'sp160':['SP160','https://www.honda2wheelersindia.com/motorcycle/sp-160'],
+ 'sp 160':['SP160','https://www.honda2wheelersindia.com/motorcycle/sp-160']
+};
 function addMonthsSafe(date,months){const parts=String(date||'').split('-').map(Number);if(parts.length!==3||parts.some(x=>!Number.isFinite(x)))return '';const [y,m,d]=parts;const tm=m-1+months,ty=y+Math.floor(tm/12),nm=((tm%12)+12)%12,last=new Date(ty,nm+1,0).getDate(),out=new Date(ty,nm,Math.min(d,last),12);return out.getFullYear()+'-'+String(out.getMonth()+1).padStart(2,'0')+'-'+String(out.getDate()).padStart(2,'0')}
 function classifyHmsiGeneration(year){const y=Number(year);if(!Number.isInteger(y)||y<1990||y>new Date().getFullYear())return '';if(y<=2016)return 'BS-III / earlier';if(y===2017)return 'BS-III or BS-IV (verify VIN / RC)';if(y<=2019)return 'BS-IV';return 'BS-VI'}
 function calculateNextServiceDue(record){
- const model=HMSI_SERVICE_MODEL_ALIASES[String(record.model||'').trim()]||String(record.model||'').trim();
+ const model=String(record.model||'').trim(),key=model.toLowerCase(),entry=HMSI_VERIFIED_6K_6M_MODELS[key];
  const year=Number(record.manufactureYear||0),generation=String(record.emissionStandard||'').trim()||classifyHmsiGeneration(year),type=String(record.serviceType||'').trim().toLowerCase();
  const kmText=String(record.km??'').trim(),odo=Number(kmText),date=String(record.date||'');
- if(type!=='paid service')return {km:'',date:'',generation,status:type==='free service'?'Free-service due points must be calculated from the sale date and completed free-service sequence. Enter sale date and verify the model-year HMSI schedule.':'Periodic next-service reminder is not calculated for repair/general or warranty-only visits.'};
- if(!generation)return {km:'',date:'',generation:'',status:'Enter manufacturing year. Model name alone cannot reliably distinguish BS-III, BS-IV and BS-VI.'};
- if(generation.startsWith('BS-III or'))return {km:'',date:'',generation,status:'2017 is a BS transition year. Verify exact BS norm using VIN/RC or HMSI owner manual before calculating.'};
- let interval=null,source='';
- if(generation==='BS-III / earlier'&&HMSI_LEGACY_4K_MODELS.includes(model)){interval=4000;source='Legacy HMSI model extended-warranty schedule: maximum 4,000 km or 4 months between services.'}
- else if(generation==='BS-IV'&&HMSI_BS4_6K_MODELS.includes(model)){interval=6000;source='BS-IV higher-capacity model schedule: maximum 6,000 km or 6 months between services.'}
- else if(generation==='BS-IV'&&HMSI_LEGACY_4K_MODELS.includes(model)){interval=4000;source='BS-IV commuter/scooter schedule: maximum 4,000 km or 4 months between services.'}
- else if(generation==='BS-VI'&&HMSI_BS6_6K_MODELS.includes(model)){interval=6000;source='BS-VI HMSI paid-service interval: 6,000 km or 6 months.'}
- if(!interval)return {km:'',date:'',generation,status:'No model-year-specific verified interval configured for '+model+' '+generation+'. Check the exact HMSI owner manual; no value has been guessed.'};
- if(!date||kmText===''||!Number.isFinite(odo)||odo<0)return {km:'',date:'',generation,status:'Enter a valid service date and odometer reading.'};
- return {km:String(Math.round(odo+interval)),date:addMonthsSafe(date,generation==='BS-III / earlier'||(generation==='BS-IV'&&interval===4000)?4:6),generation,status:source+' Whichever occurs first. This is a periodic-service reminder, not a free-service entitlement.'};
+ if(type!=='paid service'&&type!=='free service')return {km:'',date:'',generation,status:'Next periodic-service reminder is calculated for completed Free Service or Paid Service entries. Repair, warranty-only and accident jobs do not reset the maintenance schedule.'};
+ if(!model)return {km:'',date:'',generation,status:'Select the exact Honda model.'};
+ if(!entry)return {km:'',date:'',generation,status:'No verified recurring interval is configured for '+model+'. Check the exact model/year owner manual. No interval has been guessed.'};
+ if(!Number.isInteger(year)||year<1990||year>new Date().getFullYear())return {km:'',date:'',generation,status:'Enter the confirmed manufacturing year and emission norm before calculating.'};
+ if(generation.startsWith('BS-III or'))return {km:'',date:'',generation,status:'2017 is a BS transition year. Confirm BS-III or BS-IV from RC / Honda record before calculating.'};
+ if(generation!=='BS-VI')return {km:'',date:'',generation,status:'The available verified 6,000 km / 6-month schedule applies to the listed BS-VI model variants. This vehicle is '+generation+'. Check its exact HMSI owner manual; no older-model interval is assumed.'};
+ if(!date||kmText===''||!Number.isFinite(odo)||odo<0)return {km:'',date:'',generation,status:'Enter a valid present odometer reading and present service date.'};
+ const dueDate=addMonthsSafe(date,6);
+ if(!dueDate)return {km:'',date:'',generation,status:'Service date is invalid. Please re-enter the service date.'};
+ return {km:String(Math.round(odo+6000)),date:dueDate,generation,status:'Verified HMSI recurring paid-service interval for '+entry[0]+': every 6,000 km or 6 months. Reminder is due at whichever limit occurs first, measured from this current service entry. Source: '+entry[1]+'. Free-service coupon eligibility is separate and is not calculated here.'};
 }
 function updateNextServiceDue(){
  const result=calculateNextServiceDue({model:$('model').value,manufactureYear:$('manufactureYear').value,emissionStandard:$('emissionStandard').value,serviceType:$('serviceType').value,km:$('km').value,date:$('date').value});
@@ -1123,7 +1150,7 @@ function updateNextServiceDue(){
  $('serviceScheduleStatus').textContent=(result.generation?'Generation: '+result.generation+'. ':'')+result.status;
  if($('advisoryServiceDueStatus'))$('advisoryServiceDueStatus').textContent=(result.generation?'Generation: '+result.generation+'. ':'')+result.status;
 }
-['model','manufactureYear','emissionStandard','km','date','serviceType'].forEach(id=>$(id).addEventListener('input',updateNextServiceDue));['model','manufactureYear','km','date','serviceType'].forEach(id=>$(id).addEventListener('change',updateNextServiceDue));
+['model','manufactureYear','emissionStandard','km','date','serviceType'].forEach(id=>$(id).addEventListener('input',updateNextServiceDue));['model','manufactureYear','emissionStandard','km','date','serviceType'].forEach(id=>$(id).addEventListener('change',updateNextServiceDue));
 updateNextServiceDue();
 $('model').addEventListener('change',()=>{refreshSpecificationStandards();updateNextServiceDue();const hint=$('modelSelectionHint');if(hint)hint.textContent=$('model').value?'Selected model: '+$('model').value:'Select the exact vehicle model from the list.'});
 $('takeEvidencePhoto').onclick=startEvidenceCamera;
