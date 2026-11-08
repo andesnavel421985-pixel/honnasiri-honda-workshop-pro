@@ -143,7 +143,7 @@ body.dark .num,body.dark .sw-number{background:#42232d;color:#ff9aaa}
 body.dark .tick.ok{color:#72d69b}body.dark .tick.notok{color:#ff8f88}
 
 
-.photo-viewer{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;padding:16px;background:rgba(0,0,0,.96)}.photo-viewer.open{display:flex}.photo-viewer img{display:block;max-width:100%;max-height:78vh;width:auto;height:auto;object-fit:contain;background:#111}.photo-viewer .photo-viewer-close{background:#b80f32;color:#fff;border:1px solid #fff;padding:12px 22px;border-radius:10px;font-size:17px}
+.photo-viewer{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;flex-direction:column;gap:10px;padding:10px;background:rgba(0,0,0,.97);overflow:hidden}.photo-viewer.open{display:flex}.photo-viewer-stage{width:100%;height:calc(100vh - 150px);min-height:180px;display:flex;align-items:center;justify-content:center;overflow:hidden;touch-action:pan-x pan-y;position:relative}.photo-viewer-stage img{display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;background:#111;transform-origin:center center;will-change:transform;user-select:none;-webkit-user-drag:none;touch-action:none}.photo-viewer-tools{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}.photo-viewer-tools button{min-width:48px;min-height:44px;padding:8px 12px;border:1px solid #fff;border-radius:10px;background:#fff;color:#172033;font-weight:850;font-size:16px}.photo-viewer-hint{font-size:12px;color:#e5e7eb;text-align:center}.photo-viewer .photo-viewer-close{background:#b80f32;color:#fff;border:1px solid #fff;padding:12px 22px;border-radius:10px;font-size:17px}
 /* Keep native file inputs available to Android Chrome/PWA file chooser.
    display:none can prevent picker activation on some older Android builds. */
 .native-picker-wrap{position:relative;display:inline-block;overflow:hidden;border-radius:10px}.native-picker-wrap>button{width:100%;height:100%;margin:0}.native-picker-overlay{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;opacity:0!important;z-index:5!important;display:block!important;cursor:pointer!important;pointer-events:auto!important}
@@ -763,7 +763,7 @@ body.dark button.danger,body.black button.danger{
 <input id="evidenceFilesInput" type="file" accept="*/*" multiple class="file-picker-input" aria-label="Supporting file picker">
 <div id="evidencePhotoStatus" class="subtle" aria-live="polite">No evidence photos attached.</div>
 <div id="evidencePhotoPreview" class="grid" style="margin-top:10px"></div>
-<div id="evidencePhotoViewer" class="photo-viewer" role="dialog" aria-modal="true" aria-label="Diagnosis photo viewer"><img id="evidencePhotoViewerImage" alt="Full size diagnosis evidence photo"><button type="button" id="closeEvidencePhotoViewer" class="photo-viewer-close">Close Photo</button></div>
+<div id="evidencePhotoViewer" class="photo-viewer" role="dialog" aria-modal="true" aria-label="Diagnosis photo viewer"><div class="photo-viewer-stage"><img id="evidencePhotoViewerImage" alt="Full size diagnosis evidence photo"></div><div class="photo-viewer-tools" aria-label="Photo viewing controls"><button type="button" id="photoZoomOut" aria-label="Zoom out">−</button><button type="button" id="photoZoomReset">Fit / Reset</button><button type="button" id="photoZoomIn" aria-label="Zoom in">＋</button><button type="button" id="photoRotate">↻ Rotate</button></div><div class="photo-viewer-hint">Pinch or double-tap to zoom. Drag to inspect details.</div><button type="button" id="closeEvidencePhotoViewer" class="photo-viewer-close">Close Photo</button></div>
 <div id="evidenceFilesStatus" class="subtle" aria-live="polite">No supporting files attached.</div>
 <div id="evidenceFilesList" style="margin-top:8px"></div>
 </div>
@@ -971,8 +971,20 @@ function evidenceDataUrlToBlob(dataUrl){
  if(!bytes.length)throw new Error('Saved photo is empty.');
  return new Blob([bytes],{type:mime});
 }
-let activeEvidenceViewerUrl=null;
-function closeEvidencePhotoViewer(){const viewer=$('evidencePhotoViewer'),image=$('evidencePhotoViewerImage');if(viewer)viewer.classList.remove('open');if(image)image.removeAttribute('src');if(activeEvidenceViewerUrl){URL.revokeObjectURL(activeEvidenceViewerUrl);activeEvidenceViewerUrl=null}}
+let activeEvidenceViewerUrl=null,photoViewerZoom=1,photoViewerRotation=0,photoViewerPanX=0,photoViewerPanY=0,photoViewerLastTap=0,photoViewerPinchStart=0,photoViewerPinchZoom=1;
+function applyEvidenceViewerTransform(){const image=$('evidencePhotoViewerImage');if(image)image.style.transform='translate('+photoViewerPanX+'px,'+photoViewerPanY+'px) scale('+photoViewerZoom+') rotate('+photoViewerRotation+'deg)'}
+function resetEvidenceViewer(){photoViewerZoom=1;photoViewerRotation=0;photoViewerPanX=0;photoViewerPanY=0;applyEvidenceViewerTransform()}
+function setEvidenceViewerZoom(value){photoViewerZoom=Math.max(1,Math.min(5,value));applyEvidenceViewerTransform()}
+function closeEvidencePhotoViewer(){const viewer=$('evidencePhotoViewer'),image=$('evidencePhotoViewerImage');if(viewer)viewer.classList.remove('open');if(image){image.removeAttribute('src');image.style.transform=''}resetEvidenceViewer();if(activeEvidenceViewerUrl){URL.revokeObjectURL(activeEvidenceViewerUrl);activeEvidenceViewerUrl=null}}
+$('photoZoomIn').onclick=()=>setEvidenceViewerZoom(photoViewerZoom+.5);
+$('photoZoomOut').onclick=()=>setEvidenceViewerZoom(photoViewerZoom-.5);
+$('photoZoomReset').onclick=resetEvidenceViewer;
+$('photoRotate').onclick=()=>{photoViewerRotation=(photoViewerRotation+90)%360;applyEvidenceViewerTransform()};
+$('evidencePhotoViewerImage').addEventListener('dblclick',()=>setEvidenceViewerZoom(photoViewerZoom>1?1:2.5));
+$('evidencePhotoViewerImage').addEventListener('wheel',e=>{e.preventDefault();setEvidenceViewerZoom(photoViewerZoom+(e.deltaY<0?.25:-.25))},{passive:false});
+$('evidencePhotoViewerImage').addEventListener('touchstart',e=>{if(e.touches.length===2){photoViewerPinchStart=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);photoViewerPinchZoom=photoViewerZoom}},{passive:true});
+$('evidencePhotoViewerImage').addEventListener('touchmove',e=>{if(e.touches.length===2&&photoViewerPinchStart){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);setEvidenceViewerZoom(photoViewerPinchZoom*d/photoViewerPinchStart)}},{passive:true});
+$('evidencePhotoViewerImage').addEventListener('touchend',()=>{photoViewerPinchStart=0},{passive:true});
 $('closeEvidencePhotoViewer').onclick=closeEvidencePhotoViewer;
 $('evidencePhotoViewer').addEventListener('click',e=>{if(e.target===$('evidencePhotoViewer'))closeEvidencePhotoViewer()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeEvidencePhotoViewer()});
@@ -1029,13 +1041,15 @@ async function compressEvidenceImage(file){
   }
   const w=source.width||source.naturalWidth,h=source.height||source.naturalHeight;
   if(!w||!h)throw new Error('The selected photo has no readable image dimensions.');
-  const max=480,scale=Math.min(1,max/Math.max(w,h)),canvas=document.createElement('canvas');
+  // Keep substantially more detail for handwritten job cards and repeat-complaint evidence.
+  // A 1280px long edge is 2.67x the previous 480px limit; bounded output protects local storage.
+  const max=1280,scale=Math.min(1,max/Math.max(w,h)),canvas=document.createElement('canvas');
   canvas.width=Math.max(1,Math.round(w*scale));canvas.height=Math.max(1,Math.round(h*scale));
   const ctx=canvas.getContext('2d',{alpha:false});if(!ctx)throw new Error('Image processing is unavailable on this device.');
-  ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(source,0,0,canvas.width,canvas.height);
-  let quality=.42,dataUrl=canvas.toDataURL('image/jpeg',quality);
-  while(dataUrl.length>145000&&quality>.20){quality-=.05;dataUrl=canvas.toDataURL('image/jpeg',quality)}
-  if(dataUrl.length>190000)throw new Error('Photo could not be reduced enough for safe phone storage. Choose a smaller photo.');
+  ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(source,0,0,canvas.width,canvas.height);
+  let quality=.78,dataUrl=canvas.toDataURL('image/jpeg',quality);
+  while(dataUrl.length>260000&&quality>.50){quality-=.04;dataUrl=canvas.toDataURL('image/jpeg',quality)}
+  if(dataUrl.length>320000)throw new Error('This photo is too large for safe on-device storage after high-detail processing. Use a closer, well-lit JPG photo.');
   const verified=await new Promise((resolve,reject)=>{const test=new Image();test.onload=()=>resolve(test.naturalWidth>0&&test.naturalHeight>0);test.onerror=()=>reject(new Error('The compressed photo could not be reopened for preview. Please reattach it as a JPG.'));test.src=dataUrl});
   if(!verified)throw new Error('The compressed photo preview is invalid. Please reattach the photo.');
   return {name:file.name||'diagnosis-evidence.jpg',type:'image/jpeg',size:Math.round(dataUrl.length*.75),dataUrl,createdAt:new Date().toISOString()};
