@@ -1333,7 +1333,7 @@ function renderReports(){
  $('swSection3').innerHTML=peopleCards(groupPeople(arr,'advisorName').filter(([n])=>!$('reportAdvisorFilter').value||n===$('reportAdvisorFilter').value),'advisor');
  $('swSection4').innerHTML=peopleCards(groupPeople(arr,'inspectorName'),'inspector');
  $('consolidatedReports').classList.add('hidden');
- document.querySelector('#reportsView .sectionwise-report>.card:nth-child(2)').classList.remove('hidden');
+ document.querySelector('#reportsView .report-output-card').classList.remove('hidden');
 }
 function renderConsolidatedReports(){
  const d=reportData();
