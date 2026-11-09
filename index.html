@@ -831,6 +831,7 @@ body.dark button.danger,body.black button.danger{
 </div>
 <div class="card report-output-card hidden">
 <div class="sectionhead"><span class="num">R</span><div><h2 id="reportTitle">Daily Workshop Floor Report</h2><div id="reportSubtitle" class="sw-period"></div></div></div>
+<div id="individualStaffReport" class="hidden"></div>
 <section class="sw-section"><div class="sw-title"><span class="sw-number">01</span><div><h3>Service Volume & AMC / EW</h3><div class="sw-subtitle">Overall workshop volume by service type and new plans</div></div></div><div class="sw-content"><div id="swSection1"></div></div></section>
 <section class="sw-section"><div class="sw-title"><span class="sw-number">02</span><div><h3>Technician-wise Performance</h3><div class="sw-subtitle">Every technician listed by name, with service type and status counts</div></div></div><div class="sw-content"><div id="swSection2"></div></div></section>
 <section class="sw-section"><div class="sw-title"><span class="sw-number">03</span><div><h3>Service Advisor-wise Performance</h3><div class="sw-subtitle">Every advisor listed by name, with service type, new plans and delivery counts</div></div></div><div class="sw-content"><div id="swSection3"></div></div></section><section class="sw-section"><div class="sw-title"><span class="sw-number">04</span><div><h3>Final Inspection-wise Performance</h3><div class="sw-subtitle">Inspection workload, completed checks, pending checks and QC decisions by inspector</div></div></div><div class="sw-content"><div id="swSection4"></div></div></section>
@@ -1356,7 +1357,42 @@ function renderReports(){
  const free1=arr.filter(r=>freeServiceNumber(r.serviceType)===1).length,free2=arr.filter(r=>freeServiceNumber(r.serviceType)===2).length,free3=arr.filter(r=>freeServiceNumber(r.serviceType)===3).length;
  $('showDailyReport').classList.toggle('active',daily);$('showMtdReport').classList.toggle('active',!daily);
  const individual=reportFocus!=='all';
- const person=reportFocus==='technician'?techName:reportFocus==='advisor'?advisorName:'';
+ const person=reportFocus==='technician'?techName:advisorName;
+ const output=document.querySelector('#reportsView .report-output-card');
+ const individualHost=$('individualStaffReport');
+ const standardSections=[...output.querySelectorAll(':scope > .sw-section')];
+ const standardHeading=output.querySelector(':scope > .sectionhead');
+ const standardNotice=output.querySelector(':scope > .notice');
+ if(individual){
+  standardHeading.classList.add('hidden');
+  standardSections.forEach(section=>section.classList.add('hidden'));
+  if(standardNotice)standardNotice.classList.add('hidden');
+  individualHost.classList.remove('hidden');
+  const kind=reportFocus==='technician'?'technician':'advisor';
+  const completed=arr.filter(r=>r.workStatus==='Completed'||r.fiDone==='Done').length;
+  const pending=arr.filter(r=>r.workStatus==='Pending'||(!r.workStatus&&r.fiDone!=='Done')).length;
+  const statusCounts=kind==='technician'
+   ? [['Completed',completed],['Pending',pending],['Waiting for Parts',arr.filter(r=>r.workStatus==='Waiting for Parts').length],['Work in Process',arr.filter(r=>r.workStatus==='Work in Process').length],['Waiting for CV Approval',arr.filter(r=>r.workStatus==='Waiting for CV Approval').length]]
+   : [['Delivered',arr.filter(r=>r.delivery==='Delivered').length],['Not delivered',arr.filter(r=>r.delivery!=='Delivered').length],['Pending',pending]];
+  const typeCounts=serviceTypeCounts(arr);
+  const jobs=arr.slice().sort((x,y)=>String(y.date||'').localeCompare(String(x.date||'')));
+  individualHost.innerHTML=
+   '<div class="sectionhead"><span class="num">I</span><div><h2>'+esc(person)+' · Individual '+(kind==='technician'?'Technician':'Service Advisor')+' Report</h2><div class="sw-period">'+(daily?'Daily · '+d.day:'MTD · '+d.month+' through '+d.day)+' · '+jobs.length+' assigned job card(s)</div></div></div>'+
+   '<section class="sw-section"><div class="sw-title"><div><h3>'+esc(person)+' · Personal Performance</h3><div class="sw-subtitle">Figures below include only records assigned to this employee.</div></div></div><div class="sw-content">'+
+   '<div class="sw-kpis">'+swKpi('Assigned service records',jobs.length)+swKpi('Completed',completed)+swKpi('Pending',pending)+'</div>'+
+   '<div class="sw-mini-label">Service type breakdown</div><div class="sw-type-grid">'+typeCounts.map(([label,value])=>swType(label,value)).join('')+'</div>'+
+   '<div class="sw-mini-label">'+(kind==='technician'?'Work status':'Delivery status')+'</div><div class="sw-status-grid">'+statusCounts.map(([label,value])=>swStatus(label,value)).join('')+'</div>'+
+   '</div></section>'+
+   '<section class="sw-section"><div class="sw-title"><div><h3>Assigned Job Cards</h3><div class="sw-subtitle">Only job cards assigned to '+esc(person)+'.</div></div></div><div class="sw-content">'+
+   (jobs.length?'<div class="table-wrap"><table><thead><tr><th>Date</th><th>Job Card</th><th>Customer</th><th>Vehicle</th><th>Service</th><th>Status</th></tr></thead><tbody>'+jobs.map(r=>'<tr><td>'+esc(r.date||'')+'</td><td>'+esc(r.jobcard||'Not entered')+'</td><td>'+esc(r.customer||'')+'</td><td>'+esc([r.model,r.reg].filter(Boolean).join(' · '))+'</td><td>'+esc(r.serviceType||'')+'</td><td>'+esc(r.workStatus||r.fiDone||'Pending')+'</td></tr>').join('')+'</tbody></table></div>':'<div class="sw-empty">No service records found for this employee in the selected period.</div>')+
+   '</div></section>';
+  output.classList.remove('hidden');
+  return;
+ }
+ individualHost.classList.add('hidden');
+ standardHeading.classList.remove('hidden');
+ standardSections.forEach(section=>section.classList.remove('hidden'));
+ if(standardNotice)standardNotice.classList.remove('hidden');
  $('reportTitle').textContent=individual?(daily?'Daily':'MTD')+' '+(reportFocus==='technician'?'Technician':'Service Advisor')+' Report · '+person:(daily?'Daily Workshop Floor Report':'MTD Workshop Floor Report');
  $('reportSubtitle').textContent=(daily?'Date: '+d.day:'Month: '+d.month+' · Through '+d.day)+' · '+arr.length+' service record(s)';
  $('swSection1').innerHTML='<div class="sw-kpis">'+swKpi('Total service volume',m.jobs,'Selected report records')+swKpi('Paid service',m.paid)+swKpi('Free service',m.free,'1st: '+free1+' · 2nd: '+free2+' · 3rd: '+free3)+swKpi('Warranty',m.warranty)+swKpi('Repair / general',m.repair)+swKpi('Accident',m.accident)+'</div><div class="sw-mini-label">New plan sales</div><div class="sw-type-grid">'+swType('NEW AMC',m.amc)+swType('NEW EW',m.ew)+swType('NEW EW+',m.ewp)+'</div><div class="sw-mini-label">Estimated value — not actual billed revenue</div><div class="sw-type-grid">'+swType('Parts estimate',money(m.parts))+swType('Labour estimate',money(m.labour))+swType('Total estimate',money(m.estimate))+'</div>';
