@@ -721,7 +721,7 @@ body.dark button.danger,body.black button.danger{
 <button class="navbtn" data-view="settingsView">⚙ Settings</button>
 </div>
 <div id="formView">
-<div class="card no-print"><h2>Service Form — 7 sections</h2><div class="subtle">Customer and vehicle details auto-save as a local draft while you enter them. Use Save Section or Edit Section in each section.</div><div class="grid main-search" style="margin:12px 0"><div class="field"><label for="mainSearchInput">Search customers / vehicles / job cards</label><input id="mainSearchInput" type="search" placeholder="Name, mobile, registration, model or job card"></div><div class="field" style="align-self:end"><button type="button" id="mainSearchButton" class="primary" style="width:100%">Search Saved Records</button></div></div>
+<div class="card no-print report-heading-card"><h2>Service Form — 7 sections</h2><div class="subtle">Customer and vehicle details auto-save as a local draft while you enter them. Use Save Section or Edit Section in each section.</div><div class="grid main-search" style="margin:12px 0"><div class="field"><label for="mainSearchInput">Search customers / vehicles / job cards</label><input id="mainSearchInput" type="search" placeholder="Name, mobile, registration, model or job card"></div><div class="field" style="align-self:end"><button type="button" id="mainSearchButton" class="primary" style="width:100%">Search Saved Records</button></div></div>
 <div class="sectionnav" id="sectionNav"></div></div>
 <form id="serviceForm">
 <input id="recordId" type="hidden">
@@ -808,13 +808,13 @@ body.dark button.danger,body.black button.danger{
 <div id="reportsView" class="hidden">
 <div class="sectionwise-report">
 <div class="card no-print">
-<h2>Workshop Floor Report</h2><div class="subtle">Section-wise management view · Mobile-friendly · Not an Excel-style report</div>
+<h2>Workshop Floor Report</h2><div class="subtle">Daily and monthly workshop performance, staff productivity and final inspection</div>
 <div class="grid report-date-pair" style="margin-top:12px"><div class="field"><label>Daily Workshop Report</label><div class="subtle">Select the date for the daily report below.</div><input id="reportDate" type="date" aria-label="Daily report date"></div><div class="field"><label>Monthly-to-Date Report</label><div class="subtle">Select the month for the MTD report below.</div><input id="reportMonth" type="month" aria-label="MTD report month"></div></div>
 <div class="grid" style="margin-top:12px"><div class="field"><label for="reportTechnicianFilter">Technician Report Filter</label><select id="reportTechnicianFilter"><option value="">All Technicians</option></select></div><div class="field"><label for="reportAdvisorFilter">Service Advisor Report Filter</label><select id="reportAdvisorFilter"><option value="">All Service Advisors</option></select></div></div>
 <div class="sw-report-controls" style="margin-top:10px"><button id="showDailyReport" class="navbtn active" type="button">Daily View</button><button id="showMtdReport" class="navbtn" type="button">MTD View</button><button id="showConsolidatedReport" class="primary" type="button">Consolidated Report · Daily + MTD</button><button id="refreshReports" type="button">Refresh Report</button><button id="printReports" type="button">Print / Save PDF</button></div>
 <div class="toolbar"><button id="downloadDaily">Download Daily Summary</button><button id="downloadMtd">Download MTD Summary</button></div>
 </div>
-<div class="card">
+<div class="card report-output-card hidden">
 <div class="sectionhead"><span class="num">R</span><div><h2 id="reportTitle">Daily Workshop Floor Report</h2><div id="reportSubtitle" class="sw-period"></div></div></div>
 <section class="sw-section"><div class="sw-title"><span class="sw-number">01</span><div><h3>Service Volume & AMC / EW</h3><div class="sw-subtitle">Overall workshop volume by service type and new plans</div></div></div><div class="sw-content"><div id="swSection1"></div></div></section>
 <section class="sw-section"><div class="sw-title"><span class="sw-number">02</span><div><h3>Technician-wise Performance</h3><div class="sw-subtitle">Every technician listed by name, with service type and status counts</div></div></div><div class="sw-content"><div id="swSection2"></div></div></section>
