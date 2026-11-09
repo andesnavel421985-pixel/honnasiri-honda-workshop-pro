@@ -1320,13 +1320,13 @@ function renderReports(){
  $('swSection3').innerHTML=peopleCards(groupPeople(arr,'advisorName').filter(([n])=>!$('reportAdvisorFilter').value||n===$('reportAdvisorFilter').value),'advisor');
  $('swSection4').innerHTML=peopleCards(groupPeople(arr,'inspectorName'),'inspector');
  $('consolidatedReports').classList.add('hidden');
- document.querySelector('#reportsView>.sectionwise-report>.card:last-child').classList.remove('hidden');
+ document.querySelector('#reportsView .sectionwise-report>.card:nth-child(2)').classList.remove('hidden');
 }
 function renderConsolidatedReports(){
  const d=reportData();
  $('consolidatedReports').innerHTML='<h2>Consolidated Workshop Reports</h2>'+reportPanelHtml('Daily Workshop Floor Report',d.daily,'Date: '+d.day)+'<hr>'+reportPanelHtml('Monthly-to-Date Workshop Floor Report',d.mtd,'Month: '+d.month+' through '+d.day);
  $('consolidatedReports').classList.remove('hidden');
- document.querySelector('#reportsView>.sectionwise-report>.card:last-child').classList.add('hidden');
+ document.querySelector('#reportsView .sectionwise-report>.card:nth-child(2)').classList.add('hidden');
  $('showDailyReport').classList.remove('active');$('showMtdReport').classList.remove('active');
 }
 $('showDailyReport').onclick=()=>{activeReportMode='daily';renderReports()};
