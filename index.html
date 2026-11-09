@@ -740,7 +740,7 @@ body.dark button.danger,body.black button.danger{
 <div class="field"><label for="km">Kilometres</label><input id="km" type="number" min="0" inputmode="numeric" placeholder="Odometer reading"></div>
 <div class="field"><label for="jobcard">Job card number *</label><input id="jobcard" required placeholder="HI-RISE job card number"></div>
 <div class="field"><label for="date">Service date *</label><input id="date" type="date" required></div><div class="field"><label for="nextServiceKm">Next service due at (km)</label><input id="nextServiceKm" type="number" readonly placeholder="Auto-calculated from current km"></div><div class="field"><label for="nextServiceDate">Next service due date</label><input id="nextServiceDate" type="date" readonly></div><div class="field full"><p class="subtle" id="serviceScheduleStatus" aria-live="polite">Select a verified Honda model, enter current kilometres and service date. Due reminder uses whichever comes first.</p></div>
-<div class="field"><label for="serviceType">Service type</label><select id="serviceType"><option>Paid Service</option><option>1 Free Service</option><option>2 Free Service</option><option>3 Free Service</option><option>Free Service</option><option>Warranty</option><option>Repair / General</option><option>Accident</option></select><div class="subtle">Select the exact free-service visit number. All three are included in total Free Service volume.</div></div><div class="field full customer-request-field"><label>Customer requests (select all that apply)</label><p class="subtle">Search and select one or more concerns. New requests you add are saved to the main list on this device.</p><input id="customerRequestSearch" type="search" placeholder="Search customer requests..." autocomplete="off"><div class="grid" style="grid-template-columns:minmax(0,1fr) auto;align-items:end"><div class="field"><label for="customerRequestNew">Add new customer request</label><input id="customerRequestNew" type="text" placeholder="Enter a new customer request"></div><button type="button" id="addCustomerRequest" class="primary">＋ Add to list</button></div><div id="customerRequestOptions" class="request-option-list request-option-list-visible"></div><p id="customerRequestSummary" class="request-option-count" aria-live="polite">No customer requests selected</p><input id="complaintCategory" type="hidden"><input id="requestType" type="hidden"><input id="requestTypeCustom" class="hidden" placeholder="Enter other customer request"></div>
+<div class="field"><label for="serviceType">Service type</label><select id="serviceType"><option>Paid Service</option><option>1 Free Service</option><option>2 Free Service</option><option>3 Free Service</option><option>Warranty</option><option>Repair / General</option><option>Accident</option></select><div class="subtle">Select the exact free-service visit number. All three are included in total Free Service volume.</div></div><div class="field full customer-request-field"><label>Customer requests (select all that apply)</label><p class="subtle">Search and select one or more concerns. New requests you add are saved to the main list on this device.</p><input id="customerRequestSearch" type="search" placeholder="Search customer requests..." autocomplete="off"><div class="grid" style="grid-template-columns:minmax(0,1fr) auto;align-items:end"><div class="field"><label for="customerRequestNew">Add new customer request</label><input id="customerRequestNew" type="text" placeholder="Enter a new customer request"></div><button type="button" id="addCustomerRequest" class="primary">＋ Add to list</button></div><div id="customerRequestOptions" class="request-option-list request-option-list-visible"></div><p id="customerRequestSummary" class="request-option-count" aria-live="polite">No customer requests selected</p><input id="complaintCategory" type="hidden"><input id="requestType" type="hidden"><input id="requestTypeCustom" class="hidden" placeholder="Enter other customer request"></div>
 <div class="field"><label for="amcType">New AMC / EW / EW+</label><select id="amcType"><option value="">None / Not sold</option><option>NEW AMC</option><option>NEW EW</option><option>NEW EW+</option></select></div>
 <div class="field"><label for="workStatus">Current work status</label><select id="workStatus"><option>Work in Process</option><option>Pending</option><option>Completed</option><option>Waiting for Parts</option><option>Waiting for CV Approval</option></select></div>
 <div class="field"><label for="advisor">Service advisor *</label><select id="advisor"><option value="">Choose advisor</option><option>Sanjeev. L</option><option>Sanjeev Reddy</option><option>Deekshit</option><option>Other / Custom</option></select><input id="advisorCustom" class="hidden" placeholder="Type advisor name"></div>
@@ -796,8 +796,9 @@ body.dark button.danger,body.black button.danger{
 <div class="sectionwise-report">
 <div class="card no-print">
 <h2>Workshop Floor Report</h2><div class="subtle">Section-wise management view · Mobile-friendly · Not an Excel-style report</div>
-<div class="grid" style="margin-top:12px"><div class="field"><label for="reportDate">Daily report date</label><input id="reportDate" type="date"></div><div class="field"><label for="reportMonth">MTD month</label><input id="reportMonth" type="month"></div></div>
-<div class="sw-report-controls" style="margin-top:10px"><button id="showDailyReport" class="navbtn active" type="button">Daily View</button><button id="showMtdReport" class="navbtn" type="button">MTD View</button><button id="refreshReports" class="primary" type="button">Refresh Report</button><button id="printReports" type="button">Print / Save PDF</button></div>
+<div class="grid" style="margin-top:12px"><div class="field"><label>Daily Workshop Report</label><div class="subtle">Select the date for the daily report below.</div><input id="reportDate" type="date" aria-label="Daily report date"></div><div class="field"><label>Monthly-to-Date Report</label><div class="subtle">Select the month for the MTD report below.</div><input id="reportMonth" type="month" aria-label="MTD report month"></div></div>
+<div class="grid" style="margin-top:12px"><div class="field"><label for="reportTechnicianFilter">Technician Report Filter</label><select id="reportTechnicianFilter"><option value="">All Technicians</option></select></div><div class="field"><label for="reportAdvisorFilter">Service Advisor Report Filter</label><select id="reportAdvisorFilter"><option value="">All Service Advisors</option></select></div></div>
+<div class="sw-report-controls" style="margin-top:10px"><button id="showDailyReport" class="navbtn active" type="button">Daily View</button><button id="showMtdReport" class="navbtn" type="button">MTD View</button><button id="showConsolidatedReport" class="primary" type="button">Consolidated Report · Daily + MTD</button><button id="refreshReports" type="button">Refresh Report</button><button id="printReports" type="button">Print / Save PDF</button></div>
 <div class="toolbar"><button id="downloadDaily">Download Daily Summary</button><button id="downloadMtd">Download MTD Summary</button></div>
 </div>
 <div class="card">
@@ -806,7 +807,7 @@ body.dark button.danger,body.black button.danger{
 <section class="sw-section"><div class="sw-title"><span class="sw-number">02</span><div><h3>Technician-wise Performance</h3><div class="sw-subtitle">Every technician listed by name, with service type and status counts</div></div></div><div class="sw-content"><div id="swSection2"></div></div></section>
 <section class="sw-section"><div class="sw-title"><span class="sw-number">03</span><div><h3>Service Advisor-wise Performance</h3><div class="sw-subtitle">Every advisor listed by name, with service type, new plans and delivery counts</div></div></div><div class="sw-content"><div id="swSection3"></div></div></section><section class="sw-section"><div class="sw-title"><span class="sw-number">04</span><div><h3>Final Inspection-wise Performance</h3><div class="sw-subtitle">Inspection workload, completed checks, pending checks and QC decisions by inspector</div></div></div><div class="sw-content"><div id="swSection4"></div></div></section>
 <div class="notice">Counts are based on saved records in this browser and the selected period. AMC / EW / EW+ counts are based on the plan recorded on each service record; blank values are not inferred.</div>
-</div></div></div>
+</div><div id="consolidatedReports" class="card hidden"></div></div></div>
 
 <div id="planningView" class="hidden"><div class="card">
 <h2>Target vs Plan & Actual</h2><p class="subtle">Monthly targets and daily plan are based on the uploaded HH Service_Workshop_Revenue_Analysis workbook. Monthly vehicle targets automatically scale up or down in proportion to working days. Increasing working days increases monthly service volume and all linked monthly revenue targets; daily productivity plan remains consistent. Edit target values to match the latest HMSI AM target.</p>
@@ -1256,7 +1257,7 @@ $('copySummary').onclick=async()=>{const s=buildCustomerShareSummary();try{await
 let activeReportMode='daily';
 function freeServiceNumber(value){const v=String(value||'').trim().toLowerCase();if(v==='1 free service'||v==='1st free service')return 1;if(v==='2 free service'||v==='2nd free service')return 2;if(v==='3 free service'||v==='3rd free service')return 3;return v==='free service'?0:null}
 function isFreeServiceType(value){return freeServiceNumber(value)!==null}
-function serviceTypeCounts(list){return [['Paid Service',list.filter(r=>r.serviceType==='Paid Service').length],['1 Free Service',list.filter(r=>freeServiceNumber(r.serviceType)===1).length],['2 Free Service',list.filter(r=>freeServiceNumber(r.serviceType)===2).length],['3 Free Service',list.filter(r=>freeServiceNumber(r.serviceType)===3).length],['Unspecified Free Service',list.filter(r=>freeServiceNumber(r.serviceType)===0).length],['Warranty',list.filter(r=>r.serviceType==='Warranty').length],['Repair / General',list.filter(r=>r.serviceType==='Repair / General').length],['Accident',list.filter(r=>r.serviceType==='Accident').length]]}
+function serviceTypeCounts(list){return [['Paid Service',list.filter(r=>r.serviceType==='Paid Service').length],['1 Free Service',list.filter(r=>freeServiceNumber(r.serviceType)===1).length],['2 Free Service',list.filter(r=>freeServiceNumber(r.serviceType)===2).length],['3 Free Service',list.filter(r=>freeServiceNumber(r.serviceType)===3).length],['Warranty',list.filter(r=>r.serviceType==='Warranty').length],['Repair / General',list.filter(r=>r.serviceType==='Repair / General').length],['Accident',list.filter(r=>r.serviceType==='Accident').length]]}
 function canonicalAdvisorName(value){const name=String(value||'').trim();const key=name.toLowerCase().replace(/ /g,'').replace(/[.]/g,'');return key==='sanjeevl'?'Sanjeev. L':name}
 function isImranInspectionRecord(r){return /^imran$/i.test(String(r.technicianName||r.technician||'').trim())}
 function groupPeople(arr,field){
@@ -1285,18 +1286,53 @@ function peopleCards(entries,kind){
 }
 function reportData(){const day=$('reportDate').value||today(),month=$('reportMonth').value||day.slice(0,7),all=records(),daily=all.filter(r=>r.date===day),mtd=all.filter(r=>r.date&&r.date.slice(0,7)===month&&r.date<=day);return {day,month,daily,mtd,arr:activeReportMode==='daily'?daily:mtd}}
 function getSectionMetrics(arr){const sum=k=>arr.reduce((s,r)=>s+(Number(r.totals?.[k])||0),0);return {jobs:arr.length,paid:arr.filter(r=>r.serviceType==='Paid Service').length,free:arr.filter(r=>isFreeServiceType(r.serviceType)).length,warranty:arr.filter(r=>r.serviceType==='Warranty').length,repair:arr.filter(r=>r.serviceType==='Repair / General').length,accident:arr.filter(r=>r.serviceType==='Accident').length,amc:arr.filter(r=>r.amcType==='NEW AMC').length,ew:arr.filter(r=>r.amcType==='NEW EW').length,ewp:arr.filter(r=>r.amcType==='NEW EW+').length,parts:sum('parts'),labour:sum('labour'),estimate:sum('grand')}}
+function populateReportStaffFilters(){
+ const tech=$('reportTechnicianFilter'),advisor=$('reportAdvisorFilter');
+ const keepTech=tech.value,keepAdvisor=advisor.value;
+ const all=records();
+ const unique=(field,canonical=false)=>[...new Set(all.map(r=>{const v=String(r[field]||'').trim();return canonical?canonicalAdvisorName(v):v}).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+ tech.innerHTML='<option value="">All Technicians</option>'+unique('technicianName').map(n=>'<option value="'+esc(n)+'">'+esc(n)+'</option>').join('');
+ advisor.innerHTML='<option value="">All Service Advisors</option>'+unique('advisorName',true).map(n=>'<option value="'+esc(n)+'">'+esc(n)+'</option>').join('');
+ tech.value=[...tech.options].some(o=>o.value===keepTech)?keepTech:'';
+ advisor.value=[...advisor.options].some(o=>o.value===keepAdvisor)?keepAdvisor:'';
+}
+function reportPanelHtml(title,arr,periodLabel){
+ const m=getSectionMetrics(arr);
+ const free1=arr.filter(r=>freeServiceNumber(r.serviceType)===1).length,free2=arr.filter(r=>freeServiceNumber(r.serviceType)===2).length,free3=arr.filter(r=>freeServiceNumber(r.serviceType)===3).length;
+ const tech=groupPeople(arr,'technicianName').filter(([n])=>!$('reportTechnicianFilter').value||n===$('reportTechnicianFilter').value);
+ const advisor=groupPeople(arr,'advisorName').filter(([n])=>!$('reportAdvisorFilter').value||n===$('reportAdvisorFilter').value);
+ const inspector=groupPeople(arr,'inspectorName');
+ return '<div class="sectionhead"><span class="num">R</span><div><h2>'+esc(title)+'</h2><div class="sw-period">'+esc(periodLabel)+' · '+arr.length+' service record(s)</div></div></div>'+
+ '<section class="sw-section"><div class="sw-title"><span class="sw-number">01</span><div><h3>Service Volume & AMC / EW</h3></div></div><div class="sw-content"><div class="sw-kpis">'+swKpi('Total service volume',m.jobs,'All service records')+swKpi('Paid service',m.paid)+swKpi('Free service',m.free,'1st: '+free1+' · 2nd: '+free2+' · 3rd: '+free3)+swKpi('Warranty',m.warranty)+swKpi('Repair / general',m.repair)+swKpi('Accident',m.accident)+'</div><div class="sw-mini-label">New plan sales</div><div class="sw-type-grid">'+swType('NEW AMC',m.amc)+swType('NEW EW',m.ew)+swType('NEW EW+',m.ewp)+'</div><div class="sw-mini-label">Estimated value — not actual billed revenue</div><div class="sw-type-grid">'+swType('Parts estimate',money(m.parts))+swType('Labour estimate',money(m.labour))+swType('Total estimate',money(m.estimate))+'</div></div></section>'+
+ '<section class="sw-section"><div class="sw-title"><span class="sw-number">02</span><div><h3>Technician-wise Performance</h3></div></div><div class="sw-content">'+peopleCards(tech,'technician')+'</div></section>'+
+ '<section class="sw-section"><div class="sw-title"><span class="sw-number">03</span><div><h3>Service Advisor-wise Performance</h3></div></div><div class="sw-content">'+peopleCards(advisor,'advisor')+'</div></section>'+
+ '<section class="sw-section"><div class="sw-title"><span class="sw-number">04</span><div><h3>Final Inspection Report</h3></div></div><div class="sw-content">'+peopleCards(inspector,'inspector')+'</div></section>';
+}
 function renderReports(){
- const d=reportData(),arr=d.arr,m=getSectionMetrics(arr),daily=activeReportMode==='daily';
+ populateReportStaffFilters();
+ const d=reportData(),arr=d.arr,daily=activeReportMode==='daily';
  $('showDailyReport').classList.toggle('active',daily);$('showMtdReport').classList.toggle('active',!daily);
  $('reportTitle').textContent=daily?'Daily Workshop Floor Report':'MTD Workshop Floor Report';
- $('reportSubtitle').textContent=daily?`Date: ${d.day} · ${arr.length} service record(s)`:`Month: ${d.month} · Through ${d.day} · ${arr.length} service record(s)`;
- $('swSection1').innerHTML=`<div class="sw-kpis">${swKpi('Total service volume',m.jobs,'All service records')}${swKpi('Paid service',m.paid)}${swKpi('Free service',m.free)}${swKpi('1 Free Service',arr.filter(r=>freeServiceNumber(r.serviceType)===1).length)}${swKpi('2 Free Service',arr.filter(r=>freeServiceNumber(r.serviceType)===2).length)}${swKpi('3 Free Service',arr.filter(r=>freeServiceNumber(r.serviceType)===3).length)}${swKpi('Warranty',m.warranty)}${swKpi('Repair / general',m.repair)}${swKpi('Accident',m.accident)}</div><div class="sw-mini-label">New plan sales</div><div class="sw-type-grid">${swType('NEW AMC',m.amc)}${swType('NEW EW',m.ew)}${swType('NEW EW+',m.ewp)}</div><div class="sw-mini-label">Estimated value — not actual billed revenue</div><div class="sw-type-grid">${swType('Parts estimate',money(m.parts))}${swType('Labour estimate',money(m.labour))}${swType('Total estimate',money(m.estimate))}</div>`;
- $('swSection2').innerHTML=peopleCards(groupPeople(arr,'technicianName'),'technician');
- $('swSection3').innerHTML=peopleCards(groupPeople(arr,'advisorName'),'advisor');
+ $('reportSubtitle').textContent=daily?'Date: '+d.day+' · '+arr.length+' service record(s)':'Month: '+d.month+' · Through '+d.day+' · '+arr.length+' service record(s)';
+ $('swSection1').innerHTML=reportPanelHtml(daily?'Daily Workshop Floor Report':'MTD Workshop Floor Report',arr,daily?'Date: '+d.day:'Month: '+d.month+' through '+d.day);
+ $('swSection2').innerHTML=peopleCards(groupPeople(arr,'technicianName').filter(([n])=>!$('reportTechnicianFilter').value||n===$('reportTechnicianFilter').value),'technician');
+ $('swSection3').innerHTML=peopleCards(groupPeople(arr,'advisorName').filter(([n])=>!$('reportAdvisorFilter').value||n===$('reportAdvisorFilter').value),'advisor');
  $('swSection4').innerHTML=peopleCards(groupPeople(arr,'inspectorName'),'inspector');
+ $('consolidatedReports').classList.add('hidden');
+ document.querySelector('#reportsView>.sectionwise-report>.card:last-child').classList.remove('hidden');
+}
+function renderConsolidatedReports(){
+ const d=reportData();
+ $('consolidatedReports').innerHTML='<h2>Consolidated Workshop Reports</h2>'+reportPanelHtml('Daily Workshop Floor Report',d.daily,'Date: '+d.day)+'<hr>'+reportPanelHtml('Monthly-to-Date Workshop Floor Report',d.mtd,'Month: '+d.month+' through '+d.day);
+ $('consolidatedReports').classList.remove('hidden');
+ document.querySelector('#reportsView>.sectionwise-report>.card:last-child').classList.add('hidden');
+ $('showDailyReport').classList.remove('active');$('showMtdReport').classList.remove('active');
 }
 $('showDailyReport').onclick=()=>{activeReportMode='daily';renderReports()};
 $('showMtdReport').onclick=()=>{activeReportMode='mtd';renderReports()};
+$('showConsolidatedReport').onclick=renderConsolidatedReports;
+$('reportTechnicianFilter').addEventListener('change',()=>{if(!$('consolidatedReports').classList.contains('hidden'))renderConsolidatedReports();else renderReports()});
+$('reportAdvisorFilter').addEventListener('change',()=>{if(!$('consolidatedReports').classList.contains('hidden'))renderConsolidatedReports();else renderReports()});
 function renderJobs(){
  const q=($('jobSearch').value||'').trim().toLowerCase();
  const all=records();
