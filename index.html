@@ -691,6 +691,19 @@ body.dark button.danger,body.black button.danger{
  button:not(.native-picker-overlay){transition:none!important}
 }
 
+
+/* Classic raised workshop report panel and paired date controls */
+.sectionwise-report{max-width:760px;margin:0 auto}
+#reportsView .report-heading-card{border:2px solid #b76b7b;border-radius:22px;background:linear-gradient(145deg,#fff 0%,#fff4f6 55%,#f6dce2 100%);box-shadow:inset 0 2px 0 #fff, inset 0 -3px 0 #e8c1ca,0 7px 0 #d8c3c8,0 12px 24px rgba(75,20,34,.13);padding:18px 18px 16px}
+#reportsView .report-heading-card h2{font-weight:900;letter-spacing:.2px;color:#71152c;text-shadow:0 1px #fff}
+#reportsView .report-heading-card .subtle{margin-top:5px}
+#reportsView .report-date-pair{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;align-items:start}
+#reportsView .report-date-pair .field{min-width:0}
+#reportsView .report-date-pair input{width:100%;min-width:0}
+#reportsView .report-output-card{border:2px solid #bd7b89;border-radius:22px;background:linear-gradient(145deg,#fff 0%,#fff7f8 100%);box-shadow:inset 0 2px 0 #fff, inset 0 -3px 0 #e8c8cf,0 7px 0 #d9c3c8,0 13px 26px rgba(77,20,34,.12);padding:16px;margin:18px 0 24px}
+#reportsView .report-output-card .sectionhead{border:2px solid #d5a0ab;border-radius:17px;background:linear-gradient(145deg,#fff8fa,#f8dfe5);box-shadow:inset 0 2px 0 #fff,0 4px 0 #e2c1c8,0 7px 15px rgba(90,20,40,.09);padding:13px;margin-bottom:15px}
+#reportsView .report-output-card .sw-section{border:1px solid #d9aab4;border-radius:16px;box-shadow:0 3px 0 #ead3d8,0 6px 12px rgba(70,20,35,.06)}
+@media(max-width:390px){#reportsView .report-date-pair{gap:7px!important}#reportsView .report-date-pair .field label{font-size:12px}#reportsView .report-date-pair .field .subtle{font-size:10px;line-height:1.3}}
 </style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
@@ -796,7 +809,7 @@ body.dark button.danger,body.black button.danger{
 <div class="sectionwise-report">
 <div class="card no-print">
 <h2>Workshop Floor Report</h2><div class="subtle">Section-wise management view · Mobile-friendly · Not an Excel-style report</div>
-<div class="grid" style="margin-top:12px"><div class="field"><label>Daily Workshop Report</label><div class="subtle">Select the date for the daily report below.</div><input id="reportDate" type="date" aria-label="Daily report date"></div><div class="field"><label>Monthly-to-Date Report</label><div class="subtle">Select the month for the MTD report below.</div><input id="reportMonth" type="month" aria-label="MTD report month"></div></div>
+<div class="grid report-date-pair" style="margin-top:12px"><div class="field"><label>Daily Workshop Report</label><div class="subtle">Select the date for the daily report below.</div><input id="reportDate" type="date" aria-label="Daily report date"></div><div class="field"><label>Monthly-to-Date Report</label><div class="subtle">Select the month for the MTD report below.</div><input id="reportMonth" type="month" aria-label="MTD report month"></div></div>
 <div class="grid" style="margin-top:12px"><div class="field"><label for="reportTechnicianFilter">Technician Report Filter</label><select id="reportTechnicianFilter"><option value="">All Technicians</option></select></div><div class="field"><label for="reportAdvisorFilter">Service Advisor Report Filter</label><select id="reportAdvisorFilter"><option value="">All Service Advisors</option></select></div></div>
 <div class="sw-report-controls" style="margin-top:10px"><button id="showDailyReport" class="navbtn active" type="button">Daily View</button><button id="showMtdReport" class="navbtn" type="button">MTD View</button><button id="showConsolidatedReport" class="primary" type="button">Consolidated Report · Daily + MTD</button><button id="refreshReports" type="button">Refresh Report</button><button id="printReports" type="button">Print / Save PDF</button></div>
 <div class="toolbar"><button id="downloadDaily">Download Daily Summary</button><button id="downloadMtd">Download MTD Summary</button></div>
@@ -1326,7 +1339,7 @@ function renderConsolidatedReports(){
  const d=reportData();
  $('consolidatedReports').innerHTML='<h2>Consolidated Workshop Reports</h2>'+reportPanelHtml('Daily Workshop Floor Report',d.daily,'Date: '+d.day)+'<hr>'+reportPanelHtml('Monthly-to-Date Workshop Floor Report',d.mtd,'Month: '+d.month+' through '+d.day);
  $('consolidatedReports').classList.remove('hidden');
- document.querySelector('#reportsView .sectionwise-report>.card:nth-child(2)').classList.add('hidden');
+ document.querySelector('#reportsView .report-output-card').classList.add('hidden');
  $('showDailyReport').classList.remove('active');$('showMtdReport').classList.remove('active');
 }
 $('showDailyReport').onclick=()=>{activeReportMode='daily';renderReports()};
