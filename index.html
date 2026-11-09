@@ -1401,12 +1401,29 @@ function renderReports(){
    : [['Delivered',arr.filter(r=>r.delivery==='Delivered').length],['Not delivered',arr.filter(r=>r.delivery!=='Delivered').length],['Pending',pending]];
   const typeCounts=serviceTypeCounts(arr);
   const jobs=arr.slice().sort((x,y)=>String(y.date||'').localeCompare(String(x.date||'')));
+  // Actual revenue is sourced only from saved billing entries, never from estimates.
+  const allBills=typeof billing!=='undefined'&&Array.isArray(billing)?billing:[];
+  const employeeBills=allBills.filter(x=>{
+   const employee=kind==='technician'?String(x.technician||'').trim():canonicalAdvisorName(x.advisor||'');
+   const same=kind==='technician'?employee===person:employee===canonicalAdvisorName(person);
+   const date=String(x.date||'');
+   const inPeriod=daily?date===d.day:(date.slice(0,7)===d.month&&date<=d.day);
+   return same&&inPeriod;
+  }).sort((x,y)=>String(y.date||'').localeCompare(String(x.date||'')));
+  const revenue={parts:employeeBills.reduce((n,x)=>n+(Number(x.parts)||0),0),labour:employeeBills.reduce((n,x)=>n+(Number(x.labour)||0),0),lube:employeeBills.reduce((n,x)=>n+(Number(x.lube)||0),0)};
+  revenue.grand=revenue.parts+revenue.labour+revenue.lube;
+  const billedJobcards=new Set(employeeBills.map(x=>String(x.jobcard||'').trim().toLowerCase()));
+  const unbilledJobs=jobs.filter(x=>!billedJobcards.has(String(x.jobcard||'').trim().toLowerCase())).length;
   individualHost.innerHTML=
    '<div class="sectionhead"><span class="num">I</span><div><h2>'+esc(person)+' · Individual '+(kind==='technician'?'Technician':'Service Advisor')+' Report</h2><div class="sw-period">'+(daily?'Daily · '+d.day:'MTD · '+d.month+' through '+d.day)+' · '+jobs.length+' assigned job card(s)</div></div></div>'+
    '<section class="sw-section"><div class="sw-title"><div><h3>'+esc(person)+' · Personal Performance</h3><div class="sw-subtitle">Figures below include only records assigned to this employee.</div></div></div><div class="sw-content">'+
    '<div class="sw-kpis">'+swKpi('Assigned service records',jobs.length)+swKpi('Completed',completed)+swKpi('Pending',pending)+'</div>'+
    '<div class="sw-mini-label">Service type breakdown</div><div class="sw-type-grid">'+typeCounts.map(([label,value])=>swType(label,value)).join('')+'</div>'+
    '<div class="sw-mini-label">'+(kind==='technician'?'Work status':'Delivery status')+'</div><div class="sw-status-grid">'+statusCounts.map(([label,value])=>swStatus(label,value)).join('')+'</div>'+
+   '</div></section>'+
+   '<section class="sw-section"><div class="sw-title"><div><h3>'+esc(person)+' · Actual Revenue Report</h3><div class="sw-subtitle">Saved invoice amounts assigned to this employee · '+(daily?'Daily':'MTD')+' period</div></div></div><div class="sw-content">'+
+   '<div class="sw-kpis">'+swKpi('Total actual revenue',money(revenue.grand),'Based on saved billing entries')+swKpi('Parts billed',money(revenue.parts))+swKpi('Labour billed',money(revenue.labour))+swKpi('Lubricant billed',money(revenue.lube))+swKpi('Billed job cards',employeeBills.length)+swKpi('Assigned jobs without billing',unbilledJobs,'Not included in actual revenue')+'</div>'+
+   (employeeBills.length?'<div class="table-wrap"><table><thead><tr><th>Date</th><th>Job Card</th><th>Parts</th><th>Labour</th><th>Lubricant</th><th>Total Billed</th></tr></thead><tbody>'+employeeBills.map(x=>'<tr><td>'+esc(x.date||'')+'</td><td>'+esc(x.jobcard||'')+'</td><td>'+money(Number(x.parts)||0)+'</td><td>'+money(Number(x.labour)||0)+'</td><td>'+money(Number(x.lube)||0)+'</td><td>'+money((Number(x.parts)||0)+(Number(x.labour)||0)+(Number(x.lube)||0))+'</td></tr>').join('')+'</tbody></table></div>':'<div class="sw-empty">No actual billing entries are saved for this employee in the selected period. Estimates are not counted as revenue.</div>')+
    '</div></section>'+
    '<section class="sw-section"><div class="sw-title"><div><h3>Assigned Job Cards</h3><div class="sw-subtitle">Only job cards assigned to '+esc(person)+'.</div></div></div><div class="sw-content">'+
    (jobs.length?'<div class="table-wrap"><table><thead><tr><th>Date</th><th>Job Card</th><th>Customer</th><th>Vehicle</th><th>Service</th><th>Status</th></tr></thead><tbody>'+jobs.map(r=>'<tr><td>'+esc(r.date||'')+'</td><td>'+esc(r.jobcard||'Not entered')+'</td><td>'+esc(r.customer||'')+'</td><td>'+esc([r.model,r.reg].filter(Boolean).join(' · '))+'</td><td>'+esc(r.serviceType||'')+'</td><td>'+esc(r.workStatus||r.fiDone||'Pending')+'</td></tr>').join('')+'</tbody></table></div>':'<div class="sw-empty">No service records found for this employee in the selected period.</div>')+
