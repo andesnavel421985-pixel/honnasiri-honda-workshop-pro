@@ -1405,7 +1405,13 @@ function renderReports(){
   // Join actual billing to this employee's assigned service records by exact job-card number.
   // Employee attribution comes from the saved service record, not from estimates or free-text labels.
   const allBills=typeof billing!=='undefined'&&Array.isArray(billing)?billing:[];
-  const assignedByJob=new Map(jobs.filter(r=>String(r.jobcard||'').trim()).map(r=>[String(r.jobcard).trim().toLowerCase(),r]));
+  const employeeJobRecords=records().filter(r=>{
+   const assigned=kind==='technician'
+    ? String(r.technicianName||r.technician||'').trim()===person
+    : canonicalAdvisorName(r.advisorName||r.advisor||'')===canonicalAdvisorName(person);
+   return assigned&&String(r.jobcard||'').trim();
+  });
+  const assignedByJob=new Map(employeeJobRecords.map(r=>[String(r.jobcard).trim().toLowerCase(),r]));
   const employeeBills=allBills.filter(x=>{
    const linked=assignedByJob.get(String(x.jobcard||'').trim().toLowerCase());
    if(!linked)return false;
