@@ -824,8 +824,8 @@ body.dark button.danger,body.black button.danger{
 <div class="card no-print report-heading-card">
 <h2>Workshop Floor Report</h2><div class="subtle">Daily and monthly workshop performance, staff productivity and final inspection</div>
 <div class="grid report-date-pair" style="margin-top:12px"><div class="field"><label>Daily Workshop Report</label><div class="subtle">Select the date for the daily report below.</div><input id="reportDate" type="date" aria-label="Daily report date"></div><div class="field"><label>Monthly-to-Date Report</label><div class="subtle">Select the month for the MTD report below.</div><input id="reportMonth" type="month" aria-label="MTD report month"></div></div>
-<div class="sw-report-controls" style="margin-top:12px"><button id="showDailyReport" class="navbtn active" type="button">1. Daily View</button><button id="showMtdReport" class="navbtn" type="button">1. MTD View</button></div><div class="notice" style="margin-top:10px"><b>How to view an individual staff report:</b> First choose Daily View or MTD View. Then select the Technician or Service Advisor name and press the matching red View Selected button.</div>
-<div class="grid" style="margin-top:12px"><div class="field staff-report-filter"><label for="reportTechnicianFilter">1. Select Technician</label><select id="reportTechnicianFilter"><option value="">All Technicians</option></select><div class="subtle">Choose a technician, then press the button below to view only that technician’s report.</div><button id="viewTechnicianReport" type="button" class="staff-view-btn">View Selected Technician Report</button></div><div class="field staff-report-filter"><label for="reportAdvisorFilter">1. Select Service Advisor</label><select id="reportAdvisorFilter"><option value="">All Service Advisors</option></select><div class="subtle">Choose an advisor, then press the button below to view only that advisor’s report.</div><button id="viewAdvisorReport" type="button" class="staff-view-btn">View Selected Advisor Report</button></div></div>
+<div class="sw-report-controls" style="margin-top:12px"><button id="showDailyReport" class="navbtn active" type="button">1. Daily View</button><button id="showMtdReport" class="navbtn" type="button">1. MTD View</button></div><div class="notice" style="margin-top:10px">Select a staff member and press VIEW to open only that person’s report for the selected Daily or MTD period.</div>
+<div class="grid" style="margin-top:12px"><div class="field staff-report-filter"><label for="reportTechnicianFilter">1. Select Technician</label><select id="reportTechnicianFilter"><option value="">All Technicians</option></select><div class="subtle">Choose a technician, then press the button below to view only that technician’s report.</div><button id="viewTechnicianReport" type="button" class="staff-view-btn">VIEW</button></div><div class="field staff-report-filter"><label for="reportAdvisorFilter">1. Select Service Advisor</label><select id="reportAdvisorFilter"><option value="">All Service Advisors</option></select><div class="subtle">Choose an advisor, then press the button below to view only that advisor’s report.</div><button id="viewAdvisorReport" type="button" class="staff-view-btn">VIEW</button></div></div>
 <div class="sw-report-controls" style="margin-top:12px"><button id="showConsolidatedReport" class="primary" type="button">Consolidated Report · Daily + MTD</button><button id="refreshReports" type="button">Refresh Report</button><button id="printReports" type="button">Print / Save PDF</button></div>
 <div class="toolbar"><button id="downloadDaily">Download Daily Summary</button><button id="downloadMtd">Download MTD Summary</button></div>
 </div>
@@ -1339,15 +1339,36 @@ function reportPanelHtml(title,arr,periodLabel){
 }
 function renderReports(){
  populateReportStaffFilters();
- const d=reportData(),arr=d.arr,m=getSectionMetrics(arr),daily=activeReportMode==='daily';
+ const d=reportData();
+ let arr=d.arr;
+ const techName=$('reportTechnicianFilter').value;
+ const advisorName=$('reportAdvisorFilter').value;
+ // Individual mode filters the source records before calculating any KPI or staff breakdown.
+ // This ensures the report totals and every displayed section belong to the selected employee only.
+ if(reportFocus==='technician'){
+  if(!techName){reportFocus='all';}
+  else arr=arr.filter(r=>String(r.technicianName||r.technician||'').trim()===techName);
+ }else if(reportFocus==='advisor'){
+  if(!advisorName){reportFocus='all';}
+  else arr=arr.filter(r=>canonicalAdvisorName(r.advisorName||r.advisor||'')===advisorName);
+ }
+ const m=getSectionMetrics(arr),daily=activeReportMode==='daily';
  const free1=arr.filter(r=>freeServiceNumber(r.serviceType)===1).length,free2=arr.filter(r=>freeServiceNumber(r.serviceType)===2).length,free3=arr.filter(r=>freeServiceNumber(r.serviceType)===3).length;
  $('showDailyReport').classList.toggle('active',daily);$('showMtdReport').classList.toggle('active',!daily);
- $('reportTitle').textContent=daily?'Daily Workshop Floor Report':'MTD Workshop Floor Report';
- $('reportSubtitle').textContent=daily?'Date: '+d.day+' · '+arr.length+' service record(s)':'Month: '+d.month+' · Through '+d.day+' · '+arr.length+' service record(s)';
- $('swSection1').innerHTML='<div class="sw-kpis">'+swKpi('Total service volume',m.jobs,'All service records')+swKpi('Paid service',m.paid)+swKpi('Free service',m.free,'1st: '+free1+' · 2nd: '+free2+' · 3rd: '+free3)+swKpi('Warranty',m.warranty)+swKpi('Repair / general',m.repair)+swKpi('Accident',m.accident)+'</div><div class="sw-mini-label">New plan sales</div><div class="sw-type-grid">'+swType('NEW AMC',m.amc)+swType('NEW EW',m.ew)+swType('NEW EW+',m.ewp)+'</div><div class="sw-mini-label">Estimated value — not actual billed revenue</div><div class="sw-type-grid">'+swType('Parts estimate',money(m.parts))+swType('Labour estimate',money(m.labour))+swType('Total estimate',money(m.estimate))+'</div>';
- $('swSection2').innerHTML=peopleCards(groupPeople(arr,'technicianName').filter(([n])=>!$('reportTechnicianFilter').value||n===$('reportTechnicianFilter').value),'technician');$('swSection2').closest('.sw-section').classList.toggle('hidden',reportFocus==='advisor');
- $('swSection3').innerHTML=peopleCards(groupPeople(arr,'advisorName').filter(([n])=>!$('reportAdvisorFilter').value||n===$('reportAdvisorFilter').value),'advisor');$('swSection3').closest('.sw-section').classList.toggle('hidden',reportFocus==='technician');
+ const individual=reportFocus!=='all';
+ const person=reportFocus==='technician'?techName:reportFocus==='advisor'?advisorName:'';
+ $('reportTitle').textContent=individual?(daily?'Daily':'MTD')+' '+(reportFocus==='technician'?'Technician':'Service Advisor')+' Report · '+person:(daily?'Daily Workshop Floor Report':'MTD Workshop Floor Report');
+ $('reportSubtitle').textContent=(daily?'Date: '+d.day:'Month: '+d.month+' · Through '+d.day)+' · '+arr.length+' service record(s)';
+ $('swSection1').innerHTML='<div class="sw-kpis">'+swKpi('Total service volume',m.jobs,'Selected report records')+swKpi('Paid service',m.paid)+swKpi('Free service',m.free,'1st: '+free1+' · 2nd: '+free2+' · 3rd: '+free3)+swKpi('Warranty',m.warranty)+swKpi('Repair / general',m.repair)+swKpi('Accident',m.accident)+'</div><div class="sw-mini-label">New plan sales</div><div class="sw-type-grid">'+swType('NEW AMC',m.amc)+swType('NEW EW',m.ew)+swType('NEW EW+',m.ewp)+'</div><div class="sw-mini-label">Estimated value — not actual billed revenue</div><div class="sw-type-grid">'+swType('Parts estimate',money(m.parts))+swType('Labour estimate',money(m.labour))+swType('Total estimate',money(m.estimate))+'</div>';
+ const techSection=$('swSection2').closest('.sw-section');
+ const advisorSection=$('swSection3').closest('.sw-section');
+ const inspectorSection=$('swSection4').closest('.sw-section');
+ $('swSection2').innerHTML=peopleCards(groupPeople(arr,'technicianName').filter(([n])=>reportFocus==='all'||(reportFocus==='technician'&&n===techName)),'technician');
+ $('swSection3').innerHTML=peopleCards(groupPeople(arr,'advisorName').filter(([n])=>reportFocus==='all'||(reportFocus==='advisor'&&n===advisorName)),'advisor');
  $('swSection4').innerHTML=peopleCards(groupPeople(arr,'inspectorName'),'inspector');
+ techSection.classList.toggle('hidden',reportFocus==='advisor');
+ advisorSection.classList.toggle('hidden',reportFocus==='technician');
+ inspectorSection.classList.toggle('hidden',individual);
  $('consolidatedReports').classList.add('hidden');
  document.querySelector('#reportsView .report-output-card').classList.remove('hidden');
 }
@@ -1361,10 +1382,10 @@ function renderConsolidatedReports(){
 $('showDailyReport').onclick=()=>{activeReportMode='daily';renderReports()};
 $('showMtdReport').onclick=()=>{activeReportMode='mtd';renderReports()};
 $('showConsolidatedReport').onclick=renderConsolidatedReports;
-$('viewTechnicianReport').onclick=()=>{const name=$('reportTechnicianFilter').value;if(!name){alert('Please select a Technician name first.');return;}reportFocus='technician';renderReports();$('reportTitle').textContent=(activeReportMode==='daily'?'Daily':'MTD')+' Technician Report · '+name;};
-$('viewAdvisorReport').onclick=()=>{const name=$('reportAdvisorFilter').value;if(!name){alert('Please select a Service Advisor name first.');return;}reportFocus='advisor';renderReports();$('reportTitle').textContent=(activeReportMode==='daily'?'Daily':'MTD')+' Service Advisor Report · '+name;};
-$('reportTechnicianFilter').addEventListener('change',()=>{if(!$('consolidatedReports').classList.contains('hidden'))renderConsolidatedReports();else if(!$('reportsView').querySelector('.report-output-card').classList.contains('hidden'))renderReports()});
-$('reportAdvisorFilter').addEventListener('change',()=>{if(!$('consolidatedReports').classList.contains('hidden'))renderConsolidatedReports();else if(!$('reportsView').querySelector('.report-output-card').classList.contains('hidden'))renderReports()});
+$('viewTechnicianReport').onclick=()=>{if(!$('reportTechnicianFilter').value){alert('Please select a Technician name first.');return;}reportFocus='technician';renderReports();};
+$('viewAdvisorReport').onclick=()=>{if(!$('reportAdvisorFilter').value){alert('Please select a Service Advisor name first.');return;}reportFocus='advisor';renderReports();};
+$('reportTechnicianFilter').addEventListener('change',()=>{reportFocus='all';if(!$('consolidatedReports').classList.contains('hidden'))renderConsolidatedReports();else if(!$('reportsView').querySelector('.report-output-card').classList.contains('hidden'))renderReports()});
+$('reportAdvisorFilter').addEventListener('change',()=>{reportFocus='all';if(!$('consolidatedReports').classList.contains('hidden'))renderConsolidatedReports();else if(!$('reportsView').querySelector('.report-output-card').classList.contains('hidden'))renderReports()});
 function renderJobs(){
  const q=($('jobSearch').value||'').trim().toLowerCase();
  const all=records();
