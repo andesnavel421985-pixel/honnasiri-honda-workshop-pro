@@ -1310,11 +1310,12 @@ function reportPanelHtml(title,arr,periodLabel){
 }
 function renderReports(){
  populateReportStaffFilters();
- const d=reportData(),arr=d.arr,daily=activeReportMode==='daily';
+ const d=reportData(),arr=d.arr,m=getSectionMetrics(arr),daily=activeReportMode==='daily';
+ const free1=arr.filter(r=>freeServiceNumber(r.serviceType)===1).length,free2=arr.filter(r=>freeServiceNumber(r.serviceType)===2).length,free3=arr.filter(r=>freeServiceNumber(r.serviceType)===3).length;
  $('showDailyReport').classList.toggle('active',daily);$('showMtdReport').classList.toggle('active',!daily);
  $('reportTitle').textContent=daily?'Daily Workshop Floor Report':'MTD Workshop Floor Report';
  $('reportSubtitle').textContent=daily?'Date: '+d.day+' · '+arr.length+' service record(s)':'Month: '+d.month+' · Through '+d.day+' · '+arr.length+' service record(s)';
- $('swSection1').innerHTML=reportPanelHtml(daily?'Daily Workshop Floor Report':'MTD Workshop Floor Report',arr,daily?'Date: '+d.day:'Month: '+d.month+' through '+d.day);
+ $('swSection1').innerHTML='<div class="sw-kpis">'+swKpi('Total service volume',m.jobs,'All service records')+swKpi('Paid service',m.paid)+swKpi('Free service',m.free,'1st: '+free1+' · 2nd: '+free2+' · 3rd: '+free3)+swKpi('Warranty',m.warranty)+swKpi('Repair / general',m.repair)+swKpi('Accident',m.accident)+'</div><div class="sw-mini-label">New plan sales</div><div class="sw-type-grid">'+swType('NEW AMC',m.amc)+swType('NEW EW',m.ew)+swType('NEW EW+',m.ewp)+'</div><div class="sw-mini-label">Estimated value — not actual billed revenue</div><div class="sw-type-grid">'+swType('Parts estimate',money(m.parts))+swType('Labour estimate',money(m.labour))+swType('Total estimate',money(m.estimate))+'</div>';
  $('swSection2').innerHTML=peopleCards(groupPeople(arr,'technicianName').filter(([n])=>!$('reportTechnicianFilter').value||n===$('reportTechnicianFilter').value),'technician');
  $('swSection3').innerHTML=peopleCards(groupPeople(arr,'advisorName').filter(([n])=>!$('reportAdvisorFilter').value||n===$('reportAdvisorFilter').value),'advisor');
  $('swSection4').innerHTML=peopleCards(groupPeople(arr,'inspectorName'),'inspector');
