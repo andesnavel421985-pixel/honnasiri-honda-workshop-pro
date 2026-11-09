@@ -1402,13 +1402,15 @@ function renderReports(){
   const typeCounts=serviceTypeCounts(arr);
   const jobs=arr.slice().sort((x,y)=>String(y.date||'').localeCompare(String(x.date||'')));
   // Actual revenue is sourced only from saved billing entries, never from estimates.
+  // Join actual billing to this employee's assigned service records by exact job-card number.
+  // Employee attribution comes from the saved service record, not from estimates or free-text labels.
   const allBills=typeof billing!=='undefined'&&Array.isArray(billing)?billing:[];
+  const assignedByJob=new Map(jobs.filter(r=>String(r.jobcard||'').trim()).map(r=>[String(r.jobcard).trim().toLowerCase(),r]));
   const employeeBills=allBills.filter(x=>{
-   const employee=kind==='technician'?String(x.technician||'').trim():canonicalAdvisorName(x.advisor||'');
-   const same=kind==='technician'?employee===person:employee===canonicalAdvisorName(person);
+   const linked=assignedByJob.get(String(x.jobcard||'').trim().toLowerCase());
+   if(!linked)return false;
    const date=String(x.date||'');
-   const inPeriod=daily?date===d.day:(date.slice(0,7)===d.month&&date<=d.day);
-   return same&&inPeriod;
+   return daily?date===d.day:(date.slice(0,7)===d.month&&date<=d.day);
   }).sort((x,y)=>String(y.date||'').localeCompare(String(x.date||'')));
   const revenue={parts:employeeBills.reduce((n,x)=>n+(Number(x.parts)||0),0),labour:employeeBills.reduce((n,x)=>n+(Number(x.labour)||0),0),lube:employeeBills.reduce((n,x)=>n+(Number(x.lube)||0),0)};
   revenue.grand=revenue.parts+revenue.labour+revenue.lube;
@@ -1427,23 +1429,7 @@ function renderReports(){
    '</div></section>'+
    '<section class="sw-section"><div class="sw-title"><div><h3>Assigned Job Cards</h3><div class="sw-subtitle">Only job cards assigned to '+esc(person)+'.</div></div></div><div class="sw-content">'+
    (jobs.length?'<div class="table-wrap"><table><thead><tr><th>Date</th><th>Job Card</th><th>Customer</th><th>Vehicle</th><th>Service</th><th>Status</th></tr></thead><tbody>'+jobs.map(r=>'<tr><td>'+esc(r.date||'')+'</td><td>'+esc(r.jobcard||'Not entered')+'</td><td>'+esc(r.customer||'')+'</td><td>'+esc([r.model,r.reg].filter(Boolean).join(' · '))+'</td><td>'+esc(r.serviceType||'')+'</td><td>'+esc(r.workStatus||r.fiDone||'Pending')+'</td></tr>').join('')+'</tbody></table></div>':'<div class="sw-empty">No service records found for this employee in the selected period.</div>')+
-   '</div></section>'+
-   (()=>{
-    const assignedByJob=new Map(jobs.map(r=>[String(r.jobcard||'').trim().toLowerCase(),r]));
-    const billingRows=(typeof window!=='undefined'&&typeof window.__hhGetBillingRows==='function'?window.__hhGetBillingRows():[]);
-    const revenueRows=billingRows.filter(x=>{
-     const linked=assignedByJob.get(String(x.jobcard||'').trim().toLowerCase());
-     if(!linked)return false;
-     return daily?String(x.date||'')===d.day:String(x.date||'').slice(0,7)===d.month;
-    }).sort((x,y)=>String(y.date||'').localeCompare(String(x.date||'')));
-    const sum=key=>revenueRows.reduce((total,x)=>total+(Number(x[key])||0),0);
-    const parts=sum('parts'),labour=sum('labour'),lube=sum('lube'),grand=parts+labour+lube;
-    const fmt=n=>'₹'+n.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
-    return '<section class="sw-section"><div class="sw-title"><div><h3>Individual Actual Revenue</h3><div class="sw-subtitle">Actual billing linked by job card number to '+esc(person)+'. Period is based on invoice / payment date.</div></div></div><div class="sw-content">'+
-     '<div class="sw-kpis">'+swKpi('Parts billed',fmt(parts))+swKpi('Labour billed',fmt(labour))+swKpi('Lubricant billed',fmt(lube))+swKpi('Total actual revenue',fmt(grand))+'</div>'+
-     (revenueRows.length?'<div class="table-wrap"><table><thead><tr><th>Invoice Date</th><th>Job Card</th><th>Customer</th><th>Parts ₹</th><th>Labour ₹</th><th>Lubricant ₹</th><th>Total ₹</th></tr></thead><tbody>'+revenueRows.map(x=>{const linked=assignedByJob.get(String(x.jobcard||'').trim().toLowerCase());const p=Number(x.parts)||0,l=Number(x.labour)||0,u=Number(x.lube)||0;return '<tr><td>'+esc(x.date||'')+'</td><td>'+esc(x.jobcard||'')+'</td><td>'+esc(linked?.customer||'')+'</td><td>'+fmt(p)+'</td><td>'+fmt(l)+'</td><td>'+fmt(u)+'</td><td>'+fmt(p+l+u)+'</td></tr>'}).join('')+'</tbody></table></div>':'<div class="sw-empty">No actual billing entries linked to this employee’s job cards for the selected '+(daily?'date':'month')+'. Revenue will appear here after billing is saved against the job card number.</div>')+
-     '</div></section>';
-   })();
+   '</div></section>';
   output.classList.remove('hidden');
   return;
  }
@@ -1665,7 +1651,6 @@ init();
  $id('exportToolChecklist')?.addEventListener('click',()=>{const rows=[['Date','Technician','Checklist Group','Tool / Equipment','Status']];Object.entries(toolState).forEach(([key,obj])=>{const [date,tech]=key.split('|');toolItems.forEach((it,i)=>{const idx=it.group+'_'+toolItems.filter(x=>x.group===it.group).findIndex(x=>x.name===it.name);rows.push([date,tech,it.group,it.name,obj[idx]||'Not Available'])})});download('Honnasiri_Tools_Checklist.csv',rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n'),'text/csv;charset=utf-8')});
  $id('toolDate').value=today();renderTools();
  let billing=getJson(BILL_KEY,[]);
- window.__hhGetBillingRows=()=>billing;
  function findBillingRecord(){const job=$id('billingJobcard').value.trim().toLowerCase();return allRecords().find(r=>String(r.jobcard||'').trim().toLowerCase()===job)}
  function loadBillingRecord(){const r=findBillingRecord();if(!r){$id('billingAdvisor').value='';$id('billingTechnician').value='';$id('billingServiceType').value='';$id('billingStatus').textContent='No saved service record found for this exact job card number.';return}const old=billing.find(x=>x.jobcard.toLowerCase()===String(r.jobcard||'').toLowerCase());$id('billingAdvisor').value=r.advisorName||r.advisor||'';$id('billingTechnician').value=r.technicianName||r.technician||'';$id('billingServiceType').value=r.serviceType||'';$id('billingDate').value=old?.date||r.date||today();$id('billingParts').value=old?.parts??0;$id('billingLabour').value=old?.labour??0;$id('billingLube').value=old?.lube??0;$id('billingStatus').textContent='Linked to saved record: '+r.customer+' · '+r.reg+'. Enter final invoiced amounts.'}
  function saveBilling(){const r=findBillingRecord();if(!r){$id('billingStatus').textContent='Cannot save: enter a job card number that exists in Saved Records.';return}const row={jobcard:r.jobcard,date:$id('billingDate').value||today(),advisor:r.advisorName||r.advisor||'',technician:r.technicianName||r.technician||'',serviceType:r.serviceType||'',parts:validNum('billingParts'),labour:validNum('billingLabour'),lube:validNum('billingLube'),updatedAt:new Date().toISOString()};const idx=billing.findIndex(x=>String(x.jobcard).toLowerCase()===String(row.jobcard).toLowerCase());if(idx>=0)billing[idx]=row;else billing.push(row);setJson(BILL_KEY,billing);$id('billingStatus').textContent='Actual billing saved for job card '+row.jobcard+'.';renderRevenue()}
