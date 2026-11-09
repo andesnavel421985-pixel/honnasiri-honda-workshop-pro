@@ -718,6 +718,31 @@ body.dark button.danger,body.black button.danger{
 #reportsView .staff-report-filter .subtle{font-size:12px;line-height:1.4;margin:7px 0}
 #reportsView .staff-view-btn{width:100%;margin-top:7px;background:linear-gradient(145deg,#df1740,#990b2a);color:#fff;border:1px solid #820b25;border-radius:12px;box-shadow:inset 0 2px 0 rgba(255,255,255,.3),0 4px 0 #6f1025,0 7px 12px rgba(80,10,30,.16);font-weight:850;padding:12px 10px}
 #reportsView .staff-view-btn:active{transform:translateY(2px);box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 2px 0 #6f1025}
+
+/* Mobile horizontal scrolling for individual employee assigned-job-card table */
+#reportsView #individualStaffReport .sw-content{min-width:0;max-width:100%;overflow:visible}
+#reportsView #individualStaffReport .table-wrap{
+ display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;
+ overflow-x:auto!important;overflow-y:hidden!important;
+ -webkit-overflow-scrolling:touch!important;touch-action:pan-x pan-y!important;
+ overscroll-behavior-x:contain;scrollbar-width:thin;scrollbar-color:#b75d72 #f8e8ec;
+ padding-bottom:10px;cursor:grab;
+}
+#reportsView #individualStaffReport .table-wrap:active{cursor:grabbing}
+#reportsView #individualStaffReport .table-wrap table{
+ width:max-content!important;min-width:850px!important;max-width:none!important;
+ table-layout:auto!important;border-collapse:separate;border-spacing:0;
+}
+#reportsView #individualStaffReport .table-wrap th,
+#reportsView #individualStaffReport .table-wrap td{
+ white-space:nowrap!important;min-width:105px;padding:12px 14px;
+}
+#reportsView #individualStaffReport .table-wrap th:first-child,
+#reportsView #individualStaffReport .table-wrap td:first-child{min-width:115px}
+#reportsView #individualStaffReport .table-wrap::-webkit-scrollbar{height:8px}
+#reportsView #individualStaffReport .table-wrap::-webkit-scrollbar-track{background:#f8e8ec;border-radius:20px}
+#reportsView #individualStaffReport .table-wrap::-webkit-scrollbar-thumb{background:#b75d72;border-radius:20px}
+
 </style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
