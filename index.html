@@ -1420,6 +1420,8 @@ function renderReports(){
   const employeeJobRecords=records().filter(r=>{
    const assigned=kind==='technician'
     ? String(r.technicianName||r.technician||'').trim()===person
+    : kind==='inspector'
+    ? (String(r.inspectorName||r.inspector||'').trim()||(!r.inspectorName&&!r.inspector&&isImranInspectionRecord(r)?'Imran':'' )).toLowerCase()===person.toLowerCase()
     : canonicalAdvisorName(r.advisorName||r.advisor||'')===canonicalAdvisorName(person);
    return assigned&&String(r.jobcard||'').trim();
   });
