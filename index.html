@@ -1318,7 +1318,7 @@ function isImranInspectionRecord(r){return /^imran$/i.test(String(r.technicianNa
 function groupPeople(arr,field){
  const roster=field==='technicianName'?['FURKHAN','SHOIB','CHAND PASHA','SACHIN','ASIF','MD FAZAL','ABHI']:field==='advisorName'?['Sanjeev. L','Sanjeev Reddy','Deekshit']:['Imran','Abhishek'];
  const map={};roster.forEach(name=>map[name]=[]);
- arr.forEach(r=>{let name=field==='advisorName'?canonicalAdvisorName(r[field]):field==='inspectorName'?String(r.inspectorName||r.inspector||'').trim():String(r[field]||'').trim();if(field==='inspectorName'&&!name&&isImranInspectionRecord(r))name='Imran';if(field==='technicianName'&&isImranInspectionRecord(r))return;if(!name)name='Not assigned';if(!map[name])map[name]=[];map[name].push(r)});
+ arr.forEach(r=>{let name=field==='advisorName'?canonicalAdvisorName(r[field]):field==='inspectorName'?String(r.inspectorName||r.inspector||'').trim():String(r[field]||'').trim();if(field==='inspectorName'&&!name&&isImranInspectionRecord(r))name='Imran';if(field==='technicianName'&&isImranInspectionRecord(r))return;if(!name)return;if(!map[name])map[name]=[];map[name].push(r)});
  return Object.entries(map).sort((a,b)=>{const diff=b[1].length-a[1].length;return diff||a[0].localeCompare(b[0])});
 }
 function swKpi(label,value,hint=''){return `<div class="sw-kpi"><div class="lab">${esc(label)}</div><div class="val">${esc(value)}</div>${hint?`<div class="hint">${esc(hint)}</div>`:''}</div>`}
