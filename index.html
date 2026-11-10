@@ -836,7 +836,7 @@ body.dark button.danger,body.black button.danger{
 <div class="stats" style="margin:12px 0"><div class="stat"><b id="qcOk">0</b><span>OK</span></div><div class="stat"><b id="qcBad">0</b><span>NOT OK</span></div><div class="stat"><b id="qcPending">27</b><span>Pending</span></div></div>
 <div id="qcChecklist"></div>
 <div class="grid" style="margin-top:14px">
-<div class="field"><label for="inspector">FI Name</label><input id="inspector" list="fiNameOptions" value="Imran" placeholder="Select or enter FI name"><datalist id="fiNameOptions"><option value="Imran"></option><option value="Abhishek"></option></datalist><div class="subtle">Final inspection responsibility · Imran / Abhishek</div></div>
+<div class="field"><label for="inspector">FI Name</label><select id="inspector"><option value="Imran">Imran</option><option value="Abhishek">Abhishek</option></select><div class="subtle">Final inspection responsibility</div></div>
 <div class="field"><label for="qcDecision">Overall QC decision</label><select id="qcDecision"><option>Pending</option><option>Pass</option><option>Fail — corrective action required</option></select></div>
 <div class="field full"><label for="qcRemarks">QC remarks / corrective action</label><textarea id="qcRemarks" placeholder="Record defects, correction and recheck result"></textarea></div>
 </div></div></section>
@@ -850,7 +850,7 @@ body.dark button.danger,body.black button.danger{
 <h2>Workshop Floor Report</h2><div class="subtle">Daily and monthly workshop performance, staff productivity and final inspection</div>
 <div class="grid report-date-pair" style="margin-top:12px"><div class="field"><label>Daily Workshop Report</label><div class="subtle">Select the date for the daily report below.</div><input id="reportDate" type="date" aria-label="Daily report date"></div><div class="field"><label>Monthly-to-Date Report</label><div class="subtle">Select the month for the MTD report below.</div><input id="reportMonth" type="month" aria-label="MTD report month"></div></div>
 <div class="sw-report-controls" style="margin-top:12px"><button id="showDailyReport" class="navbtn active" type="button">1. Daily View</button><button id="showMtdReport" class="navbtn" type="button">1. MTD View</button></div><div class="notice" style="margin-top:10px">Select a staff member and press VIEW to open only that person’s report for the selected Daily or MTD period.</div>
-<div class="grid" style="margin-top:12px"><div class="field staff-report-filter"><label for="reportTechnicianFilter">1. Select Technician</label><select id="reportTechnicianFilter"><option value="">All Technicians</option></select><div class="subtle">Choose a technician, then press the button below to view only that technician’s report.</div><button id="viewTechnicianReport" type="button" class="staff-view-btn">VIEW</button></div><div class="field staff-report-filter"><label for="reportAdvisorFilter">1. Select Service Advisor</label><select id="reportAdvisorFilter"><option value="">All Service Advisors</option></select><div class="subtle">Choose an advisor, then press the button below to view only that advisor’s report.</div><button id="viewAdvisorReport" type="button" class="staff-view-btn">VIEW</button></div></div>
+<div class="grid" style="margin-top:12px"><div class="field staff-report-filter"><label for="reportTechnicianFilter">1. Select Technician</label><select id="reportTechnicianFilter"><option value="">All Technicians</option></select><div class="subtle">Choose a technician, then press VIEW.</div><button id="viewTechnicianReport" type="button" class="staff-view-btn">VIEW</button></div><div class="field staff-report-filter"><label for="reportAdvisorFilter">1. Select Service Advisor</label><select id="reportAdvisorFilter"><option value="">All Service Advisors</option></select><div class="subtle">Choose an advisor, then press VIEW.</div><button id="viewAdvisorReport" type="button" class="staff-view-btn">VIEW</button></div><div class="field staff-report-filter"><label for="reportInspectorFilter">1. Select FI Name</label><select id="reportInspectorFilter"><option value="">Select FI Name</option><option value="Imran">Imran</option><option value="Abhishek">Abhishek</option></select><div class="subtle">Choose an FI inspector, then press VIEW.</div><button id="viewInspectorReport" type="button" class="staff-view-btn">VIEW</button></div></div>
 <div class="sw-report-controls" style="margin-top:12px"><button id="showConsolidatedReport" class="primary" type="button">Consolidated Report · Daily + MTD</button><button id="refreshReports" type="button">Refresh Report</button><button id="printReports" type="button">Print / Save PDF</button></div>
 <div class="toolbar"><button id="downloadDaily">Download Daily Summary</button><button id="downloadMtd">Download MTD Summary</button></div>
 </div>
@@ -1342,14 +1342,17 @@ function peopleCards(entries,kind){
 function reportData(){const day=$('reportDate').value||today(),month=$('reportMonth').value||day.slice(0,7),all=records(),daily=all.filter(r=>r.date===day),mtd=all.filter(r=>r.date&&r.date.slice(0,7)===month&&r.date<=day);return {day,month,daily,mtd,arr:activeReportMode==='daily'?daily:mtd}}
 function getSectionMetrics(arr){const sum=k=>arr.reduce((s,r)=>s+(Number(r.totals?.[k])||0),0);return {jobs:arr.length,paid:arr.filter(r=>r.serviceType==='Paid Service').length,free:arr.filter(r=>isFreeServiceType(r.serviceType)).length,warranty:arr.filter(r=>r.serviceType==='Warranty').length,repair:arr.filter(r=>r.serviceType==='Repair / General').length,accident:arr.filter(r=>r.serviceType==='Accident').length,amc:arr.filter(r=>r.amcType==='NEW AMC').length,ew:arr.filter(r=>r.amcType==='NEW EW').length,ewp:arr.filter(r=>r.amcType==='NEW EW+').length,parts:sum('parts'),labour:sum('labour'),estimate:sum('grand')}}
 function populateReportStaffFilters(){
- const tech=$('reportTechnicianFilter'),advisor=$('reportAdvisorFilter');
- const keepTech=tech.value,keepAdvisor=advisor.value;
+ const tech=$('reportTechnicianFilter'),advisor=$('reportAdvisorFilter'),inspector=$('reportInspectorFilter');
+ const keepTech=tech.value,keepAdvisor=advisor.value,keepInspector=inspector.value;
  const all=records();
  const unique=(field,canonical=false)=>[...new Set(all.map(r=>{const v=String(r[field]||'').trim();return canonical?canonicalAdvisorName(v):v}).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
  tech.innerHTML='<option value="">All Technicians</option>'+unique('technicianName').map(n=>'<option value="'+esc(n)+'">'+esc(n)+'</option>').join('');
  advisor.innerHTML='<option value="">All Service Advisors</option>'+unique('advisorName',true).map(n=>'<option value="'+esc(n)+'">'+esc(n)+'</option>').join('');
+ const inspectorNames=[...new Set(['Imran','Abhishek',...all.map(r=>String(r.inspectorName||r.inspector||'').trim()).filter(Boolean)])].sort((a,b)=>a.localeCompare(b));
+ inspector.innerHTML='<option value="">Select FI Name</option>'+inspectorNames.map(n=>'<option value="'+esc(n)+'">'+esc(n)+'</option>').join('');
  tech.value=[...tech.options].some(o=>o.value===keepTech)?keepTech:'';
  advisor.value=[...advisor.options].some(o=>o.value===keepAdvisor)?keepAdvisor:'';
+ inspector.value=[...inspector.options].some(o=>o.value===keepInspector)?keepInspector:'';
 }
 function reportPanelHtml(title,arr,periodLabel){
  const m=getSectionMetrics(arr);
@@ -1369,20 +1372,27 @@ function renderReports(){
  let arr=d.arr;
  const techName=$('reportTechnicianFilter').value;
  const advisorName=$('reportAdvisorFilter').value;
- // Individual mode filters the source records before calculating any KPI or staff breakdown.
- // This ensures the report totals and every displayed section belong to the selected employee only.
+ const inspectorName=$('reportInspectorFilter').value;
+ // Filter source records first so individual reports contain only the selected staff member's jobs.
  if(reportFocus==='technician'){
   if(!techName){reportFocus='all';}
   else arr=arr.filter(r=>String(r.technicianName||r.technician||'').trim()===techName);
  }else if(reportFocus==='advisor'){
   if(!advisorName){reportFocus='all';}
   else arr=arr.filter(r=>canonicalAdvisorName(r.advisorName||r.advisor||'')===advisorName);
+ }else if(reportFocus==='inspector'){
+  if(!inspectorName){reportFocus='all';}
+  else arr=arr.filter(r=>{
+   let name=String(r.inspectorName||r.inspector||'').trim();
+   if(!name&&isImranInspectionRecord(r))name='Imran';
+   return name.toLowerCase()===inspectorName.toLowerCase();
+  });
  }
  const m=getSectionMetrics(arr),daily=activeReportMode==='daily';
  const free1=arr.filter(r=>freeServiceNumber(r.serviceType)===1).length,free2=arr.filter(r=>freeServiceNumber(r.serviceType)===2).length,free3=arr.filter(r=>freeServiceNumber(r.serviceType)===3).length;
  $('showDailyReport').classList.toggle('active',daily);$('showMtdReport').classList.toggle('active',!daily);
  const individual=reportFocus!=='all';
- const person=reportFocus==='technician'?techName:advisorName;
+ const person=reportFocus==='technician'?techName:reportFocus==='advisor'?advisorName:inspectorName;
  const output=document.querySelector('#reportsView .report-output-card');
  const individualHost=$('individualStaffReport');
  const standardSections=[...output.querySelectorAll(':scope > .sw-section')];
@@ -1393,11 +1403,13 @@ function renderReports(){
   standardSections.forEach(section=>section.classList.add('hidden'));
   if(standardNotice)standardNotice.classList.add('hidden');
   individualHost.classList.remove('hidden');
-  const kind=reportFocus==='technician'?'technician':'advisor';
+  const kind=reportFocus==='technician'?'technician':reportFocus==='advisor'?'advisor':'inspector';
   const completed=arr.filter(r=>r.workStatus==='Completed'||r.fiDone==='Done').length;
   const pending=arr.filter(r=>r.workStatus==='Pending'||(!r.workStatus&&r.fiDone!=='Done')).length;
   const statusCounts=kind==='technician'
    ? [['Completed',completed],['Pending',pending],['Waiting for Parts',arr.filter(r=>r.workStatus==='Waiting for Parts').length],['Work in Process',arr.filter(r=>r.workStatus==='Work in Process').length],['Waiting for CV Approval',arr.filter(r=>r.workStatus==='Waiting for CV Approval').length]]
+   : kind==='inspector'
+   ? [['FI Done',arr.filter(r=>r.fiDone==='Done').length],['FI Pending',arr.filter(r=>r.fiDone!=='Done').length],['QC Pass',arr.filter(r=>r.qcDecision==='Pass').length],['QC Fail',arr.filter(r=>String(r.qcDecision||'').startsWith('Fail')).length]]
    : [['Delivered',arr.filter(r=>r.delivery==='Delivered').length],['Not delivered',arr.filter(r=>r.delivery!=='Delivered').length],['Pending',pending]];
   const typeCounts=serviceTypeCounts(arr);
   const jobs=arr.slice().sort((x,y)=>String(y.date||'').localeCompare(String(x.date||'')));
@@ -1423,11 +1435,11 @@ function renderReports(){
   const billedJobcards=new Set(employeeBills.map(x=>String(x.jobcard||'').trim().toLowerCase()));
   const unbilledJobs=jobs.filter(x=>!billedJobcards.has(String(x.jobcard||'').trim().toLowerCase())).length;
   individualHost.innerHTML=
-   '<div class="sectionhead"><span class="num">I</span><div><h2>'+esc(person)+' · Individual '+(kind==='technician'?'Technician':'Service Advisor')+' Report</h2><div class="sw-period">'+(daily?'Daily · '+d.day:'MTD · '+d.month+' through '+d.day)+' · '+jobs.length+' assigned job card(s)</div></div></div>'+
+   '<div class="sectionhead"><span class="num">I</span><div><h2>'+esc(person)+' · Individual '+(kind==='technician'?'Technician':kind==='inspector'?'Final Inspection':'Service Advisor')+' Report</h2><div class="sw-period">'+(daily?'Daily · '+d.day:'MTD · '+d.month+' through '+d.day)+' · '+jobs.length+' assigned job card(s)</div></div></div>'+
    '<section class="sw-section"><div class="sw-title"><div><h3>'+esc(person)+' · Work Performance</h3><div class="sw-subtitle">Figures below include only records assigned to this employee.</div></div></div><div class="sw-content">'+
    '<div class="sw-kpis">'+swKpi('Assigned service records',jobs.length)+swKpi('Completed',completed)+swKpi('Pending',pending)+'</div>'+
    '<div class="sw-mini-label">Service type breakdown</div><div class="sw-type-grid">'+typeCounts.map(([label,value])=>swType(label,value)).join('')+'</div>'+
-   '<div class="sw-mini-label">'+(kind==='technician'?'Work status':'Delivery status')+'</div><div class="sw-status-grid">'+statusCounts.map(([label,value])=>swStatus(label,value)).join('')+'</div>'+
+   '<div class="sw-mini-label">'+(kind==='technician'?'Work status':kind==='inspector'?'Final inspection status':'Delivery status')+'</div><div class="sw-status-grid">'+statusCounts.map(([label,value])=>swStatus(label,value)).join('')+'</div>'+
    '</div></section>'+
    '<section class="sw-section"><div class="sw-title"><div><h3>Final Inspection (FI) Report</h3><div class="sw-subtitle">FI completion and quality-check results for this employee’s assigned job cards.</div></div></div><div class="sw-content">'+
    '<div class="sw-kpis">'+swKpi('FI completed',jobs.filter(r=>r.fiDone==='Done').length)+swKpi('FI pending',jobs.filter(r=>r.fiDone!=='Done').length)+swKpi('QC passed',jobs.filter(r=>r.qcDecision==='Pass').length)+swKpi('QC failed',jobs.filter(r=>String(r.qcDecision||'').startsWith('Fail')).length)+'</div>'+
@@ -1475,7 +1487,9 @@ $('showMtdReport').onclick=()=>{activeReportMode='mtd';renderReports()};
 $('showConsolidatedReport').onclick=renderConsolidatedReports;
 $('viewTechnicianReport').onclick=()=>{if(!$('reportTechnicianFilter').value){alert('Please select a Technician name first.');return;}reportFocus='technician';renderReports();};
 $('viewAdvisorReport').onclick=()=>{if(!$('reportAdvisorFilter').value){alert('Please select a Service Advisor name first.');return;}reportFocus='advisor';renderReports();};
+$('viewInspectorReport').onclick=()=>{if(!$('reportInspectorFilter').value){alert('Please select an FI Name first.');return;}reportFocus='inspector';renderReports();};
 $('reportTechnicianFilter').addEventListener('change',()=>{reportFocus='all';if(!$('consolidatedReports').classList.contains('hidden'))renderConsolidatedReports();else if(!$('reportsView').querySelector('.report-output-card').classList.contains('hidden'))renderReports()});
+$('reportInspectorFilter').addEventListener('change',()=>{reportFocus='all';if(!$('consolidatedReports').classList.contains('hidden'))renderConsolidatedReports();else if(!$('reportsView').querySelector('.report-output-card').classList.contains('hidden'))renderReports()});
 $('reportAdvisorFilter').addEventListener('change',()=>{reportFocus='all';if(!$('consolidatedReports').classList.contains('hidden'))renderConsolidatedReports();else if(!$('reportsView').querySelector('.report-output-card').classList.contains('hidden'))renderReports()});
 function renderJobs(){
  const q=($('jobSearch').value||'').trim().toLowerCase();
