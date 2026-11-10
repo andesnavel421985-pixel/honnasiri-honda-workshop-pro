@@ -1424,7 +1424,7 @@ function renderReports(){
   const unbilledJobs=jobs.filter(x=>!billedJobcards.has(String(x.jobcard||'').trim().toLowerCase())).length;
   individualHost.innerHTML=
    '<div class="sectionhead"><span class="num">I</span><div><h2>'+esc(person)+' · Individual '+(kind==='technician'?'Technician':'Service Advisor')+' Report</h2><div class="sw-period">'+(daily?'Daily · '+d.day:'MTD · '+d.month+' through '+d.day)+' · '+jobs.length+' assigned job card(s)</div></div></div>'+
-   '<section class="sw-section"><div class="sw-title"><div><h3>'+esc(person)+' · Personal Performance</h3><div class="sw-subtitle">Figures below include only records assigned to this employee.</div></div></div><div class="sw-content">'+
+   '<section class="sw-section"><div class="sw-title"><div><h3>'+esc(person)+' · Work Performance</h3><div class="sw-subtitle">Figures below include only records assigned to this employee.</div></div></div><div class="sw-content">'+
    '<div class="sw-kpis">'+swKpi('Assigned service records',jobs.length)+swKpi('Completed',completed)+swKpi('Pending',pending)+'</div>'+
    '<div class="sw-mini-label">Service type breakdown</div><div class="sw-type-grid">'+typeCounts.map(([label,value])=>swType(label,value)).join('')+'</div>'+
    '<div class="sw-mini-label">'+(kind==='technician'?'Work status':'Delivery status')+'</div><div class="sw-status-grid">'+statusCounts.map(([label,value])=>swStatus(label,value)).join('')+'</div>'+
