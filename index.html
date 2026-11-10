@@ -836,7 +836,7 @@ body.dark button.danger,body.black button.danger{
 <div class="stats" style="margin:12px 0"><div class="stat"><b id="qcOk">0</b><span>OK</span></div><div class="stat"><b id="qcBad">0</b><span>NOT OK</span></div><div class="stat"><b id="qcPending">27</b><span>Pending</span></div></div>
 <div id="qcChecklist"></div>
 <div class="grid" style="margin-top:14px">
-<div class="field"><label for="inspector">Final inspection done by</label><input id="inspector" value="Imran" placeholder="Inspector name"><div class="subtle">Final inspection responsibility · Imran</div></div>
+<div class="field"><label for="inspector">FI Name</label><input id="inspector" list="fiNameOptions" value="Imran" placeholder="Select or enter FI name"><datalist id="fiNameOptions"><option value="Imran"></option><option value="Abhishek"></option></datalist><div class="subtle">Final inspection responsibility · Imran / Abhishek</div></div>
 <div class="field"><label for="qcDecision">Overall QC decision</label><select id="qcDecision"><option>Pending</option><option>Pass</option><option>Fail — corrective action required</option></select></div>
 <div class="field full"><label for="qcRemarks">QC remarks / corrective action</label><textarea id="qcRemarks" placeholder="Record defects, correction and recheck result"></textarea></div>
 </div></div></section>
@@ -1316,9 +1316,9 @@ function serviceTypeCounts(list){return [['Paid Service',list.filter(r=>r.servic
 function canonicalAdvisorName(value){const name=String(value||'').trim();const key=name.toLowerCase().replace(/ /g,'').replace(/[.]/g,'');return key==='sanjeevl'?'Sanjeev. L':name}
 function isImranInspectionRecord(r){return /^imran$/i.test(String(r.technicianName||r.technician||'').trim())}
 function groupPeople(arr,field){
- const roster=field==='technicianName'?['FURKHAN','SHOIB','CHAND PASHA','SACHIN','ASIF','MD FAZAL','ABHI']:field==='advisorName'?['Sanjeev. L','Sanjeev Reddy','Deekshit']:['Imran'];
+ const roster=field==='technicianName'?['FURKHAN','SHOIB','CHAND PASHA','SACHIN','ASIF','MD FAZAL','ABHI']:field==='advisorName'?['Sanjeev. L','Sanjeev Reddy','Deekshit']:['Imran','Abhishek'];
  const map={};roster.forEach(name=>map[name]=[]);
- arr.forEach(r=>{let name=field==='advisorName'?canonicalAdvisorName(r[field]):String(r[field]||'').trim();if(field==='inspectorName'&&!name&&isImranInspectionRecord(r))name='Imran';if(field==='technicianName'&&isImranInspectionRecord(r))return;if(!name)name='Not assigned';if(!map[name])map[name]=[];map[name].push(r)});
+ arr.forEach(r=>{let name=field==='advisorName'?canonicalAdvisorName(r[field]):field==='inspectorName'?String(r.inspectorName||r.inspector||'').trim():String(r[field]||'').trim();if(field==='inspectorName'&&!name&&isImranInspectionRecord(r))name='Imran';if(field==='technicianName'&&isImranInspectionRecord(r))return;if(!name)name='Not assigned';if(!map[name])map[name]=[];map[name].push(r)});
  return Object.entries(map).sort((a,b)=>{const diff=b[1].length-a[1].length;return diff||a[0].localeCompare(b[0])});
 }
 function swKpi(label,value,hint=''){return `<div class="sw-kpi"><div class="lab">${esc(label)}</div><div class="val">${esc(value)}</div>${hint?`<div class="hint">${esc(hint)}</div>`:''}</div>`}
@@ -1428,6 +1428,11 @@ function renderReports(){
    '<div class="sw-kpis">'+swKpi('Assigned service records',jobs.length)+swKpi('Completed',completed)+swKpi('Pending',pending)+'</div>'+
    '<div class="sw-mini-label">Service type breakdown</div><div class="sw-type-grid">'+typeCounts.map(([label,value])=>swType(label,value)).join('')+'</div>'+
    '<div class="sw-mini-label">'+(kind==='technician'?'Work status':'Delivery status')+'</div><div class="sw-status-grid">'+statusCounts.map(([label,value])=>swStatus(label,value)).join('')+'</div>'+
+   '</div></section>'+
+   '<section class="sw-section"><div class="sw-title"><div><h3>Final Inspection (FI) Report</h3><div class="sw-subtitle">FI completion and quality-check results for this employee’s assigned job cards.</div></div></div><div class="sw-content">'+
+   '<div class="sw-kpis">'+swKpi('FI completed',jobs.filter(r=>r.fiDone==='Done').length)+swKpi('FI pending',jobs.filter(r=>r.fiDone!=='Done').length)+swKpi('QC passed',jobs.filter(r=>r.qcDecision==='Pass').length)+swKpi('QC failed',jobs.filter(r=>String(r.qcDecision||'').startsWith('Fail')).length)+'</div>'+
+   '<div class="sw-mini-label">FI inspector-wise job cards</div><div class="sw-status-grid">'+['Imran','Abhishek'].map(name=>swStatus(name,jobs.filter(r=>String(r.inspectorName||r.inspector||'').trim().toLowerCase()===name.toLowerCase()).length)).join('')+'</div>'+
+   (jobs.some(r=>r.inspector||r.inspectorName)?'<div class="table-wrap"><table><thead><tr><th>Job Card</th><th>FI Name</th><th>FI Status</th><th>QC Decision</th><th>QC Remarks</th></tr></thead><tbody>'+jobs.map(r=>'<tr><td>'+esc(r.jobcard||'')+'</td><td>'+esc(r.inspectorName||r.inspector||'Not assigned')+'</td><td>'+esc(r.fiDone||'Pending')+'</td><td>'+esc(r.qcDecision||'Pending')+'</td><td>'+esc(r.qcRemarks||'')+'</td></tr>').join('')+'</tbody></table></div>':'<div class="sw-empty">No FI name has been recorded on these job cards yet.</div>')+
    '</div></section>'+
    '<section class="sw-section"><div class="sw-title"><div><h3>'+esc(person)+' · Actual Revenue Report</h3><div class="sw-subtitle">Saved invoice amounts assigned to this employee · '+(daily?'Daily':'MTD')+' period</div></div></div><div class="sw-content">'+
    '<div class="sw-kpis">'+swKpi('Total actual revenue',money(revenue.grand),'Based on saved billing entries')+swKpi('Parts billed',money(revenue.parts))+swKpi('Labour billed',money(revenue.labour))+swKpi('Lubricant billed',money(revenue.lube))+swKpi('Billed job cards',employeeBills.length)+swKpi('Assigned jobs without billing',unbilledJobs,'Not included in actual revenue')+'</div>'+
