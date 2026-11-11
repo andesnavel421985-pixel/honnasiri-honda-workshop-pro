@@ -900,7 +900,7 @@ const SECTION_ORDER=[1,2,4,5,3,6,7];
 const sections=[['01','Customer & Vehicle',1],['02','Diagnosis & Repair',2],['03','Parts, Labour & Estimate',4],['04','Future Repairs',5],['05','Final Quality Check',3],['06','Customer Advisory',6],['07','Save & Report',7]];
 const nav=$('sectionNav');sections.forEach((item,i)=>{const b=document.createElement('button');b.type='button';b.className='sectionbtn'+(i===0?' active':'');b.innerHTML=`<strong>${item[0]}</strong><span>${item[1]}</span>`;b.onclick=()=>openSection(item[2]);nav.append(b)});
 function openSection(n){if(!SECTION_ORDER.includes(Number(n)))n=1;const sectionNumber=Number(n),orderIndex=SECTION_ORDER.indexOf(sectionNumber);document.querySelectorAll('.section').forEach(s=>s.classList.toggle('open',Number(s.dataset.section)===sectionNumber));document.querySelectorAll('.sectionbtn').forEach((b,i)=>b.classList.toggle('active',i===orderIndex));const target=document.querySelector(`.section[data-section="${sectionNumber}"]`);if(target)target.scrollIntoView({behavior:'smooth',block:'start'});}
-function installSectionControls(){document.querySelectorAll('#serviceForm > .section').forEach(sec=>{const n=Number(sec.dataset.section),idx=SECTION_ORDER.indexOf(n),isLast=idx===SECTION_ORDER.length-1;const bar=document.createElement('div');bar.className='toolbar section-controls no-print';bar.innerHTML=`<button type="button" class="section-save primary">Save Section</button><button type="button" class="section-edit">Edit</button><button type="button" class="section-prev" ${idx===0?'disabled':''}>← Previous</button><button type="button" class="section-close">Close</button><button type="button" class="section-next">${isLast?'Close':'Next →'}</button>`;sec.querySelector('.card').append(bar);bar.querySelector('.section-save').onclick=()=>saveDraftSection(n);bar.querySelector('.section-edit').onclick=()=>{openSection(n);const first=sec.querySelector('input:not([type=hidden]),select,textarea,button');if(first)first.focus({preventScroll:true})};bar.querySelector('.section-prev').onclick=()=>{if(idx>0&&saveDraftSection(n))openSection(SECTION_ORDER[idx-1])};bar.querySelector('.section-close').onclick=()=>{if(saveDraftSection(n)){sec.classList.remove('open');document.querySelectorAll('.sectionbtn').forEach(b=>b.classList.remove('active'))}};bar.querySelector('.section-next').onclick=()=>{
+function installSectionControls(){document.querySelectorAll('#serviceForm > .section').forEach(sec=>{const n=Number(sec.dataset.section),idx=SECTION_ORDER.indexOf(n),isLast=idx===SECTION_ORDER.length-1;const bar=document.createElement('div');bar.className='toolbar section-controls no-print';bar.innerHTML=`<button type="button" class="section-save primary">Save Section</button><button type="button" class="section-edit">Edit</button><button type="button" class="section-prev" ${idx===0?'disabled':''}>← Previous</button><button type="button" class="section-close">Close</button><button type="button" class="section-next">${isLast?'Close':'Next →'}</button>`;sec.querySelector('.card').append(bar);bar.querySelector('.section-save').onclick=async()=>{await saveDraftSection(n)};bar.querySelector('.section-edit').onclick=()=>{openSection(n);const first=sec.querySelector('input:not([type=hidden]),select,textarea,button');if(first)first.focus({preventScroll:true})};bar.querySelector('.section-prev').onclick=async()=>{if(idx>0&&await saveDraftSection(n))openSection(SECTION_ORDER[idx-1])};bar.querySelector('.section-close').onclick=async()=>{if(await saveDraftSection(n)){sec.classList.remove('open');document.querySelectorAll('.sectionbtn').forEach(b=>b.classList.remove('active'))}};bar.querySelector('.section-next').onclick=async()=>{
  const saved=saveDraftSection(n);
  if(!saved){
   const proceed=confirm('This section could not be saved to this device. Your current entries and photos are still in this open form, but they are not safely stored yet. Continue to the next section without saving? Keep the app open and do not refresh or close it until you resolve the storage issue.');
@@ -1231,9 +1231,62 @@ function getDeletedRecordIds(){try{const a=JSON.parse(localStorage.getItem(DELET
 function saveDeletedRecordIds(ids){localStorage.setItem(DELETED_RECORD_IDS_KEY,JSON.stringify([...new Set(ids.map(String))]))}
 function deleteSavedRecord(id){const row=records().find(x=>String(x.id)===String(id));if(!row)return;const label=[row.customer||'Customer not entered',row.jobcard||'No job card',row.model||'No model',row.date||'No date'].join(' · ');if(!confirm('Delete this saved service record permanently?\n\n'+label+'\n\nThis deletion will sync to your other device.'))return;saveDeletedRecordIds([...getDeletedRecordIds(),String(id)]);persist(records().filter(x=>String(x.id)!==String(id)));renderJobs();renderReports();driveStatus('Record deleted on this device. Press Sync Now to apply the deletion on your other device.','good')}
 
-function records(){try{return JSON.parse(localStorage.getItem(STORE)||'[]')}catch(e){return []}}
+let recordCache=null,recordDbPromise=null,recordDbActive=false;
+function openRecordDb(){
+ if(recordDbPromise)return recordDbPromise;
+ recordDbPromise=new Promise((resolve,reject)=>{
+  if(!('indexedDB'in window)){reject(new Error('This browser does not support IndexedDB'));return}
+  const request=indexedDB.open('HonnasiriHondaWorkshopDB',1);
+  request.onupgradeneeded=()=>{const db=request.result;if(!db.objectStoreNames.contains('serviceRecords'))db.createObjectStore('serviceRecords')};
+  request.onsuccess=()=>resolve(request.result);
+  request.onerror=()=>reject(request.error||new Error('Could not open IndexedDB'));
+ });
+ return recordDbPromise;
+}
+async function readRecordDb(){
+ const db=await openRecordDb();
+ return new Promise((resolve,reject)=>{
+  const tx=db.transaction('serviceRecords','readonly'),req=tx.objectStore('serviceRecords').get('all');
+  req.onsuccess=()=>resolve(Array.isArray(req.result)?req.result:null);
+  req.onerror=()=>reject(req.error||new Error('Could not read saved records'));
+ });
+}
+async function writeRecordDb(arr){
+ const db=await openRecordDb();
+ return new Promise((resolve,reject)=>{
+  const tx=db.transaction('serviceRecords','readwrite');
+  tx.objectStore('serviceRecords').put(arr,'all');
+  tx.oncomplete=()=>resolve(true);
+  tx.onerror=()=>reject(tx.error||new Error('Could not write saved records'));
+  tx.onabort=()=>reject(tx.error||new Error('IndexedDB save was cancelled'));
+ });
+}
+async function initRecordStorage(){
+ try{
+  const stored=await readRecordDb();
+  if(stored){recordCache=stored;recordDbActive=true;return}
+ }catch(e){console.warn('IndexedDB initialization:',e)}
+ try{recordCache=JSON.parse(localStorage.getItem(STORE)||'[]')}catch(e){recordCache=[]}
+}
+function records(){
+ if(Array.isArray(recordCache))return recordCache;
+ try{return JSON.parse(localStorage.getItem(STORE)||'[]')}catch(e){return []}
+}
 let suppressCloudSync=false;
-function persist(arr){localStorage.setItem(STORE,JSON.stringify(arr));if(!suppressCloudSync)scheduleDriveSync()}
+async function persist(arr){
+ recordCache=arr;
+ try{localStorage.setItem(STORE,JSON.stringify(arr))}
+ catch(storageError){
+  try{
+   await writeRecordDb(arr);recordDbActive=true;
+   const status=$('saveStatus');if(status){status.textContent='Saved safely using expanded device storage (IndexedDB).';status.className='success'}
+  }catch(dbError){
+   throw new Error('Device storage is full and expanded storage also failed: '+(dbError.message||storageError.message||'Unknown storage error'));
+  }
+ }
+ if(!suppressCloudSync)scheduleDriveSync();
+ return true;
+}
 
 // Google Drive sync: uses OAuth access tokens in memory only; no passwords or client secrets are stored.
 const GOOGLE_CLIENT_KEY='honnasiri_google_oauth_client_id_v1';
@@ -1269,8 +1322,8 @@ function updateCallCustomer(){callCustomerButton.disabled=customerPhoneDigits($(
 $('mobile').addEventListener('input',updateCallCustomer);
 callCustomerButton.onclick=()=>{const n=String($('mobile').value||'').trim();if(customerPhoneDigits(n).length>=7)window.location.href='tel:'+n.replace(/[^0-9+*#,;]/g,'')};
 
-function saveDraftSection(sectionNumber){try{const r=getRecord();r.isDraft=true;r.lastSavedSection=sectionNumber;const arr=records();const i=arr.findIndex(x=>x.id===r.id);if(i>=0)arr[i]={...arr[i],...r};else arr.push(r);persist(arr);$('recordId').value=r.id;const message='Section '+String(sectionNumber).padStart(2,'0')+' saved on this device at '+new Date().toLocaleTimeString()+'.';document.querySelectorAll('.section-save-status').forEach(x=>x.textContent='');const status=document.querySelector('.section[data-section="'+sectionNumber+'"] .section-save-status');if(status)status.textContent=message+' You can reopen this draft from Saved Records.';$('saveStatus').textContent=message;$('saveStatus').className='success';renderJobs();renderReports();return true}catch(err){const message='Save failed: '+(err&&err.name==='QuotaExceededError'?'Device storage is full. Remove large attachments or export a backup before continuing.':err.message||'Unknown storage error')+' Your current form remains open.';const status=document.querySelector('.section[data-section="'+sectionNumber+'"] .section-save-status');if(status)status.textContent=message;$('saveStatus').textContent=message;$('saveStatus').className='error';return false}}
-$('saveRecord').onclick=()=>{const f=$('serviceForm');if(!f.reportValidity()){const bad=f.querySelector(':invalid');const sec=bad?.closest('.section');if(sec)openSection(Number(sec.dataset.section));return}updateNextServiceDue();let r=getRecord();r.isDraft=false;r.completedAt=new Date().toISOString();const arr=records();const i=arr.findIndex(x=>x.id===r.id);if(i>=0)arr[i]=r;else arr.push(r);try{persist(arr)}catch(e){$('saveStatus').textContent='Save failed: '+e.message+' Your form has been kept open. Export a backup before retrying.';$('saveStatus').className='error';return}resetForm();openSection(1);$('saveStatus').textContent=driveAccessToken?'Job card '+(r.jobcard||'')+' saved on this device. Google Drive synchronization is starting.':'Job card '+(r.jobcard||'')+' saved on this device. Sign in with Google to synchronize it across devices.';$('saveStatus').className='success';renderJobs();renderReports();if(driveAccessToken){clearTimeout(driveSyncTimer);syncDriveNow()}};
+async function saveDraftSection(sectionNumber){try{const r=getRecord();r.isDraft=true;r.lastSavedSection=sectionNumber;const arr=records();const i=arr.findIndex(x=>x.id===r.id);if(i>=0)arr[i]={...arr[i],...r};else arr.push(r);await persist(arr);$('recordId').value=r.id;const message='Section '+String(sectionNumber).padStart(2,'0')+' saved on this device at '+new Date().toLocaleTimeString()+'.';document.querySelectorAll('.section-save-status').forEach(x=>x.textContent='');const status=document.querySelector('.section[data-section="'+sectionNumber+'"] .section-save-status');if(status)status.textContent=message+' You can reopen this draft from Saved Records.';$('saveStatus').textContent=message;$('saveStatus').className='success';renderJobs();renderReports();return true}catch(err){const message='Save failed: '+(err&&err.name==='QuotaExceededError'?'Device storage is full.':err.message||'Unknown storage error')+' Your current form remains open. Do not refresh or close it.';const status=document.querySelector('.section[data-section="'+sectionNumber+'"] .section-save-status');if(status)status.textContent=message;$('saveStatus').textContent=message;$('saveStatus').className='error';return false}}
+$('saveRecord').onclick=async()=>{const f=$('serviceForm');if(!f.reportValidity()){const bad=f.querySelector(':invalid');const sec=bad?.closest('.section');if(sec)openSection(Number(sec.dataset.section));return}updateNextServiceDue();let r=getRecord();r.isDraft=false;r.completedAt=new Date().toISOString();const arr=records();const i=arr.findIndex(x=>x.id===r.id);if(i>=0)arr[i]=r;else arr.push(r);try{await persist(arr)}catch(e){$('saveStatus').textContent='Save failed: '+e.message+' Your form has been kept open. Export a backup before retrying.';$('saveStatus').className='error';return}resetForm();openSection(1);$('saveStatus').textContent=driveAccessToken?'Job card '+(r.jobcard||'')+' saved on this device. Google Drive synchronization is starting.':'Job card '+(r.jobcard||'')+' saved on this device. Sign in with Google to synchronize it across devices.';$('saveStatus').className='success';renderJobs();renderReports();if(driveAccessToken){clearTimeout(driveSyncTimer);syncDriveNow()}};
 $('newRecord').onclick=()=>{if(!confirm('Start a new record? Save current changes first if needed.'))return;resetForm();openSection(1)};
 let customerVehicleSaveTimer=null;
 function scheduleCustomerVehicleAutosave(){clearTimeout(customerVehicleSaveTimer);customerVehicleSaveTimer=setTimeout(()=>{const hasIdentity=['customer','mobile','reg','model','jobcard'].some(id=>String(getVal(id)||'').trim());if(hasIdentity)saveDraftSection(1)},800)}
@@ -1618,7 +1671,7 @@ window.addEventListener('storage',event=>{if(event.key==='honnasiri-theme'&&['li
 
 let deferredInstallPrompt=null;function isStandalone(){return window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true}function updateInstallStatus(){const status=$('installStatus'),button=$('installAppButton');if(isStandalone()){status.textContent='App is installed on this device and running as an app.';button.textContent='Already Installed';button.disabled=true}else if(deferredInstallPrompt){status.textContent='Chrome has made the app installation prompt available. Tap Install App.';button.textContent='Install App';button.disabled=false}else{status.textContent='If the Install App button is unavailable, use Chrome menu ⋮ → Install app or Add to Home screen.';button.textContent='Install App';button.disabled=true}}window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;updateInstallStatus()});window.addEventListener('appinstalled',()=>{deferredInstallPrompt=null;updateInstallStatus();});$('installAppButton').onclick=async()=>{if(!deferredInstallPrompt){updateInstallStatus();return}deferredInstallPrompt.prompt();await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;updateInstallStatus()};async function refreshWorkshopApp(){try{if('serviceWorker'in navigator){const reg=await navigator.serviceWorker.getRegistration();if(reg)await reg.update()}window.location.reload()}catch(e){alert('Could not check for an update. Please reload Chrome.')}}$('refreshAppButton').onclick=refreshWorkshopApp;$('refreshAppButtonTop').onclick=refreshWorkshopApp;$('shareAppButton').onclick=async()=>{const url=location.href;if(navigator.share){try{await navigator.share({title:'Honnasiri Honda Workshop Pro',text:'Honnasiri Honda Workshop Pro · Dealer Code KA110003',url})}catch(e){}}else if(navigator.clipboard){await navigator.clipboard.writeText(url);alert('App link copied. Share it in WhatsApp.')}else{alert(url)}};
 function init(){updateCurrentDeviceName();applyTheme((()=>{try{return localStorage.getItem('honnasiri-theme')||'light'}catch(e){return 'light'}})(),false);installSectionControls();const d=today();$('date').value=d;$('reportDate').value=d;$('reportMonth').value=d.slice(0,7);addPart();addLabour();renderReports();loadGoogleConfig();if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});updateInstallStatus()}
-init();
+initRecordStorage().then(()=>init()).catch(err=>{console.error('Record storage initialization failed',err);init();});
 
 /* ULTRA PRO WORKFLOW MODULES - additive storage; existing service records are preserved. */
 (()=>{
