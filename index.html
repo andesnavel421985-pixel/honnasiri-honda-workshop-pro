@@ -766,7 +766,8 @@ body.dark button.danger,body.black button.danger{
 /* Remove obsolete VIN / registration lookup controls from Customer & Vehicle Details. */
 .field:has(#vinLookupStatus){display:none!important}
 </style>
-<style>.section-controls .section-close{white-space:normal}</style>\n</head>
+<style>.section-controls .section-close{white-space:normal}</style>
+</head>
 <body>
 <header class="premium-header"><div class="brand-lockup"><h1>HONNASIRI HONDA</h1><div class="brand-rule"></div><div class="staff-identity"><strong>ANDES NAVEL</strong><span>FLOOR CONTROLLER</span></div><p class="dealer-code">DEALER CODE: KA110003</p><p class="brand-subtitle">WORKSHOP PRO · SERVICE MANAGEMENT · TUMKUR</p></div><div class="header-actions"><button type="button" id="refreshAppButtonTop" aria-label="Check for app updates and refresh">↻ Refresh App</button></div></header>
 <div class="wrap">
@@ -1592,13 +1593,17 @@ function renderJobs(){
  const searchable=r=>[r.customer,r.mobile,r.reg,r.model,r.jobcard,r.date,r.km,r.requestType,r.requestTypeCustom,r.serviceType,r.amcType,r.workStatus,r.advisorName,r.technicianName,r.requestType,r.complaintCategory,...(r.customerRequests||[]),r.requestTypeCustom,r.complaint,r.finding,r.cause,r.action,r.verify,...(r.dtcEntries||[]).flatMap(x=>[x.blinkCount,x.code,x.circuit,x.notes]),...(r.specifications||[]).flatMap(x=>[x.parameter,x.standard,x.measured]),r.remarks,r.advisory,...(r.evidenceFiles||[]).map(x=>x.name)].map(x=>String(x||'')).join(' ').toLowerCase();
  // If the entered value exactly matches a job-card number, show only those job-card records.
  // This prevents digits inside a mobile number or another field from appearing as false matches.
- const exactJobcardMatches=q?all.filter(r=>String(r.jobcard||'').trim().toLowerCase()===q):[];
+ const normalizeJobcard=value=>String(value||'').trim().toLowerCase().replace(/[^a-z0-9]/g,'');
+ const normalizedQuery=normalizeJobcard(q);
+ const exactJobcardMatches=normalizedQuery?all.filter(r=>normalizeJobcard(r.jobcard)===normalizedQuery):[];
  const arr=(exactJobcardMatches.length?exactJobcardMatches:all.filter(r=>!q||searchable(r).includes(q))).sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));
  $('searchCount').textContent=arr.length+' matching saved record(s) · '+all.length+' total saved'+(exactJobcardMatches.length?' · Exact job card match':'');
  $('savedJobs').innerHTML=arr.length?arr.map(r=>'<div class="card search-result"><div class="summaryrow"><b>'+esc(r.customer||'Customer not entered')+'</b><span class="pill">'+(r.isDraft&&!r.completedAt?'DRAFT · ':'')+esc(r.date||'No date')+'</span></div><div class="summaryrow"><span>Vehicle</span><b>'+esc([r.model,r.reg].filter(Boolean).join(' · ')||'Not entered')+'</b></div><div class="summaryrow"><span>Mobile</span><b>'+esc(r.mobile||'Not entered')+'</b></div><div class="summaryrow"><span>Job card / Service</span><b>'+esc([r.jobcard,r.serviceType].filter(Boolean).join(' · '))+'</b></div><div class="summaryrow"><span>Technician / Status</span><b>'+esc([r.technicianName,r.workStatus].filter(Boolean).join(' · '))+'</b></div><div class="toolbar"><button type="button" class="primary continue-draft" data-record-id="'+esc(r.id)+'">Edit / Continue</button><button type="button" class="open-history" data-record-id="'+esc(r.id)+'">Open Full Service History</button><button type="button" class="call-history" data-phone="'+esc(r.mobile||'')+'" '+(customerPhoneDigits(r.mobile).length<7?'disabled':'')+'>☎ Call Customer</button><button type="button" class="danger delete-record" data-record-id="'+esc(r.id)+'">Delete Record</button></div></div>').join(''):'<div class="notice">No saved service records match this search.</div>';
 }
 
-$('mainSearchButton').onclick=()=>{const q=String($('mainSearchInput').value||'').trim();$('jobSearch').value=q;document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.view==='jobsView'));['formView','reportsView','jobsView','backupView','settingsView'].forEach(id=>$(id).classList.toggle('hidden',id!=='jobsView'));refreshDriveBeforeSearch();$('jobSearch').focus()};$('mainSearchInput').addEventListener('keydown',e=>{if(e.key==='Enter')$('mainSearchButton').click()});
+function openSavedRecordsSearch(){const q=String($('mainSearchInput').value||'').trim();$('jobSearch').value=q;document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.view==='jobsView'));['formView','reportsView','planningView','toolsView','revenueView','jobsView','backupView','settingsView'].forEach(id=>$(id).classList.toggle('hidden',id!=='jobsView'));renderJobs();$('jobSearch').focus();if(driveAccessToken)refreshDriveBeforeSearch().then(()=>{if(!$('jobsView').classList.contains('hidden'))renderJobs()}).catch(e=>driveStatus('Cloud search refresh failed: '+e.message+'. Showing records saved on this device.','warn'))}
+$('mainSearchButton').onclick=openSavedRecordsSearch;
+$('mainSearchInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();openSavedRecordsSearch()}});
 $('jobSearch').oninput=scheduleSearchRefresh;
 $('clearJobSearch').onclick=()=>{$('jobSearch').value='';renderJobs();$('jobSearch').focus()};
 $('savedJobs').addEventListener('click',e=>{const del=e.target.closest('.delete-record');if(del){if(del.disabled)return;del.disabled=true;deleteSavedRecord(del.dataset.recordId).finally(()=>{if(del.isConnected)del.disabled=false});return}const call=e.target.closest('.call-history');if(call){const n=call.dataset.phone||'';if(customerPhoneDigits(n).length>=7)window.location.href='tel:'+n.replace(/[^0-9+*#,;]/g,'');return}const edit=e.target.closest('.continue-draft');if(edit){const r=records().find(x=>x.id===edit.dataset.recordId);if(!r)return;loadRecord(r.id);openSection(SECTION_ORDER[Math.min(SECTION_ORDER.length-1,Math.max(0,SECTION_ORDER.indexOf(Number(r.lastSavedSection||1))+1))]);return}const b=e.target.closest('.open-history');if(b)loadRecord(b.dataset.recordId)});
