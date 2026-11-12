@@ -1,5 +1,5 @@
 const CACHE_PREFIX = "honnasiri-honda-";
-const CACHE_NAME = "honnasiri-honda-v58";
+const CACHE_NAME = "honnasiri-honda-v59";
 
 const APP_FILES = [
   "./",
