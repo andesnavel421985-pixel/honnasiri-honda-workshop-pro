@@ -1251,7 +1251,7 @@ const STORE='honnasiriHondaWorkshopProRecords_v1';
 const DELETED_RECORD_IDS_KEY='honnasiriHondaWorkshopProDeletedRecordIds_v1';
 function getDeletedRecordIds(){try{const a=JSON.parse(localStorage.getItem(DELETED_RECORD_IDS_KEY)||'[]');return Array.isArray(a)?a.map(String):[]}catch(e){return []}}
 function saveDeletedRecordIds(ids){localStorage.setItem(DELETED_RECORD_IDS_KEY,JSON.stringify([...new Set(ids.map(String))]))}
-function deleteSavedRecord(id){const row=records().find(x=>String(x.id)===String(id));if(!row)return;const label=[row.customer||'Customer not entered',row.jobcard||'No job card',row.model||'No model',row.date||'No date'].join(' · ');if(!confirm('Delete this saved service record permanently?\n\n'+label+'\n\nThis deletion will sync to your other device.'))return;saveDeletedRecordIds([...getDeletedRecordIds(),String(id)]);persist(records().filter(x=>String(x.id)!==String(id)));renderJobs();renderReports();driveStatus('Record deleted on this device. Press Sync Now to apply the deletion on your other device.','good')}
+async function deleteSavedRecord(id){const key=String(id||'');const current=records();const row=current.find(x=>String(x.id)===key);if(!row){renderJobs();return false}const label=[row.customer||'Customer not entered',row.jobcard||'No job card',row.model||'No model',row.date||'No date'].join(' · ');if(!confirm('Delete this saved service record permanently?\n\n'+label+'\n\nThis deletion will sync to your other device.'))return false;const remaining=current.filter(x=>String(x.id)!==key);try{saveDeletedRecordIds([...getDeletedRecordIds(),key]);await persist(remaining);renderJobs();renderReports();driveStatus('Record deleted successfully on this device. Sync Now will apply the deletion on your other device.','good');if(driveAccessToken){clearTimeout(driveSyncTimer);await syncDriveNow()}return true}catch(err){driveStatus('Delete failed: '+(err.message||'Storage error')+'. The record was not confirmed deleted.','warn');return false}}
 
 let recordCache=null,recordDbPromise=null,recordDbActive=false;
 function openRecordDb(){
@@ -1286,9 +1286,12 @@ async function writeRecordDb(arr){
 async function initRecordStorage(){
  try{
   const stored=await readRecordDb();
-  if(stored){recordCache=stored;recordDbActive=true;return}
- }catch(e){console.warn('IndexedDB initialization:',e)}
- try{recordCache=JSON.parse(localStorage.getItem(STORE)||'[]')}catch(e){recordCache=[]}
+  if(stored){recordCache=stored;recordDbActive=true}
+  else{try{recordCache=JSON.parse(localStorage.getItem(STORE)||'[]')}catch(e){recordCache=[]}}
+ }catch(e){console.warn('IndexedDB initialization:',e);try{recordCache=JSON.parse(localStorage.getItem(STORE)||'[]')}catch(err){recordCache=[]}}
+ const deleted=new Set(getDeletedRecordIds());
+ const filtered=(recordCache||[]).filter(r=>!deleted.has(String(r.id)));
+ if(filtered.length!==(recordCache||[]).length){recordCache=filtered;await persist(filtered)}
 }
 function records(){
  if(Array.isArray(recordCache))return recordCache;
@@ -1296,16 +1299,10 @@ function records(){
 }
 let suppressCloudSync=false;
 async function persist(arr){
- recordCache=arr;
- try{localStorage.setItem(STORE,JSON.stringify(arr))}
- catch(storageError){
-  try{
-   await writeRecordDb(arr);recordDbActive=true;
-   const status=$('saveStatus');if(status){status.textContent='Saved safely using expanded device storage (IndexedDB).';status.className='success'}
-  }catch(dbError){
-   throw new Error('Device storage is full and expanded storage also failed: '+(dbError.message||storageError.message||'Unknown storage error'));
-  }
- }
+ const clean=Array.isArray(arr)?arr.filter(r=>!new Set(getDeletedRecordIds()).has(String(r.id))):[];
+ try{localStorage.setItem(STORE,JSON.stringify(clean))}catch(storageError){if(!recordDbActive)throw new Error('Local storage write failed: '+(storageError.message||'Unknown storage error'))}
+ try{await writeRecordDb(clean);recordDbActive=true}catch(dbError){if(!localStorage.getItem(STORE))throw new Error('Could not save records to device storage: '+(dbError.message||'Unknown storage error'))}
+ recordCache=clean;
  if(!suppressCloudSync)scheduleDriveSync();
  return true;
 }
@@ -1603,7 +1600,7 @@ function renderJobs(){
 $('mainSearchButton').onclick=()=>{const q=String($('mainSearchInput').value||'').trim();$('jobSearch').value=q;document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.view==='jobsView'));['formView','reportsView','jobsView','backupView','settingsView'].forEach(id=>$(id).classList.toggle('hidden',id!=='jobsView'));refreshDriveBeforeSearch();$('jobSearch').focus()};$('mainSearchInput').addEventListener('keydown',e=>{if(e.key==='Enter')$('mainSearchButton').click()});
 $('jobSearch').oninput=scheduleSearchRefresh;
 $('clearJobSearch').onclick=()=>{$('jobSearch').value='';renderJobs();$('jobSearch').focus()};
-$('savedJobs').addEventListener('click',e=>{const del=e.target.closest('.delete-record');if(del){deleteSavedRecord(del.dataset.recordId);return}const call=e.target.closest('.call-history');if(call){const n=call.dataset.phone||'';if(customerPhoneDigits(n).length>=7)window.location.href='tel:'+n.replace(/[^0-9+*#,;]/g,'');return}const edit=e.target.closest('.continue-draft');if(edit){const r=records().find(x=>x.id===edit.dataset.recordId);if(!r)return;loadRecord(r.id);openSection(SECTION_ORDER[Math.min(SECTION_ORDER.length-1,Math.max(0,SECTION_ORDER.indexOf(Number(r.lastSavedSection||1))+1))]);return}const b=e.target.closest('.open-history');if(b)loadRecord(b.dataset.recordId)});
+$('savedJobs').addEventListener('click',e=>{const del=e.target.closest('.delete-record');if(del){if(del.disabled)return;del.disabled=true;deleteSavedRecord(del.dataset.recordId).finally(()=>{if(del.isConnected)del.disabled=false});return}const call=e.target.closest('.call-history');if(call){const n=call.dataset.phone||'';if(customerPhoneDigits(n).length>=7)window.location.href='tel:'+n.replace(/[^0-9+*#,;]/g,'');return}const edit=e.target.closest('.continue-draft');if(edit){const r=records().find(x=>x.id===edit.dataset.recordId);if(!r)return;loadRecord(r.id);openSection(SECTION_ORDER[Math.min(SECTION_ORDER.length-1,Math.max(0,SECTION_ORDER.indexOf(Number(r.lastSavedSection||1))+1))]);return}const b=e.target.closest('.open-history');if(b)loadRecord(b.dataset.recordId)});
 function csv(arr){const cols=['date','jobcard','reg','customer','mobile','model','km','serviceType','advisorName','technicianName','timeIn','timeOut','fiDone','delivery','inspector','qcDecision','qcCounts.ok','qcCounts.notOk','qcCounts.pending','totals.parts','totals.labour','totals.grand','totals.balance','complaint','finding','action','remarks'];const val=(r,k)=>k.split('.').reduce((a,p)=>a?.[p],r);return [cols.join(','),...arr.map(r=>cols.map(k=>`"${String(val(r,k)??'').replace(/"/g,'""')}"`).join(','))].join('\r\n')}
 function download(name,content,type){
  const blob=new Blob([content],{type:type||'application/octet-stream'});
