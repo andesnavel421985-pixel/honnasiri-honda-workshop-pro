@@ -752,6 +752,16 @@ body.dark button.danger,body.black button.danger{
 #advisoryServiceDueStatus{text-align:center;font-weight:600;line-height:1.45;margin:7px 0 0}
 \n/* Keep legacy calculation fields out of Customer & Vehicle Details. The live reminder is shown only in Customer Advisory. */\n#serviceDueLegacyStorage,[id="serviceDueLegacyStorage"]{display:none!important}\n.advisory-service-due .grid{align-items:stretch}\n.advisory-service-due input[readonly]{font-weight:800;color:#811735;background:linear-gradient(180deg,#fff 0%,#fff6f8 100%);border:1px solid #d7a0ad}\n</style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+/* UI removal requested: keep legacy values and calculations in stored records for
+   backward compatibility, but remove these inputs and the reminder panel from
+   the customer/vehicle intake workflow. */
+.field:has(> #frameNo),
+.field:has(> #manufactureYear),
+.field:has(> #manufactureMonth),
+.field:has(> #emissionStandard),
+.advisory-service-due { display:none !important; }
+</style>
 </head>
 <body>
 <header class="premium-header"><div class="brand-lockup"><h1>HONNASIRI HONDA</h1><div class="brand-rule"></div><div class="staff-identity"><strong>ANDES NAVEL</strong><span>FLOOR CONTROLLER</span></div><p class="dealer-code">DEALER CODE: KA110003</p><p class="brand-subtitle">WORKSHOP PRO · SERVICE MANAGEMENT · TUMKUR</p></div><div class="header-actions"><button type="button" id="refreshAppButtonTop" aria-label="Check for app updates and refresh">↻ Refresh App</button></div></header>
